@@ -1,0 +1,10 @@
+/.HA_VERSION
+/.storage/
+/.uuid
+/home-assistant.log
+/html5_push_registrations.conf
+/known_devices.yaml
+/secrets.yaml
+/www/google*.html
+/zones.yaml
+__pycache__/
