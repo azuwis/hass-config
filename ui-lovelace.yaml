@@ -207,13 +207,31 @@ views:
       - type: entities
         entities:
           - type: call-service
-            name: Reload Hass
+            name: Hass reload groups
             icon: mdi:home-assistant
-            action_name: Reload
-            service: script.hass_reload
+            action_name: Groups
+            service: group.reload
             service_data: {}
           - type: call-service
-            name: Restart Hass
+            name: Hass reload scripts
+            icon: mdi:home-assistant
+            action_name: Scripts
+            service: script.reload
+            service_data: {}
+          - type: call-service
+            name: Hass reload automations
+            icon: mdi:home-assistant
+            action_name: Autos
+            service: automation.reload
+            service_data: {}
+          - type: call-service
+            name: Hass reload core
+            icon: mdi:home-assistant
+            action_name: Core
+            service: homeassistant.reload_core_config
+            service_data: {}
+          - type: call-service
+            name: Hass restart
             icon: mdi:home-assistant
             action_name: Restart
             service: homeassistant.restart
