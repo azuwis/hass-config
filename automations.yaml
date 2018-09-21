@@ -48,10 +48,20 @@
     to: 'on'
     for: '00:02:00'
   action:
-    service: climate.set_operation_mode
-    data:
-      entity_id: climate.bedroom
-      operation_mode: 'off'
+    - service: climate.set_operation_mode
+      data:
+        entity_id: climate.bedroom
+        operation_mode: 'off'
+    - delay: '00:00:10'
+    - service: climate.set_operation_mode
+      data:
+        entity_id: climate.bedroom
+        operation_mode: 'off'
+    - delay: '00:00:10'
+    - service: climate.set_operation_mode
+      data:
+        entity_id: climate.bedroom
+        operation_mode: 'off'
 
 - id: climate_bedroom_auto_cool
   alias: Climate bedroom auto cool
