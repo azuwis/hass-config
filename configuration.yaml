@@ -34,14 +34,6 @@ logbook:
 sun:
 
 sensor:
-  - platform: filter
-    name: Bedroom humidity
-    entity_id: sensor.ht_bedroom_humidity
-    filters:
-      - filter: time_simple_moving_average
-        window_size: '00:30'
-        precision: 2
-
   - platform: season
     type: meteorological
 
