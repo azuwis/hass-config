@@ -190,6 +190,24 @@
 #     data:
 #       entity_id: switch.plug_switch
 
+- id: notify_home
+  alias: Notify home
+  trigger:
+    platform: state
+    entity_id:
+      - device_tracker.owntracks_2
+    from: not_home
+    to: home
+  condition:
+    condition: time
+    after: '8:00'
+    before: '21:00'
+  action:
+    service: notify.html5
+    data_template:
+      message: >-
+        {{ state_attr(trigger.entity_id, 'friendly_name') }} arrived home
+
 - id: theme_custom
   alias: Set custom theme at startup
   trigger:
@@ -224,21 +242,3 @@
     service: switch.turn_on
     data:
       entity_id: switch.water_heater
-
-- id: notify_home
-  alias: Notify home
-  trigger:
-    platform: state
-    entity_id:
-      - device_tracker.owntracks_2
-    from: not_home
-    to: home
-  condition:
-    condition: time
-    after: '8:00'
-    before: '21:00'
-  action:
-    service: notify.html5
-    data_template:
-      message: >-
-        {{ state_attr(trigger.entity_id, 'friendly_name') }} arrived home
