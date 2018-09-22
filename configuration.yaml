@@ -90,6 +90,12 @@ device_tracker:
     new_device_defaults:
       track_new_devices: no
 
+input_boolean:
+  moonlight_living_room:
+    name: Moonlight living room
+    initial: no
+    icon: mdi:weather-night
+
 light:
   - platform: yeelight
     devices:

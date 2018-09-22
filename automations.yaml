@@ -133,6 +133,68 @@
 #       brightness: >-
 #         {{ states.light.living_room.attributes.brightness + 50 }}
 
+- id: moonlight_living_room_auto_off
+  alias: Moonlight living room auto off
+  trigger:
+    platform: state
+    entity_id: binary_sensor.door_bedroom
+    to: 'off'
+  condition:
+    condition: time
+    after: '22:00'
+    before: '05:00'
+  action:
+    - service: input_boolean.turn_off
+      data:
+        entity_id: input_boolean.moonlight_living_room
+
+- id: moonlight_living_room_auto_on
+  alias: Moonlight living room auto on
+  trigger:
+    platform: state
+    entity_id: binary_sensor.door_bedroom
+    to: 'on'
+  condition:
+    condition: time
+    after: '22:00'
+    before: '05:00'
+  action:
+    - service: input_boolean.turn_on
+      data:
+        entity_id: input_boolean.moonlight_living_room
+
+- id: moonlight_living_room_off
+  alias: Moonlight living room off
+  hide_entity: yes
+  trigger:
+    platform: state
+    entity_id: input_boolean.moonlight_living_room
+    to: 'off'
+  action:
+    service: switch.turn_on
+    data:
+      entity_id: switch.flux_living_room
+
+- id: moonlight_living_room_on
+  alias: Moonlight living room on
+  hide_entity: yes
+  trigger:
+    platform: state
+    entity_id: input_boolean.moonlight_living_room
+    to: 'on'
+  action:
+    - service: switch.turn_off
+      data:
+        entity_id: switch.flux_living_room
+    - service: light.yeelight_set_mode
+      data:
+        entity_id: light.living_room
+        mode: moonlight
+    # - service: light.turn_on
+    #   entity_id: light.living_room
+    #   data:
+    #     brightness: 255
+
 - id: flux_living_room_light_on
   alias: Flux living room light on
   trigger:

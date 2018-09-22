@@ -157,6 +157,7 @@ views:
           entities:
             - light.living_room
             - switch.reading_living_room
+            - input_boolean.moonlight_living_room
             - switch.flux_living_room
 
       - type: conditional
