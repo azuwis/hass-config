@@ -269,9 +269,10 @@ zone: !include zones.yaml
 logger:
   default: warning
   logs:
-    braviarc.braviarc: critical
     urllib3.connectionpool: critical
+    # custom_components.climate.xiaomi_miio: debug
+    # custom_components.rhasspy_train: debug
+    # custom_components.stt_pocketsphinx: debug
     # homeassistant.components.binary_sensor.xiaomi_aqara: debug
     # homeassistant.components.xiaomi_aqara: debug
     # xiaomi_gateway: debug
-    # homeassistant.components.climate.xiaomi_miio: debug
