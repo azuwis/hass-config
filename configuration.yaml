@@ -168,7 +168,7 @@ switch:
       reading_living_room:
         friendly_name: Reading living room
         value_template: >-
-          {{ is_state('light.living_room', 'on') and is_state('switch.flux_living_room', 'off') }}
+          {{ is_state('light.living_room', 'on') and is_state('switch.flux_living_room', 'off') and state_attr('light.living_room', 'brightness') >= 160 }}
         icon_template: mdi:book-open-page-variant
         turn_on:
           - service: switch.turn_off
