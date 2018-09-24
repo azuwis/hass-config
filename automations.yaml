@@ -46,9 +46,12 @@
     platform: mqtt
     topic: zigbee2mqtt/button_2
   condition:
-    condition: template
-    value_template: >-
-      {{ trigger.payload_json.click == 'single' }}
+    - condition: template
+      value_template: >-
+        {{ trigger.payload_json.click == 'single' }}
+    - condition: time
+      after: '08:00'
+      before: '21:00'
   action:
     service: xiaomi_aqara.play_ringtone
     data:
