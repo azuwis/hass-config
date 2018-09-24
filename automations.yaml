@@ -90,14 +90,12 @@
     to: 'off'
     for: '00:00:10'
   condition:
-    condition: and
-    conditions:
-      - condition: numeric_state
-        entity_id: sensor.ht_bedroom_temperature
-        above: 26.5
-      - condition: numeric_state
-        entity_id: sensor.ht_outside_temperature
-        above: 26.5
+    - condition: numeric_state
+      entity_id: sensor.ht_bedroom_temperature
+      above: 26.5
+    - condition: numeric_state
+      entity_id: sensor.ht_outside_temperature
+      above: 26.5
   action:
     service: climate.set_operation_mode
     data:
@@ -160,14 +158,12 @@
       entity_id: binary_sensor.door_bedroom
       to: 'on'
   condition:
-    condition: and
-    conditions:
-      - condition: state
-        entity_id: light.living_room
-        state: 'on'
-      - condition: time
-        after: '22:00'
-        before: '05:00'
+    - condition: state
+      entity_id: light.living_room
+      state: 'on'
+    - condition: time
+      after: '22:00'
+      before: '05:00'
   action:
     service_template: >-
       input_boolean.turn_{{ states(trigger.entity_id) }}
@@ -254,10 +250,8 @@
 #     entity_id: binary_sensor.motion_bedroom
 #     to: 'on'
 #   condition:
-#     condition: and
-#     conditions:
-#       - condition: sun
-#         after: sunset
+#     - condition: sun
+#       after: sunset
 #   action:
 #     service: switch.turn_on
 #     data:
