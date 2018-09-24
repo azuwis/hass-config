@@ -80,6 +80,7 @@ climate:
 
 device_tracker:
   - platform: owntracks
+    max_gps_accuracy: 200
 
   - platform: ubus
     host: !secret ubus_host
