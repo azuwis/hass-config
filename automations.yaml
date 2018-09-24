@@ -40,6 +40,22 @@
     data:
       entity_id: switch.reading_living_room
 
+- id: button_2_single
+  alias: Button 2 single
+  trigger:
+    platform: mqtt
+    topic: zigbee2mqtt/button_2
+  condition:
+    condition: template
+    value_template: >-
+      {{ trigger.payload_json.click == 'single' }}
+  action:
+    service: xiaomi_aqara.play_ringtone
+    data:
+      gw_mac: !secret ac_partner_mac
+      ringtone_id: 10
+      ringtone_vol: 50
+
 - id: climate_bedroom_auto_off
   alias: Climate bedroom auto off
   trigger:
@@ -85,21 +101,19 @@
       entity_id: climate.bedroom
       operation_mode: cool
 
-# - id: cube_flip90
-#   alias: Cube flip90
-#   trigger:
-#     platform: mqtt
-#     topic: zigbee2mqtt/cube
-#   condition:
-#     condition: template
-#     value_template: >-
-#       {{ trigger.payload_json.action == 'flip90' }}
-#   action:
-#     service: xiaomi_aqara.play_ringtone
-#     data:
-#       gw_mac: !secret ac_partner_mac
-#       ringtone_id: 10
-#       ringtone_vol: 50
+- id: cube_flip90
+  alias: Cube flip90
+  trigger:
+    platform: mqtt
+    topic: zigbee2mqtt/cube
+  condition:
+    condition: template
+    value_template: >-
+      {{ trigger.payload_json.action == 'flip90' }}
+  action:
+    service: switch.toggle
+    data:
+      entity_id: switch.reading_living_room
 
 # - id: cube_rotate_left
 #   alias: Cube rotate left
