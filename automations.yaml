@@ -235,7 +235,7 @@
 #   alias: Nightlight bedroom auto off
 #   trigger:
 #     platform: state
-#     entity_id: binary_sensor.motion_bedroom
+#     entity_id: binary_sensor.motion_living_room
 #     to: 'off'
 #     for: '00:30:00'
 #   action:
@@ -247,7 +247,7 @@
 #   alias: Nightlight bedroom auto on
 #   trigger:
 #     platform: state
-#     entity_id: binary_sensor.motion_bedroom
+#     entity_id: binary_sensor.motion_living_room
 #     to: 'on'
 #   condition:
 #     - condition: sun
