@@ -39,6 +39,11 @@ views:
         elements:
           # living room
           - type: state-icon
+            entity: binary_sensor.motion_living_room
+            style:
+              top: 33%
+              left: 38%
+          - type: state-icon
             entity: binary_sensor.motion_sofas
             style:
               top: 15%
@@ -68,11 +73,6 @@ views:
               top: 17%
               left: 22%
           # bedroom
-          - type: state-icon
-            entity: binary_sensor.motion_living_room
-            style:
-              top: 66%
-              left: 18%
           - type: state-icon
             entity: binary_sensor.door_bedroom
             style:
