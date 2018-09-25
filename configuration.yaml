@@ -53,9 +53,18 @@ tts:
 
 binary_sensor:
   - platform: mqtt
-    name: motion_sofas
+    name: mqtt_motion_sofas
     state_topic: motion/sofas
     device_class: motion
+
+  - platform: template
+    sensors:
+      motion_sofas:
+        friendly_name: Motion sofas
+        value_template: >-
+          {{ is_state('binary_sensor.mqtt_motion_sofas', 'on') }}
+        delay_off: '00:10:00'
+        device_class: motion
 
 camera:
   - platform: mjpeg
