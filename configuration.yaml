@@ -52,6 +52,25 @@ tts:
   - platform: google
 
 binary_sensor:
+  # - platform: bayesian
+  #   name: Occupancy living room
+  #   prior: 0.5
+  #   probability_threshold: 0.8
+  #   device_class: occupancy
+  #   observations:
+  #     - platform: state
+  #       entity_id: binary_sensor.motion_living_room
+  #       prob_given_true: 0.9
+  #       to_state: 'on'
+  #     - platform: state
+  #       entity_id: binary_sensor.motion_dining_room
+  #       prob_given_true: 0.9
+  #       to_state: 'on'
+  #     - platform: state
+  #       entity_id: binary_sensor.motion_sofas
+  #       prob_given_true: 0.9
+  #       to_state: 'on'
+
   - platform: mqtt
     name: mqtt_motion_sofas
     state_topic: motion/sofas
