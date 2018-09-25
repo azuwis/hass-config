@@ -92,10 +92,10 @@
   condition:
     - condition: numeric_state
       entity_id: sensor.ht_bedroom_temperature
-      above: 26.5
+      above: 26.8
     - condition: numeric_state
       entity_id: sensor.ht_outside_temperature
-      above: 26.5
+      above: 26.8
   action:
     service: climate.set_operation_mode
     data:
@@ -163,7 +163,7 @@
       state: 'on'
     - condition: time
       after: '22:00'
-      before: '05:00'
+      before: '08:30'
   action:
     service_template: >-
       input_boolean.turn_{{ states(trigger.entity_id) }}
