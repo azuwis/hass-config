@@ -66,6 +66,14 @@ binary_sensor:
         delay_off: '00:10:00'
         device_class: motion
 
+      occupancy_living_room:
+        friendly_name: Occupancy living room
+        value_template: >-
+          {{ is_state('binary_sensor.motion_dining_room', 'on')
+             or is_state('binary_sensor.motion_living_room', 'on')
+             or is_state('binary_sensor.motion_sofas', 'on') }}
+        device_class: occupancy
+
 camera:
   - platform: mjpeg
     mjpeg_url: http://127.0.0.1:8081
