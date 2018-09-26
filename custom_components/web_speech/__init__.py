@@ -31,6 +31,7 @@ def async_setup(hass, config):
     chrome_options.add_argument('--disable-gpu')
     chrome_options.add_argument('--no-sandbox')
     chrome_options.add_argument('--single-process')
+    chrome_options.add_argument('--start-fullscreen')
     chrome_options.add_argument('--use-fake-ui-for-media-stream')
     chrome_options.add_argument('--user-data-dir=%s' % hass.config.path(DOMAIN))
 
