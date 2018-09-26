@@ -321,6 +321,8 @@ weather:
     name: Hangzhou
     woeid: 2132574
 
+web_speech:
+
 xiaomi_aqara:
   interface: !secret interface
   gateways:
