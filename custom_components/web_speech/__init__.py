@@ -3,6 +3,7 @@ Provide functionality to transform speech into text using chromedriver.
 """
 import asyncio
 import logging
+import subprocess
 import os.path
 
 _LOGGER = logging.getLogger(__name__)
@@ -23,6 +24,7 @@ def async_setup(hass, config):
 
     vdisplay = Xvfb(width=320, height=240)
     vdisplay.start()
+    subprocess.Popen(['pulseaudio'])
 
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument('--app=file://%s' % os.path.join(os.path.dirname(__file__), 'index.html'))
