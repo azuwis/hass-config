@@ -44,6 +44,8 @@ def async_setup(hass, config):
         'text': ''
     }
 
+    hass.states.async_set(STATE, 'idle', state_attrs)
+
     @asyncio.coroutine
     def async_listen(call):
         listen.click()
