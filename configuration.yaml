@@ -24,8 +24,48 @@ updater:
 # discovery:
 
 conversation:
+  intents:
+    turn_on:
+      - 打开{item}
+    turn_off:
+      - 关掉{item}
+      - 关闭{item}
 
 history:
+
+intent_script:
+  turn_on:
+    speech:
+      text: 已打开{{ item }}
+    action:
+      service: homeassistant.turn_on
+      data_template:
+        entity_id: >-
+          {% if item | regex_match('电视') %}
+            media_player.tv
+          {% elif item | regex_match('(客厅|吸顶)') %}
+            light.living_room
+          {% elif item | regex_match('空调') %}
+            switch.climate_living_room
+          {% elif item | regex_match('热水') %}
+            switch.water_heater
+          {% endif %}
+  turn_off:
+    speech:
+      text: 已关闭{{ item }}
+    action:
+      service: homeassistant.turn_off
+      data_template:
+        entity_id: >-
+          {% if item | regex_match('电视') %}
+            media_player.tv
+          {% elif item | regex_match('(客厅|吸顶)') %}
+            light.living_room
+          {% elif item | regex_match('空调') %}
+            switch.climate_living_room
+          {% elif item | regex_match('热水') %}
+            switch.water_heater
+          {% endif %}
 
 logbook:
 
