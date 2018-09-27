@@ -5,6 +5,7 @@
 /html5_push_registrations.conf
 /known_devices.yaml
 /secrets.yaml
+/web_speech/
 /www/google*.html
 /zones.yaml
 __pycache__/
