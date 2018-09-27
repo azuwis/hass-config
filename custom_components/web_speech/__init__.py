@@ -2,6 +2,7 @@
 Provide functionality to transform speech into text using chromedriver.
 """
 import asyncio
+import concurrent.futures
 import logging
 import subprocess
 import os.path
@@ -45,15 +46,24 @@ def async_setup(hass, config):
     }
 
     hass.states.async_set(STATE, 'idle', state_attrs)
+    loop = asyncio.get_event_loop()
 
     @asyncio.coroutine
     def async_listen(call):
+        def wait_element(timeout, id, value):
+            WebDriverWait(driver, timeout).until(
+                EC.text_to_be_present_in_element_value(
+                    (By.ID, id), value
+                )
+            )
+
         listen.click()
 
-        WebDriverWait(driver, 5).until(EC.text_to_be_present_in_element_value((By.ID, 'state'), 'listening'))
-        hass.states.async_set(STATE, 'listening', state_attrs)
+        with concurrent.futures.ThreadPoolExecutor() as pool:
+            yield from loop.run_in_executor(pool, wait_element, 5, 'state', 'listening')
+            hass.states.async_set(STATE, 'listening', state_attrs)
+            yield from loop.run_in_executor(pool, wait_element, 60, 'state', 'idle')
 
-        WebDriverWait(driver, 60).until(EC.text_to_be_present_in_element_value((By.ID, 'state'), 'idle'))
         text = driver.find_element_by_id('text').get_attribute('value')
         state_attrs['text'] = text
         hass.states.async_set(STATE, 'idle', state_attrs)
