@@ -366,3 +366,29 @@
     service: switch.turn_on
     data:
       entity_id: switch.water_heater
+
+- alias: Voice start
+  trigger:
+    platform: mqtt
+    topic: zigbee2mqtt/cube
+  condition:
+    condition: template
+    value_template: >-
+      {{ trigger.payload_json.action == 'shake' }}
+  action:
+    # - service: xiaomi_aqara.play_ringtone
+    #   data:
+    #     gw_mac: !secret ac_partner_mac
+    #     ringtone_id: 10
+    #     ringtone_vol: 20
+    - service: web_speech.listen
+
+- alias: Voice to conversation
+  trigger:
+    platform: event
+    event_type: speech_to_text
+  action:
+    service: conversation.process
+    data_template:
+      text: >-
+        {{ trigger.event.data['text'] }}
