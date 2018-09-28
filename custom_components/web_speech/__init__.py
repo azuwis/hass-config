@@ -4,8 +4,10 @@ Provide functionality to transform speech into text using chromedriver.
 import asyncio
 import concurrent.futures
 import logging
-import os.path
+import os
 import subprocess
+
+from homeassistant.const import EVENT_HOMEASSISTANT_STOP
 
 REQUIREMENTS = ['selenium==3.14.1', 'xvfbwrapper==0.2.9']
 
@@ -75,5 +77,16 @@ def async_setup(hass, config):
         })
 
     hass.services.async_register(DOMAIN, 'listen', async_listen)
+
+    def on_stop(event):
+        import glob
+        import shutil
+        import tempfile
+        tempdir = tempfile.gettempdir()
+        for path in glob.glob('{}/.org.chromium.Chromium.*'.format(tempdir)):
+            if os.path.isdir(path) and os.access(path, os.W_OK):
+                shutil.rmtree(path)
+
+    hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, on_stop)
 
     return True
