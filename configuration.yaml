@@ -362,6 +362,10 @@ weather:
     woeid: 2132574
 
 web_speech:
+  cleanup: yes                                                                  
+  lang: cmn-Hans-CN                                                             
+  pulseaudio: yes                                                             
+  xvfb: yes        
 
 xiaomi_aqara:
   interface: !secret interface
