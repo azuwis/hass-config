@@ -1,5 +1,4 @@
-- id: button_1_single
-  alias: Button single
+- alias: Button single
   trigger:
     platform: mqtt
     topic: zigbee2mqtt/button_1
@@ -12,8 +11,7 @@
     data:
       entity_id: light.living_room
 
-- id: button_1_double
-  alias: Button double
+- alias: Button double
   trigger:
     platform: mqtt
     topic: zigbee2mqtt/button_1
@@ -26,8 +24,7 @@
     data:
       entity_id: media_player.tv
 
-- id: button_1_long
-  alias: Button long
+- alias: Button long
   trigger:
     platform: mqtt
     topic: zigbee2mqtt/button_1
@@ -40,8 +37,7 @@
     data:
       entity_id: switch.reading_living_room
 
-- id: button_2_single
-  alias: Button 2 single
+- alias: Button 2 single
   trigger:
     platform: mqtt
     topic: zigbee2mqtt/button_2
@@ -59,8 +55,7 @@
       ringtone_id: 10
       ringtone_vol: 50
 
-- id: climate_bedroom_auto_off_when_cold
-  alias: Climate bedroom auto off when cold
+- alias: Climate bedroom auto off when cold
   trigger:
     platform: numeric_state
     entity_id: sensor.ht_bedroom_temperature
@@ -75,8 +70,7 @@
       entity_id: climate.bedroom
       operation_mode: 'off'
 
-- id: climate_bedroom_auto_off_when_door_open
-  alias: Climate bedroom auto off when door open
+- alias: Climate bedroom auto off when door open
   trigger:
     platform: state
     entity_id: binary_sensor.door_bedroom
@@ -98,8 +92,7 @@
         entity_id: climate.bedroom
         operation_mode: 'off'
 
-- id: climate_bedroom_auto_cool
-  alias: Climate bedroom auto cool
+- alias: Climate bedroom auto cool
   trigger:
     platform: state
     entity_id: binary_sensor.door_bedroom
@@ -118,8 +111,7 @@
       entity_id: climate.bedroom
       operation_mode: cool
 
-- id: cube_flip90
-  alias: Cube flip90
+- alias: Cube flip90
   trigger:
     platform: mqtt
     topic: zigbee2mqtt/cube
@@ -132,8 +124,7 @@
     data:
       entity_id: switch.reading_living_room
 
-# - id: cube_rotate_left
-#   alias: Cube rotate left
+# - alias: Cube rotate left
 #   trigger:
 #     platform: mqtt
 #     topic: zigbee2mqtt/cube
@@ -148,8 +139,7 @@
 #       brightness: >-
 #         {{ states.light.living_room.attributes.brightness - 50 }}
 
-# - id: cube_rotate_right
-#   alias: Cube rotate right
+# - alias: Cube rotate right
 #   trigger:
 #     platform: mqtt
 #     topic: zigbee2mqtt/cube
@@ -164,8 +154,7 @@
 #       brightness: >-
 #         {{ states.light.living_room.attributes.brightness + 50 }}
 
-- id: light_living_room_auto_off
-  alias: Light living room auto off
+- alias: Light living room auto off
   trigger:
     platform: state
     entity_id: binary_sensor.occupancy_living_room
@@ -180,8 +169,7 @@
     data:
       entity_id: light.living_room
 
-- id: light_living_room_auto_on
-  alias: Light living room auto on
+- alias: Light living room auto on
   trigger:
     platform: state
     entity_id: binary_sensor.occupancy_living_room
@@ -195,8 +183,7 @@
     data:
       entity_id: light.living_room
 
-- id: light_living_room_auto_on_midnight
-  alias: Light living room auto on midnight
+- alias: Light living room auto on midnight
   trigger:
     platform: state
     entity_id: binary_sensor.occupancy_living_room
@@ -211,8 +198,7 @@
       entity_id: light.living_room
       brightness: 1
 
-- id: moonlight_living_room_auto_off_door_open
-  alias: Moonlight living room auto off when door open
+- alias: Moonlight living room auto off when door open
   trigger:
     platform: state
     entity_id: binary_sensor.door_bedroom
@@ -230,8 +216,7 @@
     data:
       entity_id: input_boolean.moonlight_living_room
 
-- id: moonlight_living_room_auto_on_off
-  alias: Moonlight living room auto on off
+- alias: Moonlight living room auto on off
   trigger:
     - platform: state
       entity_id: binary_sensor.door_bedroom
@@ -252,8 +237,7 @@
     data:
       entity_id: input_boolean.moonlight_living_room
 
-- id: moonlight_living_room_off
-  alias: Moonlight living room off
+- alias: Moonlight living room off
   hide_entity: yes
   trigger:
     platform: state
@@ -264,8 +248,7 @@
     data:
       entity_id: switch.flux_living_room
 
-- id: moonlight_living_room_on
-  alias: Moonlight living room on
+- alias: Moonlight living room on
   hide_entity: yes
   trigger:
     platform: state
@@ -284,8 +267,7 @@
     #   data:
     #     brightness: 255
 
-- id: flux_living_room_light_on
-  alias: Flux living room light on
+- alias: Flux living room light on
   trigger:
     platform: state
     entity_id: light.living_room
@@ -299,8 +281,7 @@
     data:
       entity_id: switch.flux_living_room
 
-- id: flux_living_room_hass_started
-  alias: Flux living room hass started
+- alias: Flux living room hass started
   trigger:
     platform: homeassistant
     event: start
@@ -313,8 +294,7 @@
     data:
       entity_id: switch.flux_living_room
 
-# - id: nightlight_bedroom_auto_off
-#   alias: Nightlight bedroom auto off
+# - alias: Nightlight bedroom auto off
 #   trigger:
 #     platform: state
 #     entity_id: binary_sensor.motion_living_room
@@ -325,8 +305,7 @@
 #     data:
 #       entity_id: switch.plug_switch
 
-# - id: nightlight_bedroom_auto_on
-#   alias: Nightlight bedroom auto on
+# - alias: Nightlight bedroom auto on
 #   trigger:
 #     platform: state
 #     entity_id: binary_sensor.motion_living_room
@@ -339,8 +318,7 @@
 #     data:
 #       entity_id: switch.plug_switch
 
-- id: notify_home
-  alias: Notify home
+- alias: Notify home
   trigger:
     platform: state
     entity_id:
@@ -357,8 +335,7 @@
       message: >-
         {{ state_attr(trigger.entity_id, 'friendly_name') }} arrived home
 
-- id: theme_custom
-  alias: Set custom theme at startup
+- alias: Set custom theme at startup
   trigger:
     platform: homeassistant
     event: start
@@ -367,8 +344,7 @@
     data:
       name: custom
 
-- id: water_heater
-  alias: Water heater
+- alias: Water heater
   trigger:
     platform: sun
     event: sunset
@@ -378,8 +354,7 @@
     data:
       entity_id: switch.water_heater
 
-- id: water_heater_season
-  alias: Water heater season
+- alias: Water heater season
   trigger:
     platform: time
     at: '21:00:00'
