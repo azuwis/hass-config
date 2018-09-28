@@ -59,7 +59,7 @@
       ringtone_id: 10
       ringtone_vol: 50
 
-- id: climate_bedroom_auto_off_cold
+- id: climate_bedroom_auto_off_when_cold
   alias: Climate bedroom auto off when cold
   trigger:
     platform: numeric_state
@@ -75,7 +75,7 @@
       entity_id: climate.bedroom
       operation_mode: 'off'
 
-- id: climate_bedroom_auto_off_door_open
+- id: climate_bedroom_auto_off_when_door_open
   alias: Climate bedroom auto off when door open
   trigger:
     platform: state
@@ -195,7 +195,7 @@
     data:
       entity_id: light.living_room
 
-- id: light_living_room_auto_midnight
+- id: light_living_room_auto_on_midnight
   alias: Light living room auto on midnight
   trigger:
     platform: state
@@ -210,6 +210,25 @@
     data:
       entity_id: light.living_room
       brightness: 1
+
+- id: moonlight_living_room_auto_off_door_open
+  alias: Moonlight living room auto off when door open
+  trigger:
+    platform: state
+    entity_id: binary_sensor.door_bedroom
+    to: 'on'
+    for: '00:00:15'
+  condition:
+    - condition: state
+      entity_id: light.living_room
+      state: 'on'
+    - condition: time
+      after: '22:00'
+      before: '08:30'
+  action:
+    service: input_boolean.turn_off
+    data:
+      entity_id: input_boolean.moonlight_living_room
 
 - id: moonlight_living_room_auto_on_off
   alias: Moonlight living room auto on off
