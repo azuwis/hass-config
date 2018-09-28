@@ -164,8 +164,55 @@
 #       brightness: >-
 #         {{ states.light.living_room.attributes.brightness + 50 }}
 
-- id: moonlight_living_room_auto
-  alias: Moonlight living room auto
+- id: light_living_room_auto_off
+  alias: Light living room auto off
+  trigger:
+    platform: state
+    entity_id: binary_sensor.occupancy_living_room
+    to: 'off'
+    for: '00:03:00'
+  condition:
+    condition: time
+    after: '23:00'
+    before: '18:00'
+  action:
+    service: light.turn_off
+    data:
+      entity_id: light.living_room
+
+- id: light_living_room_auto_on
+  alias: Light living room auto on
+  trigger:
+    platform: state
+    entity_id: binary_sensor.occupancy_living_room
+    to: 'on'
+  condition:
+    condition: time
+    after: '07:00'
+    before: '00:00'
+  action:
+    service: light.turn_on
+    data:
+      entity_id: light.living_room
+
+- id: light_living_room_auto_midnight
+  alias: Light living room auto on midnight
+  trigger:
+    platform: state
+    entity_id: binary_sensor.occupancy_living_room
+    to: 'on'
+  condition:
+    condition: time
+    after: '00:00'
+    before: '07:00'
+  action:
+    service: light.turn_on
+    data:
+      entity_id: light.living_room
+      brightness: 1
+
+- id: moonlight_living_room_auto_on_off
+  alias: Moonlight living room auto on off
   trigger:
     - platform: state
       entity_id: binary_sensor.door_bedroom
