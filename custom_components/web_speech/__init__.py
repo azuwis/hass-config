@@ -6,8 +6,10 @@ import concurrent.futures
 import logging
 import os
 import subprocess
+import voluptuous as vol
 
 from homeassistant.const import EVENT_HOMEASSISTANT_STOP
+from homeassistant.helpers import intent, config_validation as cv
 
 REQUIREMENTS = ['selenium==3.14.1', 'xvfbwrapper==0.2.9']
 
@@ -16,6 +18,14 @@ _LOGGER = logging.getLogger(__name__)
 DOMAIN = 'web_speech'
 STATE = 'web_speech.web_speech'
 EVENT = 'speech_to_text'
+
+CONF_LANG = 'lang'
+
+CONFIG_SCHEMA = vol.Schema({
+    DOMAIN: vol.Schema({
+        vol.Optional(CONF_LANG): cv.string,
+    })
+}, extra=vol.ALLOW_EXTRA)
 
 
 @asyncio.coroutine
@@ -32,6 +42,9 @@ def async_setup(hass, config):
 
     url = 'file://{}'.format(os.path.join(
         os.path.dirname(__file__), 'index.html'))
+    lang = config[DOMAIN].get(CONF_LANG)
+    if (lang):
+        url = '{}?lang={}'.format(url, lang)
 
     options = webdriver.ChromeOptions()
     options.add_argument('--app={}'.format(url))

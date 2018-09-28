@@ -13,7 +13,11 @@
       var state = document.querySelector('#state');
 
       var recognition = new webkitSpeechRecognition();
-      recognition.lang = 'cmn-Hans-CN';
+
+      var lang = (new URL(document.location)).searchParams.get('lang')
+      if (lang) {
+        recognition.lang = lang;
+      }
 
       recognition.onaudiostart = function() {
         state.value = 'listening';
