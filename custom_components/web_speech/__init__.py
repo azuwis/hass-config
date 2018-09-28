@@ -22,13 +22,18 @@ EVENT = 'speech_to_text'
 CONF_CLEANUP = 'cleanup'
 CONF_LANG = 'lang'
 CONF_PULSEAUDIO = 'pulseaudio'
+CONF_URL = 'url'
 CONF_XVFB = 'xvfb'
+
+DEFAULT_URL = 'file://{}'.format(os.path.join(
+    os.path.dirname(__file__), 'index.html'))
 
 CONFIG_SCHEMA = vol.Schema({
     DOMAIN: vol.Schema({
         vol.Optional(CONF_CLEANUP, default=False): cv.boolean,
         vol.Optional(CONF_LANG): cv.string,
         vol.Optional(CONF_PULSEAUDIO, default=False): cv.boolean,
+        vol.Optional(CONF_URL, default=DEFAULT_URL): cv.string,
         vol.Optional(CONF_XVFB, default=False): cv.boolean
     })
 }, extra=vol.ALLOW_EXTRA)
@@ -48,8 +53,7 @@ def async_setup(hass, config):
     if (config[DOMAIN].get(CONF_PULSEAUDIO)):
         subprocess.Popen(['pulseaudio'])
 
-    url = 'file://{}'.format(os.path.join(
-        os.path.dirname(__file__), 'index.html'))
+    url = config[DOMAIN].get(CONF_URL)
     lang = config[DOMAIN].get(CONF_LANG)
     if (lang):
         url = '{}?lang={}'.format(url, lang)
