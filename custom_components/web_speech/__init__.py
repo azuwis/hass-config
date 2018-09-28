@@ -90,8 +90,8 @@ def async_setup(hass, config):
         if (running):
             _LOGGER.debug('skipped')
             return
-        listen.click()
         running = True
+        listen.click()
 
         with concurrent.futures.ThreadPoolExecutor() as pool:
             yield from loop.run_in_executor(
