@@ -9,7 +9,7 @@ import subprocess
 import voluptuous as vol
 
 from homeassistant.const import EVENT_HOMEASSISTANT_STOP
-from homeassistant.helpers import intent, config_validation as cv
+from homeassistant.helpers import config_validation as cv
 
 REQUIREMENTS = ['selenium==3.14.1', 'xvfbwrapper==0.2.9']
 
