@@ -90,11 +90,13 @@ def async_setup(hass, config):
         with concurrent.futures.ThreadPoolExecutor() as pool:
             yield from loop.run_in_executor(
                 pool, wait_element, 5, 'state', 'listening')
+            _LOGGER.debug('state: listening')
             hass.states.async_set(STATE, 'listening', state_attrs)
             yield from loop.run_in_executor(
                 pool, wait_element, 60, 'state', 'idle')
 
         text = driver.find_element_by_id('text').get_attribute('value')
+        _LOGGER.debug('state: idle, text: {}'.format(text))
         state_attrs['text'] = text
         hass.states.async_set(STATE, 'idle', state_attrs)
         hass.bus.async_fire(EVENT, {
