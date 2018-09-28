@@ -30,18 +30,20 @@ def async_setup(hass, config):
     vdisplay.start()
     subprocess.Popen(['pulseaudio'])
 
-    chrome_options = webdriver.ChromeOptions()
-    chrome_options.add_argument('--app=file://{}'.format(
-        os.path.join(os.path.dirname(__file__), 'index.html')))
-    chrome_options.add_argument('--disable-gpu')
-    chrome_options.add_argument('--no-sandbox')
-    chrome_options.add_argument('--single-process')
-    chrome_options.add_argument('--start-fullscreen')
-    chrome_options.add_argument('--use-fake-ui-for-media-stream')
-    chrome_options.add_argument('--user-data-dir={}'.format(
+    url = 'file://{}'.format(os.path.join(
+        os.path.dirname(__file__), 'index.html'))
+
+    options = webdriver.ChromeOptions()
+    options.add_argument('--app={}'.format(url))
+    options.add_argument('--disable-gpu')
+    options.add_argument('--no-sandbox')
+    options.add_argument('--single-process')
+    options.add_argument('--start-fullscreen')
+    options.add_argument('--use-fake-ui-for-media-stream')
+    options.add_argument('--user-data-dir={}'.format(
         hass.config.path(DOMAIN)))
 
-    driver = webdriver.Chrome(chrome_options=chrome_options)
+    driver = webdriver.Chrome(options=options)
     listen = driver.find_element_by_id('listen')
 
     state_attrs = {
