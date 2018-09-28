@@ -78,6 +78,7 @@ def async_setup(hass, config):
 
     hass.states.async_set(STATE, 'idle', state_attrs)
     loop = asyncio.get_event_loop()
+    running = False
 
     @asyncio.coroutine
     def async_listen(call):
@@ -85,24 +86,30 @@ def async_setup(hass, config):
             WebDriverWait(driver, timeout).until(
                 EC.text_to_be_present_in_element_value((By.ID, id), value))
 
+        nonlocal running
+        if (running):
+            _LOGGER.debug('skipped')
+            return
         listen.click()
+        running = True
 
         with concurrent.futures.ThreadPoolExecutor() as pool:
             yield from loop.run_in_executor(
                 pool, wait_element, 5, 'state', 'listening')
-            _LOGGER.debug('state: listening')
+            _LOGGER.debug('listening')
             hass.states.async_set(STATE, 'listening', state_attrs)
             yield from loop.run_in_executor(
                 pool, wait_element, 60, 'state', 'idle')
 
         text = driver.find_element_by_id('text').get_attribute('value')
-        _LOGGER.debug('state: idle, text: {}'.format(text))
+        _LOGGER.debug("idle, text: '{}'".format(text))
         state_attrs['text'] = text
         hass.states.async_set(STATE, 'idle', state_attrs)
         hass.bus.async_fire(EVENT, {
             'name': DOMAIN,
             'text': text
         })
+        running = False
 
     hass.services.async_register(DOMAIN, 'listen', async_listen)
 
