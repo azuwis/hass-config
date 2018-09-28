@@ -61,8 +61,7 @@ def async_setup(hass, config):
     options.add_argument('--single-process')
     options.add_argument('--start-fullscreen')
     options.add_argument('--use-fake-ui-for-media-stream')
-    options.add_argument('--user-data-dir={}'.format(
-        hass.config.path(DOMAIN)))
+    options.add_argument('--user-data-dir={}'.format(hass.config.path(DOMAIN)))
 
     driver = webdriver.Chrome(options=options)
     listen = driver.find_element_by_id('listen')
