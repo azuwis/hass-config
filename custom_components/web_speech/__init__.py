@@ -19,11 +19,17 @@ DOMAIN = 'web_speech'
 STATE = 'web_speech.web_speech'
 EVENT = 'speech_to_text'
 
+CONF_CLEANUP = 'cleanup'
 CONF_LANG = 'lang'
+CONF_PULSEAUDIO = 'pulseaudio'
+CONF_XVFB = 'xvfb'
 
 CONFIG_SCHEMA = vol.Schema({
     DOMAIN: vol.Schema({
+        vol.Optional(CONF_CLEANUP, default=False): cv.boolean,
         vol.Optional(CONF_LANG): cv.string,
+        vol.Optional(CONF_PULSEAUDIO, default=False): cv.boolean,
+        vol.Optional(CONF_XVFB, default=False): cv.boolean
     })
 }, extra=vol.ALLOW_EXTRA)
 
@@ -36,9 +42,11 @@ def async_setup(hass, config):
     from selenium.webdriver.support.ui import WebDriverWait
     from xvfbwrapper import Xvfb
 
-    vdisplay = Xvfb(width=320, height=240)
-    vdisplay.start()
-    subprocess.Popen(['pulseaudio'])
+    if (config[DOMAIN].get(CONF_XVFB)):
+        vdisplay = Xvfb(width=320, height=240)
+        vdisplay.start()
+    if (config[DOMAIN].get(CONF_PULSEAUDIO)):
+        subprocess.Popen(['pulseaudio'])
 
     url = 'file://{}'.format(os.path.join(
         os.path.dirname(__file__), 'index.html'))
@@ -102,6 +110,7 @@ def async_setup(hass, config):
             if os.path.isdir(path) and os.access(path, os.W_OK):
                 shutil.rmtree(path)
 
-    hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, on_stop)
+    if (config[DOMAIN].get(CONF_CLEANUP)):
+        hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, on_stop)
 
     return True
