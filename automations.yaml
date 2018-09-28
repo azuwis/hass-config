@@ -1,4 +1,4 @@
-- alias: Button single
+- alias: Button 1 single
   trigger:
     platform: mqtt
     topic: zigbee2mqtt/button_1
@@ -11,7 +11,7 @@
     data:
       entity_id: light.living_room
 
-- alias: Button double
+- alias: Button 1 double
   trigger:
     platform: mqtt
     topic: zigbee2mqtt/button_1
@@ -24,7 +24,7 @@
     data:
       entity_id: media_player.tv
 
-- alias: Button long
+- alias: Button 1 long
   trigger:
     platform: mqtt
     topic: zigbee2mqtt/button_1
@@ -55,7 +55,7 @@
       ringtone_id: 10
       ringtone_vol: 50
 
-- alias: Climate bedroom auto off when cold
+- alias: Climate bedroom off when cold
   trigger:
     platform: numeric_state
     entity_id: sensor.ht_bedroom_temperature
@@ -70,7 +70,7 @@
       entity_id: climate.bedroom
       operation_mode: 'off'
 
-- alias: Climate bedroom auto off when door open
+- alias: Climate bedroom off when door open
   trigger:
     platform: state
     entity_id: binary_sensor.door_bedroom
@@ -92,7 +92,7 @@
         entity_id: climate.bedroom
         operation_mode: 'off'
 
-- alias: Climate bedroom auto cool
+- alias: Climate bedroom cool when door close
   trigger:
     platform: state
     entity_id: binary_sensor.door_bedroom
@@ -154,7 +154,7 @@
 #       brightness: >-
 #         {{ states.light.living_room.attributes.brightness + 50 }}
 
-- alias: Light living room auto off
+- alias: Light living room off when occupancy off
   trigger:
     platform: state
     entity_id: binary_sensor.occupancy_living_room
@@ -169,7 +169,7 @@
     data:
       entity_id: light.living_room
 
-- alias: Light living room auto on
+- alias: Light living room on when occupancy on
   trigger:
     platform: state
     entity_id: binary_sensor.occupancy_living_room
@@ -183,7 +183,7 @@
     data:
       entity_id: light.living_room
 
-- alias: Light living room auto on midnight
+- alias: Light living room on when occupancy on midnight
   trigger:
     platform: state
     entity_id: binary_sensor.occupancy_living_room
@@ -198,7 +198,7 @@
       entity_id: light.living_room
       brightness: 1
 
-- alias: Moonlight living room auto off when door open
+- alias: Moonlight living room off when door open
   trigger:
     platform: state
     entity_id: binary_sensor.door_bedroom
@@ -216,7 +216,7 @@
     data:
       entity_id: input_boolean.moonlight_living_room
 
-- alias: Moonlight living room auto on off
+- alias: Moonlight living room on off when door on off
   trigger:
     - platform: state
       entity_id: binary_sensor.door_bedroom
@@ -267,7 +267,7 @@
     #   data:
     #     brightness: 255
 
-- alias: Flux living room light on
+- alias: Flux living room on when light on
   trigger:
     platform: state
     entity_id: light.living_room
@@ -281,7 +281,7 @@
     data:
       entity_id: switch.flux_living_room
 
-- alias: Flux living room hass started
+- alias: Flux living room on when hass start
   trigger:
     platform: homeassistant
     event: start
