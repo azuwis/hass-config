@@ -19,6 +19,7 @@ DOMAIN = 'web_speech'
 STATE = 'web_speech.web_speech'
 EVENT = 'speech_to_text'
 
+CONF_CHROMEDRIVER_PATH = 'chromedriver_path'
 CONF_CLEANUP = 'cleanup'
 CONF_LANG = 'lang'
 CONF_PULSEAUDIO = 'pulseaudio'
@@ -30,6 +31,7 @@ DEFAULT_URL = 'file://{}'.format(os.path.join(
 
 CONFIG_SCHEMA = vol.Schema({
     DOMAIN: vol.Schema({
+        vol.Optional(CONF_CHROMEDRIVER_PATH, default='chromedriver'): cv.string,
         vol.Optional(CONF_CLEANUP, default=False): cv.boolean,
         vol.Optional(CONF_LANG): cv.string,
         vol.Optional(CONF_PULSEAUDIO, default=False): cv.boolean,
@@ -71,7 +73,9 @@ def async_setup(hass, config):
     if (config[DOMAIN].get(CONF_PULSEAUDIO)):
         subprocess.Popen(['pulseaudio'])
 
-    driver = webdriver.Chrome(options=options)
+    driver = webdriver.Chrome(
+        executable_path=config[DOMAIN].get(CONF_CHROMEDRIVER_PATH),
+        options=options)
 
     state_attrs = {
         'friendly_name': 'Speech to Text',
