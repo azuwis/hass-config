@@ -85,9 +85,9 @@ def async_setup(hass, config):
 
     @asyncio.coroutine
     def async_listen(call):
-        def wait_element(timeout, id, value):
+        def wait_element(timeout, id, text):
             WebDriverWait(driver, timeout).until(
-                EC.text_to_be_present_in_element_value((By.ID, id), value))
+                EC.text_to_be_present_in_element((By.ID, id), text))
 
         nonlocal running
         if (running):
@@ -105,7 +105,7 @@ def async_setup(hass, config):
                 yield from loop.run_in_executor(
                     pool, wait_element, 60, 'state', 'idle')
 
-            text = driver.find_element_by_id('text').get_attribute('value')
+            text = driver.find_element_by_id('text').get_attribute('textContent')
             _LOGGER.debug("idle, text: '{}'".format(text))
             state_attrs['text'] = text
             hass.states.async_set(STATE, 'idle', state_attrs)

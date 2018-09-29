@@ -5,9 +5,9 @@
     <title>Speech</title>
   </head>
   <body>
-    <button id="listen" onclick="recognition.start()">listen</button><br>
-    state <input id="state" type="text" value="idle" /><br>
-    text <input id="text" type="text" value="" />
+    <div>state: <span id="state">idle</span></div>
+    <div>text: <span id="text"></span></div>
+    <button id="listen" onclick="recognition.start()">listen</button>
     <script>
       var text = document.querySelector('#text');
       var state = document.querySelector('#state');
@@ -20,17 +20,17 @@
       }
 
       recognition.onaudiostart = function() {
-        state.value = 'listening';
-        text.value = '';
+        state.textContent = 'listening';
+        text.textContent = '';
       }
 
       recognition.onaudioend = function() {
-        state.value = 'idle';
+        state.textContent = 'idle';
       }
 
       recognition.onresult = function(event) {
         var result = event.results[0][0].transcript;
-        text.value = result;
+        text.textContent = result;
       }
     </script>
   </body>
