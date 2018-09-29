@@ -362,6 +362,7 @@ weather:
     woeid: 2132574
 
 web_speech:
+  chrome_extra_args: --enable-low-end-device-mode --no-sandbox --single-process
   cleanup: yes
   lang: cmn-Hans-CN
   pulseaudio: yes
