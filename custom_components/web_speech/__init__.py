@@ -72,7 +72,6 @@ def async_setup(hass, config):
         subprocess.Popen(['pulseaudio'])
 
     driver = webdriver.Chrome(options=options)
-    listen = driver.find_element_by_id('listen')
 
     state_attrs = {
         'friendly_name': 'Speech to Text',
@@ -95,7 +94,7 @@ def async_setup(hass, config):
             _LOGGER.debug('skipped')
             return
         running = True
-        listen.click()
+        driver.execute_script('recognition.start()')
 
         try:
             with concurrent.futures.ThreadPoolExecutor() as pool:
