@@ -20,6 +20,7 @@ STATE = 'web_speech.web_speech'
 EVENT = 'speech_to_text'
 
 CONF_CHROMEDRIVER_PATH = 'chromedriver_path'
+CONF_CHROME_EXTRA_ARGS = 'chrome_extra_args'
 CONF_CLEANUP = 'cleanup'
 CONF_LANG = 'lang'
 CONF_PULSEAUDIO = 'pulseaudio'
@@ -32,6 +33,7 @@ DEFAULT_URL = 'file://{}'.format(os.path.join(
 CONFIG_SCHEMA = vol.Schema({
     DOMAIN: vol.Schema({
         vol.Optional(CONF_CHROMEDRIVER_PATH, default='chromedriver'): cv.string,
+        vol.Optional(CONF_CHROME_EXTRA_ARGS): cv.string,
         vol.Optional(CONF_CLEANUP, default=False): cv.boolean,
         vol.Optional(CONF_LANG): cv.string,
         vol.Optional(CONF_PULSEAUDIO, default=False): cv.boolean,
@@ -55,6 +57,11 @@ def async_setup(hass, config):
     options.add_argument('--single-process')
     options.add_argument('--use-fake-ui-for-media-stream')
     options.add_argument('--user-data-dir={}'.format(hass.config.path(DOMAIN)))
+
+    chrome_extra_args = config[DOMAIN].get(CONF_CHROME_EXTRA_ARGS)
+    if (chrome_extra_args):
+        for arg in chrome_extra_args.split():
+            options.add_argument(arg)
 
     url = config[DOMAIN].get(CONF_URL)
     lang = config[DOMAIN].get(CONF_LANG)
