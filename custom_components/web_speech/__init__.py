@@ -62,7 +62,7 @@ def async_setup(hass, config):
 
     if (config[DOMAIN].get(CONF_XVFB)):
         options.add_argument('--start-fullscreen')
-        vdisplay = Xvfb(width=320, height=240)
+        vdisplay = Xvfb(width=320, height=180, colordepth=8)
         vdisplay.start()
     if (config[DOMAIN].get(CONF_PULSEAUDIO)):
         subprocess.Popen(['pulseaudio'])
