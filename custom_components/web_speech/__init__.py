@@ -53,8 +53,6 @@ def async_setup(hass, config):
 
     options = webdriver.ChromeOptions()
     options.add_argument('--disable-gpu')
-    options.add_argument('--no-sandbox')
-    options.add_argument('--single-process')
     options.add_argument('--use-fake-ui-for-media-stream')
     options.add_argument('--user-data-dir={}'.format(hass.config.path(DOMAIN)))
 
