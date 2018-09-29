@@ -47,25 +47,25 @@ def async_setup(hass, config):
     from selenium.webdriver.support.ui import WebDriverWait
     from xvfbwrapper import Xvfb
 
-    if (config[DOMAIN].get(CONF_XVFB)):
-        vdisplay = Xvfb(width=320, height=240)
-        vdisplay.start()
-    if (config[DOMAIN].get(CONF_PULSEAUDIO)):
-        subprocess.Popen(['pulseaudio'])
+    options = webdriver.ChromeOptions()
+    options.add_argument('--disable-gpu')
+    options.add_argument('--no-sandbox')
+    options.add_argument('--single-process')
+    options.add_argument('--use-fake-ui-for-media-stream')
+    options.add_argument('--user-data-dir={}'.format(hass.config.path(DOMAIN)))
 
     url = config[DOMAIN].get(CONF_URL)
     lang = config[DOMAIN].get(CONF_LANG)
     if (lang):
         url = '{}?lang={}'.format(url, lang)
-
-    options = webdriver.ChromeOptions()
     options.add_argument('--app={}'.format(url))
-    options.add_argument('--disable-gpu')
-    options.add_argument('--no-sandbox')
-    options.add_argument('--single-process')
-    options.add_argument('--start-fullscreen')
-    options.add_argument('--use-fake-ui-for-media-stream')
-    options.add_argument('--user-data-dir={}'.format(hass.config.path(DOMAIN)))
+
+    if (config[DOMAIN].get(CONF_XVFB)):
+        options.add_argument('--start-fullscreen')
+        vdisplay = Xvfb(width=320, height=240)
+        vdisplay.start()
+    if (config[DOMAIN].get(CONF_PULSEAUDIO)):
+        subprocess.Popen(['pulseaudio'])
 
     driver = webdriver.Chrome(options=options)
     listen = driver.find_element_by_id('listen')
