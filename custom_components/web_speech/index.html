@@ -14,7 +14,7 @@
 
       var recognition = new webkitSpeechRecognition();
 
-      var lang = (new URL(document.location)).searchParams.get('lang')
+      var lang = (new URL(document.location)).searchParams.get('lang');
       if (lang) {
         recognition.lang = lang;
       }
@@ -22,16 +22,16 @@
       recognition.onaudiostart = function() {
         state.textContent = 'listening';
         text.textContent = '';
-      }
+      };
 
       recognition.onaudioend = function() {
         state.textContent = 'idle';
-      }
+      };
 
       recognition.onresult = function(event) {
         var result = event.results[0][0].transcript;
         text.textContent = result;
-      }
+      };
     </script>
   </body>
 </html>
