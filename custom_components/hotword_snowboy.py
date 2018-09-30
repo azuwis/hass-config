@@ -100,6 +100,7 @@ def async_setup(hass, config):
         def detect():
             def callback():
                 # Fire detected event
+                _LOGGER.debug('hotword detected')
                 hass.bus.async_fire(EVENT_HOTWORD_DETECTED, {
                     'name': name,       # name of the component
                     'model': model      # model used
