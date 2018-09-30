@@ -367,23 +367,70 @@
     data:
       entity_id: switch.water_heater
 
-- alias: Voice start
-  trigger:
-    platform: mqtt
-    topic: zigbee2mqtt/cube
-  condition:
-    condition: template
-    value_template: >-
-      {{ trigger.payload_json.action == 'shake' }}
-  action:
-    # - service: xiaomi_aqara.play_ringtone
-    #   data:
-    #     gw_mac: !secret ac_partner_mac
-    #     ringtone_id: 10
-    #     ringtone_vol: 20
-    - service: web_speech.listen
+##### Voice #####
 
-- alias: Voice to conversation
+- alias: Start hotword detection when hass start
+  trigger:
+    platform: homeassistant
+    event: start
+  condition:
+    condition: state
+    entity_id: device_tracker.owntracks_1
+    state: home
+  action:
+    service: hotword_snowboy.listen
+
+- alias: Start hotword detection when home
+  trigger:
+    platform: state
+    entity_id: device_tracker.owntracks_1
+    to: home
+  condition:
+    condition: state
+    entity_id:  hotword_snowboy.decoder
+    state: idle
+  action:
+    service: hotword_snowboy.listen
+
+- alias: Stop hotword detection when away
+  trigger:
+    platform: state
+    entity_id: device_tracker.owntracks_1
+    to: not_home
+  action:
+    service: hotword_snowboy.terminate
+
+- alias: Hotword activate web speech
+  trigger:
+    platform: event
+    event_type: hotword_detected
+  action:
+    service: web_speech.listen
+
+# - alias: Voice start
+#   trigger:
+#     platform: mqtt
+#     topic: zigbee2mqtt/cube
+#   condition:
+#     condition: template
+#     value_template: >-
+#       {{ trigger.payload_json.action == 'shake' }}
+#   action:
+#     - service: xiaomi_aqara.play_ringtone
+#       data:
+#         gw_mac: !secret ac_partner_mac
+#         ringtone_id: 10
+#         ringtone_vol: 20
+#     - service: web_speech.listen
+
+- alias: Start hotword detection when web speech finish
+  trigger:
+    platform: event
+    event_type: speech_to_text
+  action:
+    service: hotword_snowboy.listen
+
+- alias: Process conversation
   trigger:
     platform: event
     event_type: speech_to_text
