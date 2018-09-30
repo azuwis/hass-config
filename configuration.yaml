@@ -386,6 +386,7 @@ logger:
   default: warning
   logs:
     urllib3.connectionpool: critical
+    custom_components.hotword_snowboy: debug
     custom_components.web_speech: debug
     # custom_components.climate.xiaomi_miio: debug
     # custom_components.rhasspy_train: debug
