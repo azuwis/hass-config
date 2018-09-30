@@ -1,3 +1,5 @@
+##### Button #####
+
 - alias: Button 1 single
   trigger:
     platform: mqtt
@@ -55,6 +57,51 @@
       ringtone_id: 10
       ringtone_vol: 50
 
+- alias: Cube flip90
+  trigger:
+    platform: mqtt
+    topic: zigbee2mqtt/cube
+  condition:
+    condition: template
+    value_template: >-
+      {{ trigger.payload_json.action == 'flip90' }}
+  action:
+    service: switch.toggle
+    data:
+      entity_id: switch.reading_living_room
+
+# - alias: Cube rotate left
+#   trigger:
+#     platform: mqtt
+#     topic: zigbee2mqtt/cube
+#   condition:
+#     condition: template
+#     value_template: >-
+#       {{ trigger.payload_json.action == 'rotate_left' }}
+#   action:
+#     service: light.turn_on
+#     entity_id: light.living_room
+#     data_template:
+#       brightness: >-
+#         {{ states.light.living_room.attributes.brightness - 50 }}
+
+# - alias: Cube rotate right
+#   trigger:
+#     platform: mqtt
+#     topic: zigbee2mqtt/cube
+#   condition:
+#     condition: template
+#     value_template: >-
+#       {{ trigger.payload_json.action == 'rotate_right' }}
+#   action:
+#     service: light.turn_on
+#     entity_id: light.living_room
+#     data_template:
+#       brightness: >-
+#         {{ states.light.living_room.attributes.brightness + 50 }}
+
+##### Climate #####
+
 - alias: Climate bedroom off when cold
   trigger:
     platform: numeric_state
@@ -111,48 +158,18 @@
       entity_id: climate.bedroom
       operation_mode: cool
 
-- alias: Cube flip90
+##### HomeAssistant #####
+
+- alias: Set custom theme at startup
   trigger:
-    platform: mqtt
-    topic: zigbee2mqtt/cube
-  condition:
-    condition: template
-    value_template: >-
-      {{ trigger.payload_json.action == 'flip90' }}
+    platform: homeassistant
+    event: start
   action:
-    service: switch.toggle
+    service: frontend.set_theme
     data:
-      entity_id: switch.reading_living_room
+      name: custom
 
-# - alias: Cube rotate left
-#   trigger:
-#     platform: mqtt
-#     topic: zigbee2mqtt/cube
-#   condition:
-#     condition: template
-#     value_template: >-
-#       {{ trigger.payload_json.action == 'rotate_left' }}
-#   action:
-#     service: light.turn_on
-#     entity_id: light.living_room
-#     data_template:
-#       brightness: >-
-#         {{ states.light.living_room.attributes.brightness - 50 }}
-
-# - alias: Cube rotate right
-#   trigger:
-#     platform: mqtt
-#     topic: zigbee2mqtt/cube
-#   condition:
-#     condition: template
-#     value_template: >-
-#       {{ trigger.payload_json.action == 'rotate_right' }}
-#   action:
-#     service: light.turn_on
-#     entity_id: light.living_room
-#     data_template:
-#       brightness: >-
-#         {{ states.light.living_room.attributes.brightness + 50 }}
+##### Light #####
 
 - alias: Light living room off when occupancy off
   trigger:
@@ -318,6 +335,8 @@
 #     data:
 #       entity_id: switch.plug_switch
 
+##### Notification #####
+
 - alias: Notify home
   trigger:
     platform: state
@@ -335,14 +354,7 @@
       message: >-
         {{ state_attr(trigger.entity_id, 'friendly_name') }} arrived home
 
-- alias: Set custom theme at startup
-  trigger:
-    platform: homeassistant
-    event: start
-  action:
-    service: frontend.set_theme
-    data:
-      name: custom
+##### Water heater #####
 
 - alias: Water heater
   trigger:
