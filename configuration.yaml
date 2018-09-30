@@ -33,6 +33,9 @@ conversation:
 
 history:
 
+hotword_snowboy:
+  model: snowboy/alexa.umdl
+
 intent_script:
   turn_on:
     speech:
