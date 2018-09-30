@@ -103,9 +103,9 @@ def async_setup(hass, config):
             _LOGGER.debug('skipped')
             return
         running = True
-        driver.execute_script('recognition.start()')
 
         try:
+            driver.execute_script('recognition.start()')
             with concurrent.futures.ThreadPoolExecutor() as pool:
                 yield from loop.run_in_executor(
                     pool, wait_element, 2, 'state', 'listening')
