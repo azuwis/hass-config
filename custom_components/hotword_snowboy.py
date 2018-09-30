@@ -55,6 +55,8 @@ CONFIG_SCHEMA = vol.Schema({
 
 SERVICE_LISTEN = 'listen'
 
+SERVICE_TERMINATE = 'terminate'
+
 # Represents the hotword detector
 OBJECT_SNOWBOY = '%s.decoder' % DOMAIN
 
@@ -123,6 +125,7 @@ def async_setup(hass, config):
         if detector != None:
             detector.terminate()
 
+    hass.services.async_register(DOMAIN, SERVICE_TERMINATE, async_terminate)
     hass.bus.async_listen(EVENT_HOMEASSISTANT_STOP, async_terminate)
 
     _LOGGER.info('Started')
