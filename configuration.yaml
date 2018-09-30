@@ -25,9 +25,9 @@ updater:
 
 conversation:
   intents:
-    turn_on:
+    TurnOn:
       - 打开{item}
-    turn_off:
+    TurnOff:
       - 关掉{item}
       - 关闭{item}
 
@@ -37,7 +37,8 @@ hotword_snowboy:
   model: snowboy/alexa.umdl
 
 intent_script:
-  turn_on:
+  TurnOn:
+    async_action: yes
     speech:
       text: 已打开{{ item }}
     action:
@@ -53,7 +54,8 @@ intent_script:
           {% elif item | regex_match('热水') %}
             switch.water_heater
           {% endif %}
-  turn_off:
+  TurnOff:
+    async_action: yes
     speech:
       text: 已关闭{{ item }}
     action:
