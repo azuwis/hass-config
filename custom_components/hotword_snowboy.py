@@ -73,6 +73,8 @@ EVENT_HOTWORD_DETECTED = 'hotword_detected'
 def async_setup(hass, config):
     name = config[DOMAIN].get(CONF_NAME, DEFAULT_NAME)
     model = os.path.expanduser(config[DOMAIN].get(CONF_MODEL))
+    if not os.path.isabs(model):
+        model = hass.config.path(model)
     sensitivity = config[DOMAIN].get(CONF_SENSITIVITY, DEFAULT_SENSITIVITY)
     audio_gain = config[DOMAIN].get(CONF_AUDIO_GAIN, DEFAULT_AUDIO_GAIN)
 
