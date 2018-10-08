@@ -169,6 +169,39 @@
     data:
       name: custom
 
+##### Flux #####
+
+- alias: Flux living room off
+  trigger:
+    platform: time
+    at: '23:00'
+  action:
+    service: switch.turn_off
+    data:
+      entity_id: switch.flux_living_room
+
+- alias: Flux living room on
+  trigger:
+    platform: time
+    at: '7:00'
+  action:
+    service: switch.turn_on
+    data:
+      entity_id: switch.flux_living_room
+
+- alias: Flux living room on when hass start
+  trigger:
+    platform: homeassistant
+    event: start
+  condition:
+    condition: time
+    after: '22:00'
+    before: '17:00'
+  action:
+    service: switch.turn_on
+    data:
+      entity_id: switch.flux_living_room
+
 ##### Light #####
 
 - alias: Light living room off when occupancy off
@@ -283,33 +316,6 @@
     #   entity_id: light.living_room
     #   data:
     #     brightness: 255
-
-- alias: Flux living room on when light on
-  trigger:
-    platform: state
-    entity_id: light.living_room
-    to: 'on'
-  condition:
-    condition: time
-    after: '7:00'
-    before: '23:00'
-  action:
-    service: switch.turn_on
-    data:
-      entity_id: switch.flux_living_room
-
-- alias: Flux living room on when hass start
-  trigger:
-    platform: homeassistant
-    event: start
-  condition:
-    condition: time
-    after: '22:00'
-    before: '17:00'
-  action:
-    service: switch.turn_on
-    data:
-      entity_id: switch.flux_living_room
 
 # - alias: Nightlight bedroom auto off
 #   trigger:
