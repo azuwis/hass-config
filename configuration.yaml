@@ -193,6 +193,8 @@ media_player:
     mac: !secret braviatv_mac
     psk: !secret braviatv_psk
 
+  - platform: vlc
+
 mqtt:
   discovery: yes
   broker: 127.0.0.1
