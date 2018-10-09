@@ -96,6 +96,7 @@ sensor:
 
 tts:
   - platform: google
+    language: zh
 
 binary_sensor:
   # - platform: bayesian
