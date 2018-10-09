@@ -35,7 +35,7 @@ views:
     icon: mdi:view-grid
     cards:
       - type: picture-elements
-        image: /local/floorplan.png?v=1
+        image: /local/floorplan.png?v=3
         elements:
           # living room
           - type: state-icon
