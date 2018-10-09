@@ -11,3 +11,5 @@ download custom_components/media_player/braviatv_psk.py https://github.com/gerar
 download custom_components/climate/xiaomi_miio.py https://github.com/syssi/xiaomi_airconditioningcompanion/raw/develop/custom_components/climate/xiaomi_miio.py
 download broadlink_climate_codes/gree.ini https://github.com/vpnmaster/homeassistant-custom-components/raw/master/broadlink_climate_codes/gree.ini
 download custom_components/climate/broadlink.py https://github.com/vpnmaster/homeassistant-custom-components/raw/master/custom_components/climate/broadlink.py
+
+download themes/midnight.yaml https://github.com/maartenpaauw/home-assistant-community-themes/raw/master/midnight.yaml
