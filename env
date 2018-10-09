@@ -1,2 +1,3 @@
-# Use `pacmd list-sinks` to get sink index
-PULSE_SINK=1
+# Use `pacmd list-sinks` and `pacmd list-sources` to get names
+PULSE_SINK='alsa_output.pci-0000_00_1b.0.analog-stereo'
+PULSE_SOURCE='alsa_input.usb-OmniVision_Technologies__Inc._USB_Camera-B4.09.24.1-01.multichannel-input'
