@@ -244,20 +244,7 @@ views:
             service: notify.html5
             service_data:
               message: This is a test message
-      - type: entities
-        entities:
-          - automation.climate_bedroom_cool_when_door_close
-          - automation.climate_bedroom_off_when_cold
-          - automation.climate_bedroom_off_when_door_open
-          - automation.light_living_room_off_when_occupancy_off
-          - automation.light_living_room_on_when_occupancy_on
-          - automation.light_living_room_on_when_occupancy_on_midnight
-          - automation.moonlight_living_room_off_when_door_open
-          - automation.moonlight_living_room_on_off_when_door_on_off
-          - automation.flux_living_room_on_when_light_on
-          - automation.notify_home
-          - automation.water_heater
-          - automation.water_heater_season
+          - group.all_automations
       - type: entities
         show_header_toggle: no
         entities:
