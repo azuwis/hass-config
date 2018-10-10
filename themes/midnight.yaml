@@ -44,3 +44,4 @@ midnight:
   paper-slider-disabled-secondary-color: "var(--disabled-text-color)"
   google-red-500: "#E45E65"
   google-green-500: "#39E949"
+  sidebar-icon-color: "#D0D0D0"
