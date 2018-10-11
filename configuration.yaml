@@ -318,10 +318,10 @@ switch:
           {{ state_attr('climate.ac_partner', 'load_power') | int > 100 }}
         icon_template: mdi:fire
         turn_on:
-          - alias: Power button
+          - alias: Up button
             service: climate.xiaomi_miio_send_command
             data:
-              command: FE00000000000000000000000005002C2251003600A801C403841388320001000101000000010000000001000100000101010001010101000100000000010001000101010100010410
+              command: FE00000000000000000000000005002C2251003600AA01C503841388320001000101000000010000000001000100000101010001010101010100000000010000000101010100010413
           - delay: '00:00:01'
           - alias: Heating button
             service: climate.xiaomi_miio_send_command
