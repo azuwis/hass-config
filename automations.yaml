@@ -459,10 +459,27 @@
   action:
     service: hotword_snowboy.listen
 
+- alias: Say pardon
+  trigger:
+    platform: event
+    event_type: speech_to_text
+  condition:
+    condition: template
+    value_template: >-
+      {{ trigger.event.data['text'] == '' }}
+  action:
+    service: script.say
+    data:
+      message: 没有听清
+
 - alias: Process conversation
   trigger:
     platform: event
     event_type: speech_to_text
+  condition:
+    condition: template
+    value_template: >-
+      {{ trigger.event.data['text'] != '' }}
   action:
     service: conversation.process
     data_template:
