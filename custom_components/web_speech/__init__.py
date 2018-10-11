@@ -43,8 +43,7 @@ CONFIG_SCHEMA = vol.Schema({
 }, extra=vol.ALLOW_EXTRA)
 
 
-@asyncio.coroutine
-def async_setup(hass, config):
+async def async_setup(hass, config):
     from selenium import webdriver
     from selenium.webdriver.common.by import By
     from selenium.webdriver.support import expected_conditions as EC
@@ -92,8 +91,7 @@ def async_setup(hass, config):
     loop = asyncio.get_event_loop()
     running = False
 
-    @asyncio.coroutine
-    def async_listen(call):
+    async def async_listen(call):
         def wait_element(timeout, id, text):
             WebDriverWait(driver, timeout).until(
                 EC.text_to_be_present_in_element((By.ID, id), text))
@@ -107,11 +105,11 @@ def async_setup(hass, config):
         try:
             driver.execute_script('recognition.start()')
             with concurrent.futures.ThreadPoolExecutor() as pool:
-                yield from loop.run_in_executor(
+                await loop.run_in_executor(
                     pool, wait_element, 2, 'state', 'listening')
                 _LOGGER.debug('listening')
                 hass.states.async_set(STATE, 'listening', state_attrs)
-                yield from loop.run_in_executor(
+                await loop.run_in_executor(
                     pool, wait_element, 60, 'state', 'idle')
 
             text = driver.find_element_by_id('text').get_attribute('textContent')
