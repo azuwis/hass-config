@@ -31,6 +31,8 @@ conversation:
     TurnOff:
       - 关掉{name}
       - 关闭{name}
+    Default:
+      - {name}
 
 history:
 
@@ -72,6 +74,15 @@ intent_script:
       - service: homeassistant.turn_off
         data_template:
           entity_id: !include intent_entity.yaml
+
+  Default:
+    async_action: yes
+    speech:
+      text: 不明白什么是{{ name }}
+    action:
+      - service: script.say
+        data_template:
+          message: 不明白什么是{{ name }}
 
 logbook:
 
