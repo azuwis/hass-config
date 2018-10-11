@@ -394,9 +394,10 @@ zone: !include zones.yaml
 logger:
   default: warning
   logs:
-    urllib3.connectionpool: critical
     custom_components.hotword_snowboy: debug
     custom_components.web_speech: debug
+    homeassistant.components.light.yeelight: critical
+    urllib3.connectionpool: critical
     # custom_components.climate.xiaomi_miio: debug
     # custom_components.rhasspy_train: debug
     # custom_components.stt_pocketsphinx: debug
