@@ -13,7 +13,7 @@ from homeassistant.helpers import config_validation as cv
 
 _LOGGER = logging.getLogger(__name__)
 
-REQUIREMENTS = ['snowboy==1.2.0b1']
+REQUIREMENTS = ['snowboy==1.3.0']
 
 DOMAIN = 'hotword_snowboy'
 
@@ -31,6 +31,9 @@ CONF_SENSITIVITY = 'sensitivity'
 # Amount of audio gain when recording (defaults to 1.0)
 CONF_AUDIO_GAIN = 'audio_gain'
 
+# Applies the frontend processing algorithm (defaults to False)
+CONF_APPLY_FRONTEND = 'apply_frontend'
+
 # ----------------------
 # Configuration defaults
 # ----------------------
@@ -38,6 +41,7 @@ CONF_AUDIO_GAIN = 'audio_gain'
 DEFAULT_NAME = 'hotword_snowboy'
 DEFAULT_SENSITIVITY = 0.5
 DEFAULT_AUDIO_GAIN = 1.0
+DEFAULT_APPLY_FRONTEND = False
 
 CONFIG_SCHEMA = vol.Schema({
     DOMAIN: vol.Schema({
@@ -45,7 +49,8 @@ CONFIG_SCHEMA = vol.Schema({
 
         vol.Required(CONF_MODEL): cv.string,
         vol.Optional(CONF_SENSITIVITY, DEFAULT_SENSITIVITY): float,
-        vol.Optional(CONF_AUDIO_GAIN, DEFAULT_AUDIO_GAIN): float
+        vol.Optional(CONF_AUDIO_GAIN, DEFAULT_AUDIO_GAIN): float,
+        vol.Optional(CONF_APPLY_FRONTEND, DEFAULT_APPLY_FRONTEND): cv.boolean
     })
 }, extra=vol.ALLOW_EXTRA)
 
@@ -79,6 +84,7 @@ def async_setup(hass, config):
         model = hass.config.path(model)
     sensitivity = config[DOMAIN].get(CONF_SENSITIVITY, DEFAULT_SENSITIVITY)
     audio_gain = config[DOMAIN].get(CONF_AUDIO_GAIN, DEFAULT_AUDIO_GAIN)
+    apply_frontend = config[DOMAIN].get(CONF_APPLY_FRONTEND)
 
     assert os.path.exists(model), 'Model does not exist'
     detector = None
@@ -95,7 +101,11 @@ def async_setup(hass, config):
         nonlocal detector
         if detector == None:
             detector = snowboydecoder.HotwordDetector(
-                model, sensitivity=sensitivity, audio_gain=audio_gain)
+                model,
+                sensitivity=sensitivity,
+                audio_gain=audio_gain,
+                apply_frontend=apply_frontend
+            )
 
         def detect():
             def callback():
