@@ -79,6 +79,24 @@ logbook:
 sun:
 
 sensor:
+  - platform: darksky
+    latitude: 30.2086
+    longitude: 120.2118
+    language: zh
+    api_key: !secret darksky_api_key
+    update_interval: '00:10'
+    forecast:
+      - 1
+    monitored_conditions:
+      - summary
+      - precip_type
+      - precip_probability
+      - hourly_summary
+      - daily_summary
+      - apparent_temperature
+      - apparent_temperature_high
+      - apparent_temperature_low
+
   - platform: season
     type: meteorological
 
