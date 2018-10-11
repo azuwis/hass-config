@@ -1,0 +1,10 @@
+media_player.tv:
+  - 电视
+  - 电视机
+light.living_room:
+  - 客厅灯
+  - 客厅的灯
+switch.climate_living_room:
+  - 空调
+switch.water_heater:
+  - 热水器
