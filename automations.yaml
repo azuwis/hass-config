@@ -437,7 +437,10 @@
     value_template: >-
       {{ trigger.payload_json.action == 'shake' }}
   action:
-    service: web_speech.listen
+    - service: wav_paplay.play_wav
+      data:
+        filename: wav/wakeup.wav
+    - service: web_speech.listen
 
 # - alias: Play sound when web speech listen
 #   trigger:
