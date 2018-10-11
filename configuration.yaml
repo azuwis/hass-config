@@ -24,10 +24,10 @@ updater:
 conversation:
   intents:
     TurnOn:
-      - 打开{item}
+      - 打开{name}
     TurnOff:
-      - 关掉{item}
-      - 关闭{item}
+      - 关掉{name}
+      - 关闭{name}
 
 history:
 
@@ -39,37 +39,35 @@ intent_script:
   TurnOn:
     async_action: yes
     speech:
-      text: 已打开{{ item }}
+      text: !include intent_message_on.yaml
     action:
-      service: homeassistant.turn_on
-      data_template:
-        entity_id: >-
-          {% if item | regex_match('电视') %}
-            media_player.tv
-          {% elif item | regex_match('(客厅|吸顶)') %}
-            light.living_room
-          {% elif item | regex_match('空调') %}
-            switch.climate_living_room
-          {% elif item | regex_match('热水') %}
-            switch.water_heater
-          {% endif %}
+      - service: media_player.volume_set
+        data:
+          entity_id: media_player.vlc
+          volume_level: 1
+      - service: tts.google_say
+        data_template:
+          entity_id: media_player.vlc
+          message: !include intent_message_on.yaml
+      - service: homeassistant.turn_on
+        data_template:
+          entity_id: !include intent_entity.yaml
   TurnOff:
     async_action: yes
     speech:
-      text: 已关闭{{ item }}
+      text: !include intent_message_off.yaml
     action:
-      service: homeassistant.turn_off
-      data_template:
-        entity_id: >-
-          {% if item | regex_match('电视') %}
-            media_player.tv
-          {% elif item | regex_match('(客厅|吸顶)') %}
-            light.living_room
-          {% elif item | regex_match('空调') %}
-            switch.climate_living_room
-          {% elif item | regex_match('热水') %}
-            switch.water_heater
-          {% endif %}
+      - service: media_player.volume_set
+        data:
+          entity_id: media_player.vlc
+          volume_level: 1
+      - service: tts.google_say
+        data_template:
+          entity_id: media_player.vlc
+          message: !include intent_message_off.yaml
+      - service: homeassistant.turn_off
+        data_template:
+          entity_id: !include intent_entity.yaml
 
 logbook:
 
@@ -173,6 +171,8 @@ device_tracker:
       track_new_devices: no
 
 input_boolean:
+  dummy:
+
   moonlight_living_room:
     name: Moonlight living room
     initial: no

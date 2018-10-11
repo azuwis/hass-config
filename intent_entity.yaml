@@ -1,0 +1,12 @@
+>-
+  {% if name | regex_match('电视') %}
+    switch.tv
+  {% elif name | regex_match('(客厅|吸顶)') %}
+    light.living_room
+  {% elif name | regex_match('空调') %}
+    switch.climate_living_room
+  {% elif name | regex_match('热水') %}
+    switch.water_heater
+  {% else %}
+    input_boolean.dummy
+  {% endif %}
