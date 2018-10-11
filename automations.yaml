@@ -160,14 +160,25 @@
 
 ##### HomeAssistant #####
 
-- alias: Set custom theme at startup
+- alias: Automatic theme change
   trigger:
-    platform: homeassistant
-    event: start
+    - platform: homeassistant
+      event: start
+    - platform: state
+      entity_id: sun.sun
+      to: above_horizon
+    - platform: state
+      entity_id: sun.sun
+      to: below_horizon
   action:
     service: frontend.set_theme
-    data:
-      name: custom
+    data_template:
+      name: >-
+        {% if is_state('sun.sun', 'above_horizon') %}
+          custom
+        {% else %}
+          midnight
+        {% endif %}
 
 ##### Flux #####
 
