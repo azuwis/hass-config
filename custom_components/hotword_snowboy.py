@@ -1,10 +1,10 @@
 """
 Provide functionality to listen for a hot/wake word from snowboy.
 """
+import asyncio
 import logging
 import concurrent.futures
 import os
-import asyncio
 
 import voluptuous as vol
 
@@ -76,8 +76,7 @@ EVENT_HOTWORD_DETECTED = 'hotword_detected'
 
 # -----------------------------------------------------------------------------
 
-@asyncio.coroutine
-def async_setup(hass, config):
+async def async_setup(hass, config):
     name = config[DOMAIN].get(CONF_NAME, DEFAULT_NAME)
     model = os.path.expanduser(config[DOMAIN].get(CONF_MODEL))
     if not os.path.isabs(model):
@@ -94,8 +93,7 @@ def async_setup(hass, config):
         'icon': 'mdi:microphone'
     }
 
-    @asyncio.coroutine
-    def async_listen(call):
+    async def async_listen(call):
         from snowboy import snowboydecoder
 
         nonlocal detector
@@ -123,7 +121,7 @@ def async_setup(hass, config):
         hass.states.async_set(OBJECT_SNOWBOY, STATE_LISTENING, state_attrs)
 
         with concurrent.futures.ThreadPoolExecutor() as pool:
-            yield from asyncio.get_event_loop().run_in_executor(pool, detect)
+            await asyncio.get_event_loop().run_in_executor(pool, detect)
 
         hass.states.async_set(OBJECT_SNOWBOY, STATE_IDLE, state_attrs)
 
@@ -131,8 +129,7 @@ def async_setup(hass, config):
     hass.states.async_set(OBJECT_SNOWBOY, STATE_IDLE, state_attrs)
 
     # Make sure snowboy terminates property when home assistant stops
-    @asyncio.coroutine
-    def async_terminate(event):
+    async def async_terminate(event):
         if detector != None:
             detector.terminate()
 
