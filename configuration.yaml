@@ -41,29 +41,20 @@ intent_script:
     speech:
       text: !include intent_message_on.yaml
     action:
-      - service: media_player.volume_set
-        data:
-          entity_id: media_player.vlc
-          volume_level: 1
-      - service: tts.google_say
+      - service: script.say
         data_template:
-          entity_id: media_player.vlc
           message: !include intent_message_on.yaml
       - service: homeassistant.turn_on
         data_template:
           entity_id: !include intent_entity.yaml
+
   TurnOff:
     async_action: yes
     speech:
       text: !include intent_message_off.yaml
     action:
-      - service: media_player.volume_set
-        data:
-          entity_id: media_player.vlc
-          volume_level: 1
-      - service: tts.google_say
+      - service: script.say
         data_template:
-          entity_id: media_player.vlc
           message: !include intent_message_off.yaml
       - service: homeassistant.turn_off
         data_template:
