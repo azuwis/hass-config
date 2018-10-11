@@ -1,0 +1,14 @@
+>-
+  {% if name == '温度' %}
+    室内{{ states('sensor.ht_bedroom_temperature') | round }}度，湿度{{ states('sensor.ht_bedroom_humidity') | round }}%。室外{{ states('sensor.ht_outside_temperature') | round }}度，湿度{{ states('sensor.ht_outside_humidity') | round }}%
+  {% elif name == '室内温度' %}
+    室内{{ states('sensor.ht_bedroom_temperature') | round }}度
+  {% elif name == '室内湿度' %}
+    室内湿度{{ states('sensor.ht_bedroom_humidity') | round }}%
+  {% elif name == '室外温度' %}
+    室外{{ states('sensor.ht_outside_temperature') | round }}度
+  {% elif name == '室外湿度' %}
+    室外湿度{{ states('sensor.ht_outside_humidity') | round }}%
+  {% else %}
+    查询不到{{ name }}
+  {% endif %}

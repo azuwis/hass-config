@@ -23,6 +23,9 @@ updater:
 
 conversation:
   intents:
+    Query:
+      - 查看{name}
+      - 查询{name}
     TurnOn:
       - 打开{name}
     TurnOff:
@@ -36,6 +39,15 @@ hotword_snowboy:
   sensitivity: 0.2
 
 intent_script:
+  Query:
+    async_action: yes
+    speech:
+      text: !include intent_query.yaml
+    action:
+      - service: script.say
+        data_template:
+          message: !include intent_query.yaml
+
   TurnOn:
     async_action: yes
     speech:
