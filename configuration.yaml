@@ -33,7 +33,7 @@ history:
 
 hotword_snowboy:
   model: snowboy/alexa.umdl
-  sensitivity: 0.3
+  sensitivity: 0.2
 
 intent_script:
   TurnOn:
