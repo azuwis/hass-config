@@ -26,6 +26,8 @@ conversation:
     Query:
       - 查看{name}
       - 查询{name}
+    Rain:
+      - '{name}会下雨吗'
     TurnOn:
       - 打开{name}
     TurnOff:
@@ -71,6 +73,22 @@ intent_script:
       - service: script.say
         data_template:
           message: *intent_query
+
+  Rain:
+    async_action: yes
+    speech:
+      text: &intent_rain >-
+        {% if name == '今天' %}
+          今天降水可能性{{ states('sensor.dark_sky_precip_probability') | round }}%
+        {% elif name == '明天' %}
+          明天降水可能性{{ states('sensor.dark_sky_precip_probability_1') | round }}%
+        {% else %}
+          查询不到{{ name }}会不会下雨
+        {% endif %}
+    action:
+      - service: script.say
+        data_template:
+          message: *intent_rain
 
   TurnOn:
     async_action: yes
