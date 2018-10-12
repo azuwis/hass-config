@@ -1,6 +1,0 @@
->-
-  {% if name | regex_match('(电视|客厅|吸顶|空调|热水)') %}
-    已打开{{ name }}
-  {% else %}
-    找不到{{ name }}
-  {% endif %}

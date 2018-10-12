@@ -45,44 +45,80 @@ intent_script:
   Query:
     async_action: yes
     speech:
-      text: !include intent_query.yaml
+      text: &intent_query >-
+        {% if name == '温度' %}
+          室内{{ states('sensor.ht_bedroom_temperature') | round }}度，湿度{{ states('sensor.ht_bedroom_humidity') | round }}%。室外{{ states('sensor.ht_outside_temperature') | round }}度，湿度{{ states('sensor.ht_outside_humidity') | round }}%
+        {% elif name == '室内温度' %}
+          室内{{ states('sensor.ht_bedroom_temperature') | round }}度
+        {% elif name == '室内湿度' %}
+          室内湿度{{ states('sensor.ht_bedroom_humidity') | round }}%
+        {% elif name == '室外温度' %}
+          室外{{ states('sensor.ht_outside_temperature') | round }}度
+        {% elif name == '室外湿度' %}
+          室外湿度{{ states('sensor.ht_outside_humidity') | round }}%
+        {% elif name == '天气' %}
+          当前{{ states('sensor.dark_sky_summary') }}，明天最高{{ states('sensor.dark_sky_daytime_high_apparent_temperature_1') | round }}度，{{ states('sensor.dark_sky_hourly_summary') }}
+        {% else %}
+          查询不到{{ name }}
+        {% endif %}
     action:
       - service: script.say
         data_template:
-          message: !include intent_query.yaml
+          message: *intent_query
 
   TurnOn:
     async_action: yes
     speech:
-      text: !include intent_turn_on.yaml
+      text: &intent_turn_on >-
+        {% if name | regex_match('(电视|客厅|吸顶|空调|热水)') %}
+          已打开{{ name }}
+        {% else %}
+          找不到{{ name }}
+        {% endif %}
     action:
       - service: script.say
         data_template:
-          message: !include intent_turn_on.yaml
+          message: *intent_turn_on
       - service: homeassistant.turn_on
         data_template:
-          entity_id: !include intent_entity.yaml
+          entity_id: &intent_entity >-
+            {% if name | regex_match('电视') %}
+              switch.tv
+            {% elif name | regex_match('(客厅|吸顶)') %}
+              light.living_room
+            {% elif name | regex_match('空调') %}
+              switch.climate_living_room
+            {% elif name | regex_match('热水') %}
+              switch.water_heater
+            {% else %}
+              input_boolean.dummy
+            {% endif %}
 
   TurnOff:
     async_action: yes
     speech:
-      text: !include intent_turn_off.yaml
+      text: &intent_turn_off >-
+        {% if name | regex_match('(电视|客厅|吸顶|空调|热水)') %}
+          已关闭{{ name }}
+        {% else %}
+          找不到{{ name }}
+        {% endif %}
     action:
       - service: script.say
         data_template:
-          message: !include intent_turn_off.yaml
+          message: *intent_turn_off
       - service: homeassistant.turn_off
         data_template:
-          entity_id: !include intent_entity.yaml
+          entity_id: *intent_entity
 
   Default:
     async_action: yes
     speech:
-      text: 不明白什么是{{ name }}
+      text: &intent_default 不明白什么是{{ name }}
     action:
       - service: script.say
         data_template:
-          message: 不明白什么是{{ name }}
+          message: *intent_default
 
 logbook:
 
