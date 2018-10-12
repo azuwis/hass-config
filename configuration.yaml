@@ -199,10 +199,21 @@ binary_sensor:
 
       occupancy_living_room:
         friendly_name: Occupancy living room
+        entity_id:
+          - binary_sensor.motion_dining_room
+          - binary_sensor.motion_living_room
+          - binary_sensor.motion_sofas
         value_template: >-
-          {{ is_state('binary_sensor.motion_dining_room', 'on')
-             or is_state('binary_sensor.motion_living_room', 'on')
-             or is_state('binary_sensor.motion_sofas', 'on') }}
+          {% if is_state('binary_sensor.motion_dining_room', 'on')
+             or is_state('binary_sensor.motion_living_room', 'on') %}
+            true
+          {% elif is_state('binary_sensor.motion_dining_room', 'off')
+             and is_state('binary_sensor.motion_living_room', 'off')
+             and is_state('binary_sensor.motion_sofas', 'off') %}
+            false
+          {% else %}
+            {{ states('binary_sensor.occupancy_living_room') }}
+          {% endif %}
         device_class: occupancy
 
 camera:
