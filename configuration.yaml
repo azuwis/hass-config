@@ -54,11 +54,11 @@ intent_script:
   TurnOn:
     async_action: yes
     speech:
-      text: !include intent_message_on.yaml
+      text: !include intent_turn_on.yaml
     action:
       - service: script.say
         data_template:
-          message: !include intent_message_on.yaml
+          message: !include intent_turn_on.yaml
       - service: homeassistant.turn_on
         data_template:
           entity_id: !include intent_entity.yaml
@@ -66,11 +66,11 @@ intent_script:
   TurnOff:
     async_action: yes
     speech:
-      text: !include intent_message_off.yaml
+      text: !include intent_turn_off.yaml
     action:
       - service: script.say
         data_template:
-          message: !include intent_message_off.yaml
+          message: !include intent_turn_off.yaml
       - service: homeassistant.turn_off
         data_template:
           entity_id: !include intent_entity.yaml
