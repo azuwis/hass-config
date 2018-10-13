@@ -60,12 +60,13 @@ intent_script:
           室外湿度{{ states('sensor.ht_outside_humidity') | round }}%
         {% elif name == '天气' %}
           当前{{ states('sensor.dark_sky_summary') }}，
-          {% if now().hour <= 9 %}
+          {% if now().hour <= 14 %}
             今天最高{{ states('sensor.dark_sky_daytime_high_apparent_temperature') | round }}度，
           {% else %}
             明天最高{{ states('sensor.dark_sky_daytime_high_apparent_temperature_1') | round }}度，
           {% endif %}
           {{ states('sensor.dark_sky_hourly_summary') }}
+          {{ states('sensor.dark_sky_daily_summary') }}
         {% else %}
           查询不到{{ name }}
         {% endif %}
