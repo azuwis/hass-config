@@ -78,10 +78,18 @@ intent_script:
     async_action: yes
     speech:
       text: &intent_rain >-
-        {% if name == '今天' %}
-          今天降水可能性{{ states('sensor.dark_sky_precip_probability') | round }}%
-        {% elif name == '明天' %}
-          明天降水可能性{{ states('sensor.dark_sky_precip_probability_1') | round }}%
+        {% set map = {
+          '今天': 'sensor.dark_sky_precip_probability',
+          '明天': 'sensor.dark_sky_precip_probability_1'
+        }%}
+        {% set sensor = map[name] | default(None) %}
+        {% if sensor %}
+          {% set percent = states(sensor) | round %}
+          {% if percent == 0 %}
+            {{ name }}应该不会下雨
+          {% else %}
+            {{ name }}降水可能性{{ percent }}%
+          {% endif %}
         {% else %}
           查询不到{{ name }}会不会下雨
         {% endif %}
