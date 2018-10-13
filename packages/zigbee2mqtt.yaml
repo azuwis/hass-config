@@ -5,6 +5,7 @@ automation:
     trigger:
       platform: state
       entity_id: input_boolean.zigbee2mqtt_permit_join
+      from: 'off'
       to: 'on'
     action:
       - service: mqtt.publish
@@ -21,6 +22,7 @@ automation:
     trigger:
       platform: state
       entity_id: input_boolean.zigbee2mqtt_permit_join
+      from: 'on'
       to: 'off'
     action:
       - service: mqtt.publish
