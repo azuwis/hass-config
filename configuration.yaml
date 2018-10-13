@@ -23,6 +23,8 @@ updater:
 
 conversation:
   intents:
+    Know:
+      - '{who}认识{thing}吗'
     Query:
       - 查看{name}
       - 查询{name}
@@ -44,6 +46,16 @@ hotword_snowboy:
   apply_frontend: no
 
 intent_script:
+  Know:
+    async_action: yes
+    speech:
+      text: &intent_know >-
+        {{ who }}不认识{{ thing }}
+    action:
+      - service: script.say
+        data_template:
+          message: *intent_know
+
   Query:
     async_action: yes
     speech:
