@@ -51,11 +51,10 @@
       after: '08:00'
       before: '21:00'
   action:
-    service: xiaomi_aqara.play_ringtone
+    service: paplay.play
     data:
-      gw_mac: !secret ac_partner_mac
-      ringtone_id: 10
-      ringtone_vol: 50
+      filename: audio/dingdong.ogg
+      volume: 45000
 
 - alias: Cube flip90
   trigger:
