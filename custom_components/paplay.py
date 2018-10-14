@@ -41,7 +41,10 @@ def setup(hass, config):
         for name, value in call.data.items():
             if name != ATTR_FILENAME:
                 # Pass all additional properties as command-line arguments
-                args.extend(['-%s' % name, value])
+                if value == True:
+                    args.append('--{}'.format(name))
+                else:
+                    args.append('--{}={}'.format(name, value))
 
         args.append(filename)
         subprocess.run(args)
