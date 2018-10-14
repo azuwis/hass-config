@@ -78,7 +78,7 @@ intent_script:
             明天最高{{ states('sensor.dark_sky_daytime_high_apparent_temperature_1') | round }}度，
           {% endif %}
           {{ states('sensor.dark_sky_hourly_summary') }}
-          {{ states('sensor.dark_sky_daily_summary') }}
+          未来{{ states('sensor.dark_sky_daily_summary') }}
         {% else %}
           查询不到{{ name }}
         {% endif %}
