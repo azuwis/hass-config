@@ -1,5 +1,5 @@
 """
-Provides functionality for playing WAV files locally with paplay.
+Provides functionality for playing audio files locally with paplay.
 """
 import logging
 import os
@@ -12,18 +12,18 @@ from homeassistant.helpers import config_validation as cv
 
 _LOGGER = logging.getLogger(__name__)
 
-DOMAIN = 'wav_paplay'
+DOMAIN = 'paplay'
 
 # --------
 # Services
 # --------
 
-SERVICE_PLAY_WAV = 'play_wav'
+SERVICE_PAPLAY = 'play'
 
-# Path to WAV file
+# Path to audio file
 ATTR_FILENAME = 'filename'
 
-SCHEMA_SERVICE_PLAY_WAV = vol.Schema({
+SCHEMA_SERVICE_PAPLAY = vol.Schema({
     vol.Required(ATTR_FILENAME): cv.string
 }, extra=vol.ALLOW_EXTRA)
 
@@ -32,7 +32,7 @@ def setup(hass, config):
         _LOGGER.error("'paplay' command not found")
         return False
 
-    def play_wav(call):
+    def play(call):
         filename = os.path.expanduser(call.data[ATTR_FILENAME])
         if not os.path.isabs(filename):
             filename = hass.config.path(filename)
@@ -46,8 +46,8 @@ def setup(hass, config):
         args.append(filename)
         subprocess.run(args)
 
-    hass.services.register(DOMAIN, SERVICE_PLAY_WAV, play_wav,
-                           schema=SCHEMA_SERVICE_PLAY_WAV)
+    hass.services.register(DOMAIN, SERVICE_PAPLAY, play,
+                           schema=SCHEMA_SERVICE_PAPLAY)
 
     _LOGGER.info('Started')
 

@@ -446,9 +446,9 @@
     platform: event
     event_type: hotword_detected
   action:
-    - service: wav_paplay.play_wav
+    - service: paplay.play
       data:
-        filename: wav/wakeup.wav
+        filename: audio/wakeup.ogg
     - service: web_speech.listen
 
 - alias: Shake cube activate web speech
@@ -460,9 +460,9 @@
     value_template: >-
       {{ trigger.payload_json.action == 'shake' }}
   action:
-    - service: wav_paplay.play_wav
+    - service: paplay.play
       data:
-        filename: wav/wakeup.wav
+        filename: audio/wakeup.ogg
     - service: web_speech.listen
 
 # - alias: Play sound when web speech listen
@@ -471,9 +471,9 @@
 #     entity_id: web_speech.web_speech
 #     to: listening
 #   action:
-#     service: wav_paplay.play_wav
+#     service: paplay.play
 #     data:
-#       filename: wav/wakeup.wav
+#       filename: audio/wakeup.ogg
 
 - alias: Start hotword detection when web speech finish
   trigger:

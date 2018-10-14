@@ -338,6 +338,8 @@ notify:
     gcm_api_key: !secret gcm_api_key
     gcm_sender_id: !secret gcm_sender_id
 
+paplay:
+
 recorder:
   db_url: postgres://@/hass
   exclude:
@@ -474,8 +476,6 @@ switch:
           - *water_heater_heating
         turn_off:
           - *water_heater_power
-
-wav_paplay:
 
 weather:
   - platform: yweather
