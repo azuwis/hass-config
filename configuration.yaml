@@ -26,7 +26,7 @@ conversation:
     Know:
       - '{who}认识{thing}吗'
     Query:
-      - (?P<name>温度|室内温度|室内湿度|室外温度|室外湿度|天气)
+      - (?P<name>温度|室内温度|室内湿度|室外温度|室外湿度|天气|空气质量)
       - 查看{name}
       - 查询{name}
     Rain:
@@ -77,6 +77,24 @@ intent_script:
           {% endif %}
           {{ states('sensor.dark_sky_hourly_summary') }}
           未来{{ states('sensor.dark_sky_daily_summary') }}
+        {% elif name == '空气质量' %}
+          {% set aqi = states('sensor.us_air_quality_index') | int %}
+          当前空气质量
+          {% if aqi == 0 %}
+            未知
+          {% elif aqi <= 50 %}
+            优
+          {% elif aqi <= 100 %}
+            良
+          {% elif aqi <= 150 %}
+            轻度污染
+          {% elif aqi <= 200 %}
+            中度污染
+          {% elif aqi <= 300 %}
+            重度污染
+          {% else %}
+            严重污染
+          {% endif %}
         {% else %}
           查询不到{{ name }}
         {% endif %}
