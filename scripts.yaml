@@ -1,5 +1,8 @@
 say:
   sequence:
+    - condition: state
+      entity_id: device_tracker.owntracks_1
+      state: home
     - service: media_player.volume_set
       data:
         entity_id: media_player.vlc
