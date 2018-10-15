@@ -31,11 +31,8 @@ conversation:
       - 查询{name}
     Rain:
       - '{name}会下雨吗'
-    TurnOn:
-      - 打开{name}
-    TurnOff:
-      - 关掉{name}
-      - 关闭{name}
+    TurnOnOff:
+      - (?P<action>打开|关闭|关掉)(?P<name>.+)
     Default:
       - '{name}'
 
@@ -112,22 +109,22 @@ intent_script:
         data_template:
           message: *intent_rain
 
-  TurnOn:
+  TurnOnOff:
     async_action: yes
     speech:
-      text: &intent_turn_on >-
+      text: &intent_turn_on_off >-
         {% if name | regex_match('(电视|客厅|吸顶|空调|热水)') %}
-          已打开{{ name }}
+          已{{ action }}{{ name }}
         {% else %}
           找不到{{ name }}
         {% endif %}
     action:
       - service: script.say
         data_template:
-          message: *intent_turn_on
-      - service: homeassistant.turn_on
+          message: *intent_turn_on_off
+      - service_template: homeassistant.turn_{% if action == '打开' %}on{% else %}off{% endif %}
         data_template:
-          entity_id: &intent_entity >-
+          entity_id: >-
             {% if name | regex_match('电视') %}
               switch.tv
             {% elif name | regex_match('(客厅|吸顶)') %}
@@ -139,23 +136,6 @@ intent_script:
             {% else %}
               input_boolean.dummy
             {% endif %}
-
-  TurnOff:
-    async_action: yes
-    speech:
-      text: &intent_turn_off >-
-        {% if name | regex_match('(电视|客厅|吸顶|空调|热水)') %}
-          已关闭{{ name }}
-        {% else %}
-          找不到{{ name }}
-        {% endif %}
-    action:
-      - service: script.say
-        data_template:
-          message: *intent_turn_off
-      - service: homeassistant.turn_off
-        data_template:
-          entity_id: *intent_entity
 
   Default:
     async_action: yes
