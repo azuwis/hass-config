@@ -85,7 +85,7 @@ intent_script:
             明天最高{{ states('sensor.dark_sky_daytime_high_apparent_temperature_1') | round }}度，
           {% endif %}
           {{ states('sensor.dark_sky_hourly_summary') }}
-          未来{{ states('sensor.dark_sky_daily_summary') }}
+          未来一周{{ states('sensor.dark_sky_daily_summary') | regex_replace('°C', '度') }}
         {% elif name == '空气质量' %}
           {% set aqi = states('sensor.us_air_quality_index') | int %}
           当前空气质量
