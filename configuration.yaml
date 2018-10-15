@@ -113,7 +113,7 @@ intent_script:
     async_action: yes
     speech:
       text: &intent_turn_on_off >-
-        {% if name | regex_match('(电视|客厅|吸顶|空调|热水)') %}
+        {% if name | regex_match('电视|客厅|吸顶|空调|热水') %}
           已{{ action }}{{ name }}
         {% else %}
           找不到{{ name }}
@@ -127,7 +127,7 @@ intent_script:
           entity_id: >-
             {% if name | regex_match('电视') %}
               switch.tv
-            {% elif name | regex_match('(客厅|吸顶)') %}
+            {% elif name | regex_match('客厅|吸顶') %}
               light.living_room
             {% elif name | regex_match('空调') %}
               switch.climate_living_room
