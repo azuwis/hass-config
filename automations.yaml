@@ -39,14 +39,14 @@
     data:
       entity_id: switch.reading_living_room
 
-- alias: Button 2 single
+- alias: Button 2 activate doorbell
   trigger:
     platform: mqtt
     topic: zigbee2mqtt/button_2
   condition:
     - condition: template
       value_template: >-
-        {{ trigger.payload_json.click == 'single' }}
+        {{ trigger.payload_json.click in ['single', 'double', 'triple', 'quadruple', 'many', 'long'] }}
     - condition: time
       after: '08:00'
       before: '21:00'
