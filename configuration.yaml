@@ -36,7 +36,7 @@ conversation:
       - 关掉{name}
       - 关闭{name}
     Default:
-      - {name}
+      - '{name}'
 
 history:
 
