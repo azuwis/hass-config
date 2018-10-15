@@ -23,16 +23,16 @@ updater:
 
 conversation:
   intents:
-    Know:
-      - '{who}认识{thing}吗'
+    TurnOnOff:
+      - (?P<action>打开|关闭|关掉)(?P<name>.+)
     Query:
       - (?P<name>温度|室内温度|室内湿度|室外温度|室外湿度|天气|空气质量)
       - 查看{name}
       - 查询{name}
     Rain:
       - '{name}会下雨吗'
-    TurnOnOff:
-      - (?P<action>打开|关闭|关掉)(?P<name>.+)
+    Know:
+      - '{who}认识{thing}吗'
     Default:
       - '{name}'
 
@@ -44,6 +44,15 @@ hotword_snowboy:
   apply_frontend: no
 
 intent_script:
+  Default:
+    async_action: yes
+    speech:
+      text: &intent_default 不明白什么是{{ name }}
+    action:
+      - service: script.say
+        data_template:
+          message: *intent_default
+
   Know:
     async_action: yes
     speech:
@@ -154,15 +163,6 @@ intent_script:
             {% else %}
               input_boolean.dummy
             {% endif %}
-
-  Default:
-    async_action: yes
-    speech:
-      text: &intent_default 不明白什么是{{ name }}
-    action:
-      - service: script.say
-        data_template:
-          message: *intent_default
 
 logbook:
 
