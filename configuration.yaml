@@ -81,8 +81,16 @@ intent_script:
           当前{{ states('sensor.dark_sky_summary') }}，
           {% if now().hour <= 14 %}
             今天最高{{ states('sensor.dark_sky_daytime_high_apparent_temperature') | round }}度，
+            {% set percent = states('sensor.dark_sky_precip_probability') | round %}
+            {% if percent > 0 %}
+              降水可能性{{ percent }}%。
+            {% endif %}
           {% else %}
             明天最高{{ states('sensor.dark_sky_daytime_high_apparent_temperature_1') | round }}度，
+            {% set percent = states('sensor.dark_sky_precip_probability_1') | round %}
+            {% if percent > 0 %}
+              降水可能性{{ percent }}%。
+            {% endif %}
           {% endif %}
           {{ states('sensor.dark_sky_hourly_summary') }}
           未来一周{{ states('sensor.dark_sky_daily_summary') | regex_replace('°C', '度') }}
