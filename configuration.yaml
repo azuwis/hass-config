@@ -172,6 +172,14 @@ logbook:
 sun:
 
 sensor:
+  - platform: airvisual
+    api_key: !secret airvisual_api_key
+    monitored_conditions:
+      - us
+    show_on_map: no
+    latitude: !secret alt_latitude
+    longitude: !secret alt_longitude
+
   - platform: darksky
     latitude: 30.2086
     longitude: 120.2118
