@@ -1,5 +1,9 @@
 title: Home
 
+resources:
+  - url: /local/mini-media-player.js?v=4
+    type: module
+
 excluded_entities:
   - automation.disable_zigbee2mqtt_join
   - automation.disable_zigbee2mqtt_join_timer
@@ -141,13 +145,17 @@ views:
               top: 67%
               left: 89.6%
 
+
       - type: conditional
         conditions:
           - entity: media_player.tv
             state: 'on'
         card:
-          type: media-control
+          type: custom:mini-media-player
           entity: media_player.tv
+          artwork: none
+          power_color: true
+          show_source: small
 
       - type: conditional
         conditions:
