@@ -13,3 +13,4 @@ download broadlink_climate_codes/gree.ini https://github.com/vpnmaster/homeassis
 download custom_components/climate/broadlink.py https://github.com/vpnmaster/homeassistant-custom-components/raw/master/custom_components/climate/broadlink.py
 
 download themes/midnight.yaml https://github.com/maartenpaauw/home-assistant-community-themes/raw/master/midnight.yaml
+echo '  sidebar-icon-color: "#D0D0D0"' >> themes/midnight.yaml
