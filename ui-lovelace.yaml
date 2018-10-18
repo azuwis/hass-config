@@ -3,6 +3,8 @@ title: Home
 resources:
   - url: /local/mini-media-player.js?v=4
     type: module
+  - url: /local/slider-entity-row.js?v=1
+    type: module
 
 excluded_entities:
   - automation.disable_zigbee2mqtt_join
@@ -164,7 +166,8 @@ views:
         card:
           type: entities
           entities:
-            - light.living_room
+            - type: custom:slider-entity-row
+              entity: light.living_room
             - switch.reading_living_room
             - input_boolean.moonlight_living_room
             - switch.flux_living_room
