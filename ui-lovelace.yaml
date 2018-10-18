@@ -4,9 +4,9 @@ resources:
   - url: /local/mini-media-player.js?v=4
     type: module
   - url: /local/slider-entity-row.js?v=1
-    type: js
-  - url: /local/state-icon.js?v=3
-    type: js
+    type: module
+  - url: /local/state-icon.js?v=6
+    type: module
 
 excluded_entities:
   - automation.disable_zigbee2mqtt_join
