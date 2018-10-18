@@ -1,16 +1,23 @@
 class StateIcon extends Polymer.Element {
   setConfig(config) {
+    if (!this.content) {
+      this.state = 'unavailable';
+      this.content = document.createElement('hui-state-icon-element');
+      this.appendChild(this.content);
+    }
     this.entity = config.entity;
-    this.element = document.createElement('hui-state-icon-element');
-    this.element.setConfig(config);
-    this.appendChild(this.element);
+    this.content.setConfig(config);
   }
 
   set hass(hass) {
-    this.element.hass = hass;
-    if (this.element.shadowRoot) {
-      let state = hass.states[this.entity].state;
-      this.element.shadowRoot.querySelector('state-badge').$.icon.style.color = state == 'on' ? 'var(--paper-item-icon-active-color)' : '';
+    this.content.hass = hass;
+    if (this.content.shadowRoot) {
+      let state = hass.states[this.entity];
+      state = state ? state.state : 'unavailable';
+      if (this.state !== state) {
+        this.content.shadowRoot.querySelector('state-badge').$.icon.style.color = state == 'on' ? 'var(--paper-item-icon-active-color)' : '';
+        this.state = state;
+      }
     }
   }
 }
