@@ -161,7 +161,7 @@ intent_script:
         data_template:
           entity_id: >-
             {% if name | regex_match('电视') %}
-              switch.tv
+              media_player.tv
             {% elif name | regex_match('客厅|吸顶') %}
               light.living_room
             {% elif name | regex_match('空调') %}
@@ -361,7 +361,6 @@ recorder:
     entities:
       - binary_sensor.mqtt_motion_sofas
       - climate.ac_partner
-      - switch.tv
       - switch.climate_bedroom
 
 switch:
@@ -439,20 +438,6 @@ switch:
           service: switch.turn_on
           data:
             entity_id: switch.flux_living_room
-
-      tv:
-        friendly_name: TV
-        value_template: >-
-          {{ states('media_player.tv') }}
-        turn_on:
-          service: media_player.turn_on
-          data:
-            entity_id: media_player.tv
-        turn_off:
-          service: media_player.turn_off
-          data:
-            entity_id: media_player.tv
-        icon_template: mdi:television
 
       water_heater:
         friendly_name: Water heater

@@ -4,7 +4,9 @@ resources:
   - url: /local/mini-media-player.js?v=4
     type: module
   - url: /local/slider-entity-row.js?v=1
-    type: module
+    type: js
+  - url: /local/state-icon.js?v=3
+    type: js
 
 excluded_entities:
   - automation.disable_zigbee2mqtt_join
@@ -65,8 +67,8 @@ views:
             style:
               top: 33%
               left: 50%
-          - type: state-icon
-            entity: switch.tv
+          - type: custom:state-icon
+            entity: media_player.tv
             tap_action: toggle
             style:
               top: 55%
