@@ -71,7 +71,7 @@ views:
             entity: media_player.tv
             tap_action: toggle
             style:
-              top: 55%
+              top: 54%
               left: 50%
           # living room balcony
           - type: state-icon
