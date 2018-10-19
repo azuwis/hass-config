@@ -6,6 +6,9 @@ homeassistant:
   time_zone: Asia/Shanghai
   unit_system: metric
   customize: !include customize.yaml
+  customize_domain:
+    climate:
+      icon: mdi:air-conditioner
   packages: !include_dir_named packages
 
 frontend:
