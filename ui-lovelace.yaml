@@ -63,20 +63,20 @@ views:
               left: 68%
           - type: state-icon
             entity: light.living_room
-            tap_action: toggle
+            hold_action: toggle
             style:
               top: 33%
               left: 50%
           - type: custom:state-icon
             entity: media_player.tv
-            tap_action: toggle
+            hold_action: toggle
             style:
               top: 54%
               left: 50%
           # living room balcony
           - type: state-icon
             entity: switch.water_heater
-            tap_action: toggle
+            hold_action: toggle
             style:
               top: 17%
               left: 22%
@@ -87,8 +87,11 @@ views:
               top: 64.8%
               left: 29.5%
           - type: state-icon
-            entity: switch.climate_bedroom
-            tap_action: toggle
+            entity: climate.bedroom
+            hold_action: call-service
+            service: switch.toggle
+            service_data:
+              entity_id: switch.climate_bedroom
             style:
               top: 83%
               left: 34%
@@ -96,6 +99,7 @@ views:
             entity: sensor.ht_bedroom_temperature
             tap_action: navigate
             navigation_path: /lovelace/history
+            hold_action: more-info
             style:
               top: 90%
               left: 12.5%
@@ -103,6 +107,7 @@ views:
             entity: sensor.ht_bedroom_humidity
             tap_action: navigate
             navigation_path: /lovelace/history
+            hold_action: more-info
             style:
               top: 85%
               left: 12%
@@ -138,6 +143,7 @@ views:
             entity: sensor.ht_outside_temperature
             tap_action: navigate
             navigation_path: /lovelace/history
+            hold_action: more-info
             style:
               top: 72%
               left: 90%
@@ -145,6 +151,7 @@ views:
             entity: sensor.ht_outside_humidity
             tap_action: navigate
             navigation_path: /lovelace/history
+            hold_action: more-info
             style:
               top: 67%
               left: 89.6%
