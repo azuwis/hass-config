@@ -43,8 +43,8 @@ history:
 
 hotword_snowboy:
   model: snowboy/alexa.umdl
-  sensitivity: 0.15
-  apply_frontend: no
+  sensitivity: 0.6
+  apply_frontend: yes
 
 intent_script:
   Default:
