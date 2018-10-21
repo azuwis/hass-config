@@ -29,7 +29,7 @@ conversation:
     TurnOnOff:
       - (?P<action>打开|关闭|关掉)(?P<name>.+)
     Query:
-      - (?P<name>温度|室内温度|室内湿度|室外温度|室外湿度|天气|空气质量)
+      - (?P<name>温度|室内温度|室内湿度|室外温度|室外湿度|天气|空气)
       - 查看{name}
       - 查询{name}
     Rain:
@@ -97,7 +97,7 @@ intent_script:
           {% endif %}
           {{ states('sensor.dark_sky_hourly_summary') }}
           未来一周{{ states('sensor.dark_sky_daily_summary') | regex_replace('°C', '度') }}
-        {% elif name == '空气质量' %}
+        {% elif name | regex_match('空气') %}
           {% set aqi = states('sensor.us_air_quality_index') | int %}
           当前空气质量
           {% if aqi == 0 %}
