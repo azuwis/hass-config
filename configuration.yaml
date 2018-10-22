@@ -469,10 +469,13 @@ switch:
             service: climate.xiaomi_miio_send_command
             data:
               command: FE00000000000000000000000005002C2251003600A801C403841388320001000101000000010000000001000100000101010001010101000100000000010001000101010100010410
+          - &water_heater_delay
+            delay: '00:00:01'
           - *water_heater_heating
           - *water_heater_wait
           - *water_heater_condition
           - *water_heater_power
+          - *water_heater_delay
           - *water_heater_heating
         turn_off:
           - condition: template
