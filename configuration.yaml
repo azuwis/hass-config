@@ -330,6 +330,7 @@ light:
     devices:
       !secret yeelight_host:
         name: Living room
+        model: ceiling4
         save_on_change: no
         transition: 1000
 
