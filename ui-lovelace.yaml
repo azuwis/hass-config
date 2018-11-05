@@ -155,7 +155,14 @@ views:
             style:
               top: 67%
               left: 89.6%
-
+          - type: state-label
+            entity: sensor.us_air_quality_index
+            tap_action: navigate
+            navigation_path: /lovelace/history
+            hold_action: more-info
+            style:
+              top: 77%
+              left: 88.7%
 
       - type: conditional
         conditions:
@@ -208,6 +215,7 @@ views:
           - sensor.ht_bedroom_temperature
           - sensor.ht_outside_humidity
           - sensor.ht_outside_temperature
+          - sensor.us_air_quality_index
 
   - title: Map
     id: map
