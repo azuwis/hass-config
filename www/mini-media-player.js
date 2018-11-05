@@ -1,1463 +1,136 @@
-const directives = new WeakMap();
-const isDirective = (o) => typeof o === 'function' && directives.has(o);
-
-const isCEPolyfill = window.customElements !== undefined &&
-    window.customElements.polyfillWrapFlushCallback !== undefined;
-const removeNodes = (container, startNode, endNode = null) => {
-    let node = startNode;
-    while (node !== endNode) {
-        const n = node.nextSibling;
-        container.removeChild(node);
-        node = n;
-    }
-};
-
-const noChange = {};
-
-const marker = `{{lit-${String(Math.random()).slice(2)}}}`;
-const nodeMarker = `<!--${marker}-->`;
-const markerRegex = new RegExp(`${marker}|${nodeMarker}`);
-const rewritesStyleAttribute = (() => {
-    const el = document.createElement('div');
-    el.setAttribute('style', '{{bad value}}');
-    return el.getAttribute('style') !== '{{bad value}}';
-})();
-class Template {
-    constructor(result, element) {
-        this.parts = [];
-        this.element = element;
-        let index = -1;
-        let partIndex = 0;
-        const nodesToRemove = [];
-        const _prepareTemplate = (template) => {
-            const content = template.content;
-            const walker = document.createTreeWalker(content, 133
-                                          , null, false);
-            let previousNode;
-            let currentNode;
-            while (walker.nextNode()) {
-                index++;
-                previousNode = currentNode;
-                const node = currentNode = walker.currentNode;
-                if (node.nodeType === 1                        ) {
-                    if (node.hasAttributes()) {
-                        const attributes = node.attributes;
-                        let count = 0;
-                        for (let i = 0; i < attributes.length; i++) {
-                            if (attributes[i].value.indexOf(marker) >= 0) {
-                                count++;
-                            }
-                        }
-                        while (count-- > 0) {
-                            const stringForPart = result.strings[partIndex];
-                            const name = lastAttributeNameRegex.exec(stringForPart)[2];
-                            const attributeLookupName = (rewritesStyleAttribute && name === 'style') ?
-                                'style$' :
-                                /^[a-zA-Z-]*$/.test(name) ? name : name.toLowerCase();
-                            const attributeValue = node.getAttribute(attributeLookupName);
-                            const strings = attributeValue.split(markerRegex);
-                            this.parts.push({ type: 'attribute', index, name, strings });
-                            node.removeAttribute(attributeLookupName);
-                            partIndex += strings.length - 1;
-                        }
-                    }
-                    if (node.tagName === 'TEMPLATE') {
-                        _prepareTemplate(node);
-                    }
-                }
-                else if (node.nodeType === 3                     ) {
-                    const nodeValue = node.nodeValue;
-                    if (nodeValue.indexOf(marker) < 0) {
-                        continue;
-                    }
-                    const parent = node.parentNode;
-                    const strings = nodeValue.split(markerRegex);
-                    const lastIndex = strings.length - 1;
-                    partIndex += lastIndex;
-                    for (let i = 0; i < lastIndex; i++) {
-                        parent.insertBefore((strings[i] === '') ? createMarker() :
-                            document.createTextNode(strings[i]), node);
-                        this.parts.push({ type: 'node', index: index++ });
-                    }
-                    parent.insertBefore(strings[lastIndex] === '' ?
-                        createMarker() :
-                        document.createTextNode(strings[lastIndex]), node);
-                    nodesToRemove.push(node);
-                }
-                else if (node.nodeType === 8                        ) {
-                    if (node.nodeValue === marker) {
-                        const parent = node.parentNode;
-                        const previousSibling = node.previousSibling;
-                        if (previousSibling === null || previousSibling !== previousNode ||
-                            previousSibling.nodeType !== Node.TEXT_NODE) {
-                            parent.insertBefore(createMarker(), node);
-                        }
-                        else {
-                            index--;
-                        }
-                        this.parts.push({ type: 'node', index: index++ });
-                        nodesToRemove.push(node);
-                        if (node.nextSibling === null) {
-                            parent.insertBefore(createMarker(), node);
-                        }
-                        else {
-                            index--;
-                        }
-                        currentNode = previousNode;
-                        partIndex++;
-                    }
-                    else {
-                        let i = -1;
-                        while ((i = node.nodeValue.indexOf(marker, i + 1)) !== -1) {
-                            this.parts.push({ type: 'node', index: -1 });
-                        }
-                    }
-                }
-            }
-        };
-        _prepareTemplate(element);
-        for (const n of nodesToRemove) {
-            n.parentNode.removeChild(n);
-        }
-    }
-}
-const isTemplatePartActive = (part) => part.index !== -1;
-const createMarker = () => document.createComment('');
-const lastAttributeNameRegex = /([ \x09\x0a\x0c\x0d])([^\0-\x1F\x7F-\x9F \x09\x0a\x0c\x0d"'>=/]+)([ \x09\x0a\x0c\x0d]*=[ \x09\x0a\x0c\x0d]*(?:[^ \x09\x0a\x0c\x0d"'`<>=]*|"[^"]*|'[^']*))$/;
-
-class TemplateInstance {
-    constructor(template, processor, options) {
-        this._parts = [];
-        this.template = template;
-        this.processor = processor;
-        this.options = options;
-    }
-    update(values) {
-        let i = 0;
-        for (const part of this._parts) {
-            if (part !== undefined) {
-                part.setValue(values[i]);
-            }
-            i++;
-        }
-        for (const part of this._parts) {
-            if (part !== undefined) {
-                part.commit();
-            }
-        }
-    }
-    _clone() {
-        const fragment = isCEPolyfill ?
-            this.template.element.content.cloneNode(true) :
-            document.importNode(this.template.element.content, true);
-        const parts = this.template.parts;
-        let partIndex = 0;
-        let nodeIndex = 0;
-        const _prepareInstance = (fragment) => {
-            const walker = document.createTreeWalker(fragment, 133                                             , null, false);
-            let node = walker.nextNode();
-            while (partIndex < parts.length && node !== null) {
-                const part = parts[partIndex];
-                if (!isTemplatePartActive(part)) {
-                    this._parts.push(undefined);
-                    partIndex++;
-                }
-                else if (nodeIndex === part.index) {
-                    if (part.type === 'node') {
-                        const part = this.processor.handleTextExpression(this.options);
-                        part.insertAfterNode(node);
-                        this._parts.push(part);
-                    }
-                    else {
-                        this._parts.push(...this.processor.handleAttributeExpressions(node, part.name, part.strings, this.options));
-                    }
-                    partIndex++;
-                }
-                else {
-                    nodeIndex++;
-                    if (node.nodeName === 'TEMPLATE') {
-                        _prepareInstance(node.content);
-                    }
-                    node = walker.nextNode();
-                }
-            }
-        };
-        _prepareInstance(fragment);
-        if (isCEPolyfill) {
-            document.adoptNode(fragment);
-            customElements.upgrade(fragment);
-        }
-        return fragment;
-    }
-}
-
-class TemplateResult {
-    constructor(strings, values, type, processor) {
-        this.strings = strings;
-        this.values = values;
-        this.type = type;
-        this.processor = processor;
-    }
-    getHTML() {
-        const l = this.strings.length - 1;
-        let html = '';
-        let isTextBinding = true;
-        for (let i = 0; i < l; i++) {
-            const s = this.strings[i];
-            html += s;
-            const close = s.lastIndexOf('>');
-            isTextBinding =
-                (close > -1 || isTextBinding) && s.indexOf('<', close + 1) === -1;
-            if (!isTextBinding && rewritesStyleAttribute) {
-                html = html.replace(lastAttributeNameRegex, (match, p1, p2, p3) => {
-                    return (p2 === 'style') ? `${p1}style$${p3}` : match;
-                });
-            }
-            html += isTextBinding ? nodeMarker : marker;
-        }
-        html += this.strings[l];
-        return html;
-    }
-    getTemplateElement() {
-        const template = document.createElement('template');
-        template.innerHTML = this.getHTML();
-        return template;
-    }
-}
-
-const isPrimitive = (value) => (value === null ||
-    !(typeof value === 'object' || typeof value === 'function'));
-class AttributeCommitter {
-    constructor(element, name, strings) {
-        this.dirty = true;
-        this.element = element;
-        this.name = name;
-        this.strings = strings;
-        this.parts = [];
-        for (let i = 0; i < strings.length - 1; i++) {
-            this.parts[i] = this._createPart();
-        }
-    }
-    _createPart() {
-        return new AttributePart(this);
-    }
-    _getValue() {
-        const strings = this.strings;
-        const l = strings.length - 1;
-        let text = '';
-        for (let i = 0; i < l; i++) {
-            text += strings[i];
-            const part = this.parts[i];
-            if (part !== undefined) {
-                const v = part.value;
-                if (v != null &&
-                    (Array.isArray(v) || typeof v !== 'string' && v[Symbol.iterator])) {
-                    for (const t of v) {
-                        text += typeof t === 'string' ? t : String(t);
-                    }
-                }
-                else {
-                    text += typeof v === 'string' ? v : String(v);
-                }
-            }
-        }
-        text += strings[l];
-        return text;
-    }
-    commit() {
-        if (this.dirty) {
-            this.dirty = false;
-            this.element.setAttribute(this.name, this._getValue());
-        }
-    }
-}
-class AttributePart {
-    constructor(comitter) {
-        this.value = undefined;
-        this.committer = comitter;
-    }
-    setValue(value) {
-        if (value !== noChange && (!isPrimitive(value) || value !== this.value)) {
-            this.value = value;
-            if (!isDirective(value)) {
-                this.committer.dirty = true;
-            }
-        }
-    }
-    commit() {
-        while (isDirective(this.value)) {
-            const directive$$1 = this.value;
-            this.value = noChange;
-            directive$$1(this);
-        }
-        if (this.value === noChange) {
-            return;
-        }
-        this.committer.commit();
-    }
-}
-class NodePart {
-    constructor(options) {
-        this.value = undefined;
-        this._pendingValue = undefined;
-        this.options = options;
-    }
-    appendInto(container) {
-        this.startNode = container.appendChild(createMarker());
-        this.endNode = container.appendChild(createMarker());
-    }
-    insertAfterNode(ref) {
-        this.startNode = ref;
-        this.endNode = ref.nextSibling;
-    }
-    appendIntoPart(part) {
-        part._insert(this.startNode = createMarker());
-        part._insert(this.endNode = createMarker());
-    }
-    insertAfterPart(ref) {
-        ref._insert(this.startNode = createMarker());
-        this.endNode = ref.endNode;
-        ref.endNode = this.startNode;
-    }
-    setValue(value) {
-        this._pendingValue = value;
-    }
-    commit() {
-        while (isDirective(this._pendingValue)) {
-            const directive$$1 = this._pendingValue;
-            this._pendingValue = noChange;
-            directive$$1(this);
-        }
-        const value = this._pendingValue;
-        if (value === noChange) {
-            return;
-        }
-        if (isPrimitive(value)) {
-            if (value !== this.value) {
-                this._commitText(value);
-            }
-        }
-        else if (value instanceof TemplateResult) {
-            this._commitTemplateResult(value);
-        }
-        else if (value instanceof Node) {
-            this._commitNode(value);
-        }
-        else if (Array.isArray(value) || value[Symbol.iterator]) {
-            this._commitIterable(value);
-        }
-        else if (value.then !== undefined) {
-            this._commitPromise(value);
-        }
-        else {
-            this._commitText(value);
-        }
-    }
-    _insert(node) {
-        this.endNode.parentNode.insertBefore(node, this.endNode);
-    }
-    _commitNode(value) {
-        if (this.value === value) {
-            return;
-        }
-        this.clear();
-        this._insert(value);
-        this.value = value;
-    }
-    _commitText(value) {
-        const node = this.startNode.nextSibling;
-        value = value == null ? '' : value;
-        if (node === this.endNode.previousSibling &&
-            node.nodeType === Node.TEXT_NODE) {
-            node.textContent = value;
-        }
-        else {
-            this._commitNode(document.createTextNode(typeof value === 'string' ? value : String(value)));
-        }
-        this.value = value;
-    }
-    _commitTemplateResult(value) {
-        const template = this.options.templateFactory(value);
-        if (this.value && this.value.template === template) {
-            this.value.update(value.values);
-        }
-        else {
-            const instance = new TemplateInstance(template, value.processor, this.options);
-            const fragment = instance._clone();
-            instance.update(value.values);
-            this._commitNode(fragment);
-            this.value = instance;
-        }
-    }
-    _commitIterable(value) {
-        if (!Array.isArray(this.value)) {
-            this.value = [];
-            this.clear();
-        }
-        const itemParts = this.value;
-        let partIndex = 0;
-        let itemPart;
-        for (const item of value) {
-            itemPart = itemParts[partIndex];
-            if (itemPart === undefined) {
-                itemPart = new NodePart(this.options);
-                itemParts.push(itemPart);
-                if (partIndex === 0) {
-                    itemPart.appendIntoPart(this);
-                }
-                else {
-                    itemPart.insertAfterPart(itemParts[partIndex - 1]);
-                }
-            }
-            itemPart.setValue(item);
-            itemPart.commit();
-            partIndex++;
-        }
-        if (partIndex < itemParts.length) {
-            itemParts.length = partIndex;
-            this.clear(itemPart && itemPart.endNode);
-        }
-    }
-    _commitPromise(value) {
-        this.value = value;
-        value.then((v) => {
-            if (this.value === value) {
-                this.setValue(v);
-                this.commit();
-            }
-        });
-    }
-    clear(startNode = this.startNode) {
-        removeNodes(this.startNode.parentNode, startNode.nextSibling, this.endNode);
-    }
-}
-class BooleanAttributePart {
-    constructor(element, name, strings) {
-        this.value = undefined;
-        this._pendingValue = undefined;
-        if (strings.length !== 2 || strings[0] !== '' || strings[1] !== '') {
-            throw new Error('Boolean attributes can only contain a single expression');
-        }
-        this.element = element;
-        this.name = name;
-        this.strings = strings;
-    }
-    setValue(value) {
-        this._pendingValue = value;
-    }
-    commit() {
-        while (isDirective(this._pendingValue)) {
-            const directive$$1 = this._pendingValue;
-            this._pendingValue = noChange;
-            directive$$1(this);
-        }
-        if (this._pendingValue === noChange) {
-            return;
-        }
-        const value = !!this._pendingValue;
-        if (this.value !== value) {
-            if (value) {
-                this.element.setAttribute(this.name, '');
-            }
-            else {
-                this.element.removeAttribute(this.name);
-            }
-        }
-        this.value = value;
-        this._pendingValue = noChange;
-    }
-}
-class PropertyCommitter extends AttributeCommitter {
-    constructor(element, name, strings) {
-        super(element, name, strings);
-        this.single =
-            (strings.length === 2 && strings[0] === '' && strings[1] === '');
-    }
-    _createPart() {
-        return new PropertyPart(this);
-    }
-    _getValue() {
-        if (this.single) {
-            return this.parts[0].value;
-        }
-        return super._getValue();
-    }
-    commit() {
-        if (this.dirty) {
-            this.dirty = false;
-            this.element[this.name] = this._getValue();
-        }
-    }
-}
-class PropertyPart extends AttributePart {
-}
-let eventOptionsSupported = false;
-try {
-    const options = {
-        get capture() {
-            eventOptionsSupported = true;
-            return false;
-        }
-    };
-    window.addEventListener('test', options, options);
-    window.removeEventListener('test', options, options);
-}
-catch (_e) {
-}
-class EventPart {
-    constructor(element, eventName, eventContext) {
-        this.value = undefined;
-        this._pendingValue = undefined;
-        this.element = element;
-        this.eventName = eventName;
-        this.eventContext = eventContext;
-    }
-    setValue(value) {
-        this._pendingValue = value;
-    }
-    commit() {
-        while (isDirective(this._pendingValue)) {
-            const directive$$1 = this._pendingValue;
-            this._pendingValue = noChange;
-            directive$$1(this);
-        }
-        if (this._pendingValue === noChange) {
-            return;
-        }
-        const newListener = this._pendingValue;
-        const oldListener = this.value;
-        const shouldRemoveListener = newListener == null ||
-            oldListener != null &&
-                (newListener.capture !== oldListener.capture ||
-                    newListener.once !== oldListener.once ||
-                    newListener.passive !== oldListener.passive);
-        const shouldAddListener = newListener != null && (oldListener == null || shouldRemoveListener);
-        if (shouldRemoveListener) {
-            this.element.removeEventListener(this.eventName, this, this._options);
-        }
-        this._options = getOptions(newListener);
-        if (shouldAddListener) {
-            this.element.addEventListener(this.eventName, this, this._options);
-        }
-        this.value = newListener;
-        this._pendingValue = noChange;
-    }
-    handleEvent(event) {
-        const listener = (typeof this.value === 'function') ?
-            this.value :
-            (typeof this.value.handleEvent === 'function') ?
-                this.value.handleEvent :
-                () => null;
-        listener.call(this.eventContext || this.element, event);
-    }
-}
-const getOptions = (o) => o &&
-    (eventOptionsSupported ?
-        { capture: o.capture, passive: o.passive, once: o.once } :
-        o.capture);
-
-class DefaultTemplateProcessor {
-    handleAttributeExpressions(element, name, strings, options) {
-        const prefix = name[0];
-        if (prefix === '.') {
-            const comitter = new PropertyCommitter(element, name.slice(1), strings);
-            return comitter.parts;
-        }
-        if (prefix === '@') {
-            return [new EventPart(element, name.slice(1), options.eventContext)];
-        }
-        if (prefix === '?') {
-            return [new BooleanAttributePart(element, name.slice(1), strings)];
-        }
-        const comitter = new AttributeCommitter(element, name, strings);
-        return comitter.parts;
-    }
-    handleTextExpression(options) {
-        return new NodePart(options);
-    }
-}
-const defaultTemplateProcessor = new DefaultTemplateProcessor();
-
-function templateFactory(result) {
-    let templateCache = templateCaches.get(result.type);
-    if (templateCache === undefined) {
-        templateCache = new Map();
-        templateCaches.set(result.type, templateCache);
-    }
-    let template = templateCache.get(result.strings);
-    if (template === undefined) {
-        template = new Template(result, result.getTemplateElement());
-        templateCache.set(result.strings, template);
-    }
-    return template;
-}
-const templateCaches = new Map();
-
-const parts = new WeakMap();
-const render = (result, container, options) => {
-    let part = parts.get(container);
-    if (part === undefined) {
-        removeNodes(container, container.firstChild);
-        parts.set(container, part = new NodePart(Object.assign({ templateFactory }, options)));
-        part.appendInto(container);
-    }
-    part.setValue(result);
-    part.commit();
-};
-
-const html = (strings, ...values) => new TemplateResult(strings, values, 'html', defaultTemplateProcessor);
-
-const walkerNodeFilter = NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_COMMENT | NodeFilter.SHOW_TEXT;
-function removeNodesFromTemplate(template, nodesToRemove) {
-    const { element: { content }, parts } = template;
-    const walker = document.createTreeWalker(content, walkerNodeFilter, null, false);
-    let partIndex = nextActiveIndexInTemplateParts(parts);
-    let part = parts[partIndex];
-    let nodeIndex = -1;
-    let removeCount = 0;
-    const nodesToRemoveInTemplate = [];
-    let currentRemovingNode = null;
-    while (walker.nextNode()) {
-        nodeIndex++;
-        const node = walker.currentNode;
-        if (node.previousSibling === currentRemovingNode) {
-            currentRemovingNode = null;
-        }
-        if (nodesToRemove.has(node)) {
-            nodesToRemoveInTemplate.push(node);
-            if (currentRemovingNode === null) {
-                currentRemovingNode = node;
-            }
-        }
-        if (currentRemovingNode !== null) {
-            removeCount++;
-        }
-        while (part !== undefined && part.index === nodeIndex) {
-            part.index = currentRemovingNode !== null ? -1 : part.index - removeCount;
-            partIndex = nextActiveIndexInTemplateParts(parts, partIndex);
-            part = parts[partIndex];
-        }
-    }
-    nodesToRemoveInTemplate.forEach((n) => n.parentNode.removeChild(n));
-}
-const countNodes = (node) => {
-    let count = (node.nodeType === Node.DOCUMENT_FRAGMENT_NODE) ? 0 : 1;
-    const walker = document.createTreeWalker(node, walkerNodeFilter, null, false);
-    while (walker.nextNode()) {
-        count++;
-    }
-    return count;
-};
-const nextActiveIndexInTemplateParts = (parts, startIndex = -1) => {
-    for (let i = startIndex + 1; i < parts.length; i++) {
-        const part = parts[i];
-        if (isTemplatePartActive(part)) {
-            return i;
-        }
-    }
-    return -1;
-};
-function insertNodeIntoTemplate(template, node, refNode = null) {
-    const { element: { content }, parts } = template;
-    if (refNode === null || refNode === undefined) {
-        content.appendChild(node);
-        return;
-    }
-    const walker = document.createTreeWalker(content, walkerNodeFilter, null, false);
-    let partIndex = nextActiveIndexInTemplateParts(parts);
-    let insertCount = 0;
-    let walkerIndex = -1;
-    while (walker.nextNode()) {
-        walkerIndex++;
-        const walkerNode = walker.currentNode;
-        if (walkerNode === refNode) {
-            insertCount = countNodes(node);
-            refNode.parentNode.insertBefore(node, refNode);
-        }
-        while (partIndex !== -1 && parts[partIndex].index === walkerIndex) {
-            if (insertCount > 0) {
-                while (partIndex !== -1) {
-                    parts[partIndex].index += insertCount;
-                    partIndex = nextActiveIndexInTemplateParts(parts, partIndex);
-                }
-                return;
-            }
-            partIndex = nextActiveIndexInTemplateParts(parts, partIndex);
-        }
-    }
-}
-
-const getTemplateCacheKey = (type, scopeName) => `${type}--${scopeName}`;
-let compatibleShadyCSSVersion = true;
-if (typeof window.ShadyCSS === 'undefined') {
-    compatibleShadyCSSVersion = false;
-}
-else if (typeof window.ShadyCSS.prepareTemplateDom === 'undefined') {
-    console.warn(`Incompatible ShadyCSS version detected.` +
-        `Please update to at least @webcomponents/webcomponentsjs@2.0.2 and` +
-        `@webcomponents/shadycss@1.3.1.`);
-    compatibleShadyCSSVersion = false;
-}
-const shadyTemplateFactory = (scopeName) => (result) => {
-    const cacheKey = getTemplateCacheKey(result.type, scopeName);
-    let templateCache = templateCaches.get(cacheKey);
-    if (templateCache === undefined) {
-        templateCache = new Map();
-        templateCaches.set(cacheKey, templateCache);
-    }
-    let template = templateCache.get(result.strings);
-    if (template === undefined) {
-        const element = result.getTemplateElement();
-        if (compatibleShadyCSSVersion) {
-            window.ShadyCSS.prepareTemplateDom(element, scopeName);
-        }
-        template = new Template(result, element);
-        templateCache.set(result.strings, template);
-    }
-    return template;
-};
-const TEMPLATE_TYPES = ['html', 'svg'];
-const removeStylesFromLitTemplates = (scopeName) => {
-    TEMPLATE_TYPES.forEach((type) => {
-        const templates = templateCaches.get(getTemplateCacheKey(type, scopeName));
-        if (templates !== undefined) {
-            templates.forEach((template) => {
-                const { element: { content } } = template;
-                const styles = new Set();
-                Array.from(content.querySelectorAll('style')).forEach((s) => {
-                    styles.add(s);
-                });
-                removeNodesFromTemplate(template, styles);
-            });
-        }
-    });
-};
-const shadyRenderSet = new Set();
-const prepareTemplateStyles = (renderedDOM, template, scopeName) => {
-    shadyRenderSet.add(scopeName);
-    const styles = renderedDOM.querySelectorAll('style');
-    if (styles.length === 0) {
-        return;
-    }
-    const condensedStyle = document.createElement('style');
-    for (let i = 0; i < styles.length; i++) {
-        const style = styles[i];
-        style.parentNode.removeChild(style);
-        condensedStyle.textContent += style.textContent;
-    }
-    removeStylesFromLitTemplates(scopeName);
-    insertNodeIntoTemplate(template, condensedStyle, template.element.content.firstChild);
-    window.ShadyCSS.prepareTemplateStyles(template.element, scopeName);
-    if (window.ShadyCSS.nativeShadow) {
-        const style = template.element.content.querySelector('style');
-        renderedDOM.insertBefore(style.cloneNode(true), renderedDOM.firstChild);
-    }
-    else {
-        template.element.content.insertBefore(condensedStyle, template.element.content.firstChild);
-        const removes = new Set();
-        removes.add(condensedStyle);
-        removeNodesFromTemplate(template, removes);
-    }
-};
-const render$1 = (result, container, options) => {
-    const scopeName = options.scopeName;
-    const hasRendered = parts.has(container);
-    render(result, container, Object.assign({ templateFactory: shadyTemplateFactory(scopeName) }, options));
-    if (container instanceof ShadowRoot && compatibleShadyCSSVersion &&
-        result instanceof TemplateResult) {
-        if (!shadyRenderSet.has(scopeName)) {
-            const part = parts.get(container);
-            const instance = part.value;
-            prepareTemplateStyles(container, instance.template, scopeName);
-        }
-        if (!hasRendered) {
-            window.ShadyCSS.styleElement(container.host);
-        }
-    }
-};
-
-const fromBooleanAttribute = (value) => value !== null;
-const toBooleanAttribute = (value) => value ? '' : null;
-const notEqual = (value, old) => {
-    return old !== value && (old === old || value === value);
-};
-const defaultPropertyDeclaration = {
-    attribute: true,
-    type: String,
-    reflect: false,
-    hasChanged: notEqual
-};
-const microtaskPromise = new Promise((resolve) => resolve(true));
-const STATE_HAS_UPDATED = 1;
-const STATE_UPDATE_REQUESTED = 1 << 2;
-const STATE_IS_REFLECTING = 1 << 3;
-class UpdatingElement extends HTMLElement {
-    constructor() {
-        super();
-        this._updateState = 0;
-        this._instanceProperties = undefined;
-        this._updatePromise = microtaskPromise;
-        this._changedProperties = new Map();
-        this._reflectingProperties = undefined;
-        this.initialize();
-    }
-    static get observedAttributes() {
-        this._finalize();
-        const attributes = [];
-        for (const [p, v] of this._classProperties) {
-            const attr = this._attributeNameForProperty(p, v);
-            if (attr !== undefined) {
-                this._attributeToPropertyMap.set(attr, p);
-                attributes.push(attr);
-            }
-        }
-        return attributes;
-    }
-    static createProperty(name, options = defaultPropertyDeclaration) {
-        if (!this.hasOwnProperty('_classProperties')) {
-            this._classProperties = new Map();
-            const superProperties = Object.getPrototypeOf(this)._classProperties;
-            if (superProperties !== undefined) {
-                superProperties.forEach((v, k) => this._classProperties.set(k, v));
-            }
-        }
-        this._classProperties.set(name, options);
-        if (this.prototype.hasOwnProperty(name)) {
-            return;
-        }
-        const key = typeof name === 'symbol' ? Symbol() : `__${name}`;
-        Object.defineProperty(this.prototype, name, {
-            get() { return this[key]; },
-            set(value) {
-                const oldValue = this[name];
-                this[key] = value;
-                this._requestPropertyUpdate(name, oldValue, options);
-            },
-            configurable: true,
-            enumerable: true
-        });
-    }
-    static _finalize() {
-        if (this.hasOwnProperty('_finalized') && this._finalized) {
-            return;
-        }
-        const superCtor = Object.getPrototypeOf(this);
-        if (typeof superCtor._finalize === 'function') {
-            superCtor._finalize();
-        }
-        this._finalized = true;
-        this._attributeToPropertyMap = new Map();
-        const props = this.properties;
-        const propKeys = [
-            ...Object.getOwnPropertyNames(props),
-            ...(typeof Object.getOwnPropertySymbols === 'function')
-                ? Object.getOwnPropertySymbols(props)
-                : []
-        ];
-        for (const p of propKeys) {
-            this.createProperty(p, props[p]);
-        }
-    }
-    static _attributeNameForProperty(name, options) {
-        const attribute = options !== undefined && options.attribute;
-        return attribute === false
-            ? undefined
-            : (typeof attribute === 'string'
-                ? attribute
-                : (typeof name === 'string' ? name.toLowerCase()
-                    : undefined));
-    }
-    static _valueHasChanged(value, old, hasChanged = notEqual) {
-        return hasChanged(value, old);
-    }
-    static _propertyValueFromAttribute(value, options) {
-        const type = options && options.type;
-        if (type === undefined) {
-            return value;
-        }
-        const fromAttribute = type === Boolean
-            ? fromBooleanAttribute
-            : (typeof type === 'function' ? type : type.fromAttribute);
-        return fromAttribute ? fromAttribute(value) : value;
-    }
-    static _propertyValueToAttribute(value, options) {
-        if (options === undefined || options.reflect === undefined) {
-            return;
-        }
-        const toAttribute = options.type === Boolean
-            ? toBooleanAttribute
-            : (options.type &&
-                options.type.toAttribute ||
-                String);
-        return toAttribute(value);
-    }
-    initialize() {
-        this.renderRoot = this.createRenderRoot();
-        this._saveInstanceProperties();
-    }
-    _saveInstanceProperties() {
-        for (const [p] of this.constructor
-            ._classProperties) {
-            if (this.hasOwnProperty(p)) {
-                const value = this[p];
-                delete this[p];
-                if (!this._instanceProperties) {
-                    this._instanceProperties = new Map();
-                }
-                this._instanceProperties.set(p, value);
-            }
-        }
-    }
-    _applyInstanceProperties() {
-        for (const [p, v] of this._instanceProperties) {
-            this[p] = v;
-        }
-        this._instanceProperties = undefined;
-    }
-    createRenderRoot() {
-        return this.attachShadow({ mode: 'open' });
-    }
-    connectedCallback() {
-        if ((this._updateState & STATE_HAS_UPDATED)) {
-            if (window.ShadyCSS !== undefined) {
-                window.ShadyCSS.styleElement(this);
-            }
-        }
-        else {
-            this.requestUpdate();
-        }
-    }
-    disconnectedCallback() { }
-    attributeChangedCallback(name, old, value) {
-        if (old !== value) {
-            this._attributeToProperty(name, value);
-        }
-    }
-    _propertyToAttribute(name, value, options = defaultPropertyDeclaration) {
-        const ctor = this.constructor;
-        const attrValue = ctor._propertyValueToAttribute(value, options);
-        if (attrValue !== undefined) {
-            const attr = ctor._attributeNameForProperty(name, options);
-            if (attr !== undefined) {
-                this._updateState = this._updateState | STATE_IS_REFLECTING;
-                if (attrValue === null) {
-                    this.removeAttribute(attr);
-                }
-                else {
-                    this.setAttribute(attr, attrValue);
-                }
-                this._updateState = this._updateState & ~STATE_IS_REFLECTING;
-            }
-        }
-    }
-    _attributeToProperty(name, value) {
-        if (!(this._updateState & STATE_IS_REFLECTING)) {
-            const ctor = this.constructor;
-            const propName = ctor._attributeToPropertyMap.get(name);
-            if (propName !== undefined) {
-                const options = ctor._classProperties.get(propName);
-                this[propName] =
-                    ctor._propertyValueFromAttribute(value, options);
-            }
-        }
-    }
-    requestUpdate(name, oldValue) {
-        if (name !== undefined) {
-            const options = this.constructor
-                ._classProperties.get(name) ||
-                defaultPropertyDeclaration;
-            return this._requestPropertyUpdate(name, oldValue, options);
-        }
-        return this._invalidate();
-    }
-    _requestPropertyUpdate(name, oldValue, options) {
-        if (!this.constructor
-            ._valueHasChanged(this[name], oldValue, options.hasChanged)) {
-            return this.updateComplete;
-        }
-        if (!this._changedProperties.has(name)) {
-            this._changedProperties.set(name, oldValue);
-        }
-        if (options.reflect === true) {
-            if (this._reflectingProperties === undefined) {
-                this._reflectingProperties = new Map();
-            }
-            this._reflectingProperties.set(name, options);
-        }
-        return this._invalidate();
-    }
-    async _invalidate() {
-        if (!this._hasRequestedUpdate) {
-            this._updateState = this._updateState | STATE_UPDATE_REQUESTED;
-            let resolver;
-            const previousValidatePromise = this._updatePromise;
-            this._updatePromise = new Promise((r) => resolver = r);
-            await previousValidatePromise;
-            this._validate();
-            resolver(!this._hasRequestedUpdate);
-        }
-        return this.updateComplete;
-    }
-    get _hasRequestedUpdate() {
-        return (this._updateState & STATE_UPDATE_REQUESTED);
-    }
-    _validate() {
-        if (this._instanceProperties) {
-            this._applyInstanceProperties();
-        }
-        if (this.shouldUpdate(this._changedProperties)) {
-            const changedProperties = this._changedProperties;
-            this.update(changedProperties);
-            this._markUpdated();
-            if (!(this._updateState & STATE_HAS_UPDATED)) {
-                this._updateState = this._updateState | STATE_HAS_UPDATED;
-                this.firstUpdated(changedProperties);
-            }
-            this.updated(changedProperties);
-        }
-        else {
-            this._markUpdated();
-        }
-    }
-    _markUpdated() {
-        this._changedProperties = new Map();
-        this._updateState = this._updateState & ~STATE_UPDATE_REQUESTED;
-    }
-    get updateComplete() { return this._updatePromise; }
-    shouldUpdate(_changedProperties) {
-        return true;
-    }
-    update(_changedProperties) {
-        if (this._reflectingProperties !== undefined &&
-            this._reflectingProperties.size > 0) {
-            for (const [k, v] of this._reflectingProperties) {
-                this._propertyToAttribute(k, this[k], v);
-            }
-            this._reflectingProperties = undefined;
-        }
-    }
-    updated(_changedProperties) { }
-    firstUpdated(_changedProperties) { }
-}
-UpdatingElement._attributeToPropertyMap = new Map();
-UpdatingElement._finalized = true;
-UpdatingElement._classProperties = new Map();
-UpdatingElement.properties = {};
-
-class LitElement extends UpdatingElement {
-    update(changedProperties) {
-        super.update(changedProperties);
-        const templateResult = this.render();
-        if (templateResult instanceof TemplateResult) {
-            this.constructor
-                .render(templateResult, this.renderRoot, { scopeName: this.localName, eventContext: this });
-        }
-    }
-    render() { }
-}
-LitElement.render = render$1;
-
-const MEDIA_INFO = [
-  { attr: 'media_title' },
-  { attr: 'media_artist' },
-  { attr: 'media_series_title' },
-  { attr: 'media_season', prefix: 'S' },
-  { attr: 'media_episode', prefix: 'E'}
-];
-const ICON = {
-  'prev': 'mdi:skip-previous',
-  'next': 'mdi:skip-next',
-  'power': 'mdi:power',
-  'volume_up': 'mdi:volume-high',
-  'volume_down': 'mdi:volume-medium',
-  'send': 'mdi:send',
-  'dropdown': 'mdi:chevron-down',
-  'mute': {
-    true: 'mdi:volume-off',
-    false: 'mdi:volume-high'
-  },
-  'playing': {
-    true: 'mdi:pause',
-    false: 'mdi:play'
-  }
-};
-class MiniMediaPlayer extends LitElement {
-  constructor() {
-    super();
-  }
-  static get properties() {
-    return {
-      _hass: Object,
-      config: Object,
-      entity: Object,
-      source: String,
-      position: Number
-    };
-  }
-  set hass(hass) {
-    const entity = hass.states[this.config.entity];
-    this._hass = hass;
-    if (entity && this.entity !== entity)
-      this.entity = entity;
-  }
-  setConfig(config) {
-    if (!config.entity || config.entity.split('.')[0] !== 'media_player')
-      throw new Error('Specify an entity from within the media_player domain.');
-    const conf = Object.assign({
-      artwork: 'default',
-      artwork_border: false,
-      background: false,
-      group: false,
-      hide_controls: false,
-      hide_icon: false,
-      hide_info: false,
-      hide_mute: false,
-      hide_power: false,
-      hide_volume: false,
-      icon: false,
-      max_volume: 100,
-      more_info: true,
-      power_color: false,
-      scroll_info: false,
-      short_info: false,
-      show_progress: false,
-      show_source: false,
-      show_tts: false,
-      title: '',
-      volume_stateless: false
-    }, config);
-    conf.max_volume = Number(conf.max_volume) || 100;
-    conf.short_info = (conf.short_info || conf.scroll_info ? true : false);
-    this.config = conf;
-  }
-  shouldUpdate(changedProps) {
-    const change = changedProps.has('entity')
-      || changedProps.has('source')
-      || changedProps.has('position');
-    if (change) {
-      if (this.config.show_progress) this._checkProgress();
-      return true;
-    }
-  }
-  updated() {
-    if (this.config.scroll_info) this._hasOverflow();
-  }
-  render({_hass, config, entity} = this) {
-    if (!entity) return;
-    const artwork = this._computeArtwork();
-    const hide_controls = (config.hide_controls || config.hide_volume) || false;
-    const short = (hide_controls || config.short_info);
-    return html`
+const directives=new WeakMap,isDirective=e=>"function"==typeof e&&directives.has(e),isCEPolyfill=void 0!==window.customElements&&void 0!==window.customElements.polyfillWrapFlushCallback,removeNodes=(e,t,i=null)=>{let r=t;for(;r!==i;){const t=r.nextSibling;e.removeChild(r),r=t}},noChange={},marker=`{{lit-${String(Math.random()).slice(2)}}}`,nodeMarker=`\x3c!--${marker}--\x3e`,markerRegex=new RegExp(`${marker}|${nodeMarker}`),rewritesStyleAttribute=(()=>{const e=document.createElement("div");return e.setAttribute("style","{{bad value}}"),"{{bad value}}"!==e.getAttribute("style")})();class Template{constructor(e,t){this.parts=[],this.element=t;let i=-1,r=0;const o=[],n=t=>{const s=t.content,a=document.createTreeWalker(s,133,null,!1);let l,c;for(;a.nextNode();){i++,l=c;const t=c=a.currentNode;if(1===t.nodeType){if(t.hasAttributes()){const o=t.attributes;let n=0;for(let e=0;e<o.length;e++)o[e].value.indexOf(marker)>=0&&n++;for(;n-- >0;){const o=e.strings[r],n=lastAttributeNameRegex.exec(o)[2],s=rewritesStyleAttribute&&"style"===n?"style$":/^[a-zA-Z-]*$/.test(n)?n:n.toLowerCase(),a=t.getAttribute(s).split(markerRegex);this.parts.push({type:"attribute",index:i,name:n,strings:a}),t.removeAttribute(s),r+=a.length-1}}"TEMPLATE"===t.tagName&&n(t)}else if(3===t.nodeType){const e=t.nodeValue;if(e.indexOf(marker)<0)continue;const n=t.parentNode,s=e.split(markerRegex),a=s.length-1;r+=a;for(let e=0;e<a;e++)n.insertBefore(""===s[e]?createMarker():document.createTextNode(s[e]),t),this.parts.push({type:"node",index:i++});n.insertBefore(""===s[a]?createMarker():document.createTextNode(s[a]),t),o.push(t)}else if(8===t.nodeType)if(t.nodeValue===marker){const e=t.parentNode,n=t.previousSibling;null===n||n!==l||n.nodeType!==Node.TEXT_NODE?e.insertBefore(createMarker(),t):i--,this.parts.push({type:"node",index:i++}),o.push(t),null===t.nextSibling?e.insertBefore(createMarker(),t):i--,c=l,r++}else{let e=-1;for(;-1!==(e=t.nodeValue.indexOf(marker,e+1));)this.parts.push({type:"node",index:-1})}}};n(t);for(const e of o)e.parentNode.removeChild(e)}}const isTemplatePartActive=e=>-1!==e.index,createMarker=()=>document.createComment(""),lastAttributeNameRegex=/([ \x09\x0a\x0c\x0d])([^\0-\x1F\x7F-\x9F \x09\x0a\x0c\x0d"'>=\/]+)([ \x09\x0a\x0c\x0d]*=[ \x09\x0a\x0c\x0d]*(?:[^ \x09\x0a\x0c\x0d"'`<>=]*|"[^"]*|'[^']*))$/;class TemplateInstance{constructor(e,t,i){this._parts=[],this.template=e,this.processor=t,this.options=i}update(e){let t=0;for(const i of this._parts)void 0!==i&&i.setValue(e[t]),t++;for(const e of this._parts)void 0!==e&&e.commit()}_clone(){const e=isCEPolyfill?this.template.element.content.cloneNode(!0):document.importNode(this.template.element.content,!0),t=this.template.parts;let i=0,r=0;const o=e=>{const n=document.createTreeWalker(e,133,null,!1);let s=n.nextNode();for(;i<t.length&&null!==s;){const e=t[i];if(isTemplatePartActive(e))if(r===e.index){if("node"===e.type){const e=this.processor.handleTextExpression(this.options);e.insertAfterNode(s),this._parts.push(e)}else this._parts.push(...this.processor.handleAttributeExpressions(s,e.name,e.strings,this.options));i++}else r++,"TEMPLATE"===s.nodeName&&o(s.content),s=n.nextNode();else this._parts.push(void 0),i++}};return o(e),isCEPolyfill&&(document.adoptNode(e),customElements.upgrade(e)),e}}class TemplateResult{constructor(e,t,i,r){this.strings=e,this.values=t,this.type=i,this.processor=r}getHTML(){const e=this.strings.length-1;let t="",i=!0;for(let r=0;r<e;r++){const e=this.strings[r];t+=e;const o=e.lastIndexOf(">");!(i=(o>-1||i)&&-1===e.indexOf("<",o+1))&&rewritesStyleAttribute&&(t=t.replace(lastAttributeNameRegex,(e,t,i,r)=>"style"===i?`${t}style$${r}`:e)),t+=i?nodeMarker:marker}return t+=this.strings[e]}getTemplateElement(){const e=document.createElement("template");return e.innerHTML=this.getHTML(),e}}const isPrimitive=e=>null===e||!("object"==typeof e||"function"==typeof e);class AttributeCommitter{constructor(e,t,i){this.dirty=!0,this.element=e,this.name=t,this.strings=i,this.parts=[];for(let e=0;e<i.length-1;e++)this.parts[e]=this._createPart()}_createPart(){return new AttributePart(this)}_getValue(){const e=this.strings,t=e.length-1;let i="";for(let r=0;r<t;r++){i+=e[r];const t=this.parts[r];if(void 0!==t){const e=t.value;if(null!=e&&(Array.isArray(e)||"string"!=typeof e&&e[Symbol.iterator]))for(const t of e)i+="string"==typeof t?t:String(t);else i+="string"==typeof e?e:String(e)}}return i+=e[t]}commit(){this.dirty&&(this.dirty=!1,this.element.setAttribute(this.name,this._getValue()))}}class AttributePart{constructor(e){this.value=void 0,this.committer=e}setValue(e){e===noChange||isPrimitive(e)&&e===this.value||(this.value=e,isDirective(e)||(this.committer.dirty=!0))}commit(){for(;isDirective(this.value);){const e=this.value;this.value=noChange,e(this)}this.value!==noChange&&this.committer.commit()}}class NodePart{constructor(e){this.value=void 0,this._pendingValue=void 0,this.options=e}appendInto(e){this.startNode=e.appendChild(createMarker()),this.endNode=e.appendChild(createMarker())}insertAfterNode(e){this.startNode=e,this.endNode=e.nextSibling}appendIntoPart(e){e._insert(this.startNode=createMarker()),e._insert(this.endNode=createMarker())}insertAfterPart(e){e._insert(this.startNode=createMarker()),this.endNode=e.endNode,e.endNode=this.startNode}setValue(e){this._pendingValue=e}commit(){for(;isDirective(this._pendingValue);){const e=this._pendingValue;this._pendingValue=noChange,e(this)}const e=this._pendingValue;e!==noChange&&(isPrimitive(e)?e!==this.value&&this._commitText(e):e instanceof TemplateResult?this._commitTemplateResult(e):e instanceof Node?this._commitNode(e):Array.isArray(e)||e[Symbol.iterator]?this._commitIterable(e):void 0!==e.then?this._commitPromise(e):this._commitText(e))}_insert(e){this.endNode.parentNode.insertBefore(e,this.endNode)}_commitNode(e){this.value!==e&&(this.clear(),this._insert(e),this.value=e)}_commitText(e){const t=this.startNode.nextSibling;e=null==e?"":e,t===this.endNode.previousSibling&&t.nodeType===Node.TEXT_NODE?t.textContent=e:this._commitNode(document.createTextNode("string"==typeof e?e:String(e))),this.value=e}_commitTemplateResult(e){const t=this.options.templateFactory(e);if(this.value&&this.value.template===t)this.value.update(e.values);else{const i=new TemplateInstance(t,e.processor,this.options),r=i._clone();i.update(e.values),this._commitNode(r),this.value=i}}_commitIterable(e){Array.isArray(this.value)||(this.value=[],this.clear());const t=this.value;let i,r=0;for(const o of e)void 0===(i=t[r])&&(i=new NodePart(this.options),t.push(i),0===r?i.appendIntoPart(this):i.insertAfterPart(t[r-1])),i.setValue(o),i.commit(),r++;r<t.length&&(t.length=r,this.clear(i&&i.endNode))}_commitPromise(e){this.value=e,e.then(t=>{this.value===e&&(this.setValue(t),this.commit())})}clear(e=this.startNode){removeNodes(this.startNode.parentNode,e.nextSibling,this.endNode)}}class BooleanAttributePart{constructor(e,t,i){if(this.value=void 0,this._pendingValue=void 0,2!==i.length||""!==i[0]||""!==i[1])throw new Error("Boolean attributes can only contain a single expression");this.element=e,this.name=t,this.strings=i}setValue(e){this._pendingValue=e}commit(){for(;isDirective(this._pendingValue);){const e=this._pendingValue;this._pendingValue=noChange,e(this)}if(this._pendingValue===noChange)return;const e=!!this._pendingValue;this.value!==e&&(e?this.element.setAttribute(this.name,""):this.element.removeAttribute(this.name)),this.value=e,this._pendingValue=noChange}}class PropertyCommitter extends AttributeCommitter{constructor(e,t,i){super(e,t,i),this.single=2===i.length&&""===i[0]&&""===i[1]}_createPart(){return new PropertyPart(this)}_getValue(){return this.single?this.parts[0].value:super._getValue()}commit(){this.dirty&&(this.dirty=!1,this.element[this.name]=this._getValue())}}class PropertyPart extends AttributePart{}let eventOptionsSupported=!1;try{const e={get capture(){return eventOptionsSupported=!0,!1}};window.addEventListener("test",e,e),window.removeEventListener("test",e,e)}catch(e){}class EventPart{constructor(e,t,i){this.value=void 0,this._pendingValue=void 0,this.element=e,this.eventName=t,this.eventContext=i}setValue(e){this._pendingValue=e}commit(){for(;isDirective(this._pendingValue);){const e=this._pendingValue;this._pendingValue=noChange,e(this)}if(this._pendingValue===noChange)return;const e=this._pendingValue,t=this.value,i=null==e||null!=t&&(e.capture!==t.capture||e.once!==t.once||e.passive!==t.passive),r=null!=e&&(null==t||i);i&&this.element.removeEventListener(this.eventName,this,this._options),this._options=getOptions(e),r&&this.element.addEventListener(this.eventName,this,this._options),this.value=e,this._pendingValue=noChange}handleEvent(e){("function"==typeof this.value?this.value:"function"==typeof this.value.handleEvent?this.value.handleEvent:()=>null).call(this.eventContext||this.element,e)}}const getOptions=e=>e&&(eventOptionsSupported?{capture:e.capture,passive:e.passive,once:e.once}:e.capture);class DefaultTemplateProcessor{handleAttributeExpressions(e,t,i,r){const o=t[0];if("."===o){return new PropertyCommitter(e,t.slice(1),i).parts}return"@"===o?[new EventPart(e,t.slice(1),r.eventContext)]:"?"===o?[new BooleanAttributePart(e,t.slice(1),i)]:new AttributeCommitter(e,t,i).parts}handleTextExpression(e){return new NodePart(e)}}const defaultTemplateProcessor=new DefaultTemplateProcessor;function templateFactory(e){let t=templateCaches.get(e.type);void 0===t&&(t=new Map,templateCaches.set(e.type,t));let i=t.get(e.strings);return void 0===i&&(i=new Template(e,e.getTemplateElement()),t.set(e.strings,i)),i}const templateCaches=new Map,parts=new WeakMap,render=(e,t,i)=>{let r=parts.get(t);void 0===r&&(removeNodes(t,t.firstChild),parts.set(t,r=new NodePart(Object.assign({templateFactory:templateFactory},i))),r.appendInto(t)),r.setValue(e),r.commit()},html=(e,...t)=>new TemplateResult(e,t,"html",defaultTemplateProcessor),walkerNodeFilter=NodeFilter.SHOW_ELEMENT|NodeFilter.SHOW_COMMENT|NodeFilter.SHOW_TEXT;function removeNodesFromTemplate(e,t){const{element:{content:i},parts:r}=e,o=document.createTreeWalker(i,walkerNodeFilter,null,!1);let n=nextActiveIndexInTemplateParts(r),s=r[n],a=-1,l=0;const c=[];let p=null;for(;o.nextNode();){a++;const e=o.currentNode;for(e.previousSibling===p&&(p=null),t.has(e)&&(c.push(e),null===p&&(p=e)),null!==p&&l++;void 0!==s&&s.index===a;)s.index=null!==p?-1:s.index-l,s=r[n=nextActiveIndexInTemplateParts(r,n)]}c.forEach(e=>e.parentNode.removeChild(e))}const countNodes=e=>{let t=e.nodeType===Node.DOCUMENT_FRAGMENT_NODE?0:1;const i=document.createTreeWalker(e,walkerNodeFilter,null,!1);for(;i.nextNode();)t++;return t},nextActiveIndexInTemplateParts=(e,t=-1)=>{for(let i=t+1;i<e.length;i++){const t=e[i];if(isTemplatePartActive(t))return i}return-1};function insertNodeIntoTemplate(e,t,i=null){const{element:{content:r},parts:o}=e;if(null==i)return void r.appendChild(t);const n=document.createTreeWalker(r,walkerNodeFilter,null,!1);let s=nextActiveIndexInTemplateParts(o),a=0,l=-1;for(;n.nextNode();){for(l++,n.currentNode===i&&(a=countNodes(t),i.parentNode.insertBefore(t,i));-1!==s&&o[s].index===l;){if(a>0){for(;-1!==s;)o[s].index+=a,s=nextActiveIndexInTemplateParts(o,s);return}s=nextActiveIndexInTemplateParts(o,s)}}}const getTemplateCacheKey=(e,t)=>`${e}--${t}`;let compatibleShadyCSSVersion=!0;void 0===window.ShadyCSS?compatibleShadyCSSVersion=!1:void 0===window.ShadyCSS.prepareTemplateDom&&(console.warn("Incompatible ShadyCSS version detected.Please update to at least @webcomponents/webcomponentsjs@2.0.2 and@webcomponents/shadycss@1.3.1."),compatibleShadyCSSVersion=!1);const shadyTemplateFactory=e=>t=>{const i=getTemplateCacheKey(t.type,e);let r=templateCaches.get(i);void 0===r&&(r=new Map,templateCaches.set(i,r));let o=r.get(t.strings);if(void 0===o){const i=t.getTemplateElement();compatibleShadyCSSVersion&&window.ShadyCSS.prepareTemplateDom(i,e),o=new Template(t,i),r.set(t.strings,o)}return o},TEMPLATE_TYPES=["html","svg"],removeStylesFromLitTemplates=e=>{TEMPLATE_TYPES.forEach(t=>{const i=templateCaches.get(getTemplateCacheKey(t,e));void 0!==i&&i.forEach(e=>{const{element:{content:t}}=e,i=new Set;Array.from(t.querySelectorAll("style")).forEach(e=>{i.add(e)}),removeNodesFromTemplate(e,i)})})},shadyRenderSet=new Set,prepareTemplateStyles=(e,t,i)=>{shadyRenderSet.add(i);const r=e.querySelectorAll("style");if(0===r.length)return;const o=document.createElement("style");for(let e=0;e<r.length;e++){const t=r[e];t.parentNode.removeChild(t),o.textContent+=t.textContent}if(removeStylesFromLitTemplates(i),insertNodeIntoTemplate(t,o,t.element.content.firstChild),window.ShadyCSS.prepareTemplateStyles(t.element,i),window.ShadyCSS.nativeShadow){const i=t.element.content.querySelector("style");e.insertBefore(i.cloneNode(!0),e.firstChild)}else{t.element.content.insertBefore(o,t.element.content.firstChild);const e=new Set;e.add(o),removeNodesFromTemplate(t,e)}},render$1=(e,t,i)=>{const r=i.scopeName,o=parts.has(t);if(render(e,t,Object.assign({templateFactory:shadyTemplateFactory(r)},i)),t instanceof ShadowRoot&&compatibleShadyCSSVersion&&e instanceof TemplateResult){if(!shadyRenderSet.has(r)){const e=parts.get(t).value;prepareTemplateStyles(t,e.template,r)}o||window.ShadyCSS.styleElement(t.host)}},fromBooleanAttribute=e=>null!==e,toBooleanAttribute=e=>e?"":null,notEqual=(e,t)=>t!==e&&(t==t||e==e),defaultPropertyDeclaration={attribute:!0,type:String,reflect:!1,hasChanged:notEqual},microtaskPromise=new Promise(e=>e(!0)),STATE_HAS_UPDATED=1,STATE_UPDATE_REQUESTED=4,STATE_IS_REFLECTING=8;class UpdatingElement extends HTMLElement{constructor(){super(),this._updateState=0,this._instanceProperties=void 0,this._updatePromise=microtaskPromise,this._changedProperties=new Map,this._reflectingProperties=void 0,this.initialize()}static get observedAttributes(){this._finalize();const e=[];for(const[t,i]of this._classProperties){const r=this._attributeNameForProperty(t,i);void 0!==r&&(this._attributeToPropertyMap.set(r,t),e.push(r))}return e}static createProperty(e,t=defaultPropertyDeclaration){if(!this.hasOwnProperty("_classProperties")){this._classProperties=new Map;const e=Object.getPrototypeOf(this)._classProperties;void 0!==e&&e.forEach((e,t)=>this._classProperties.set(t,e))}if(this._classProperties.set(e,t),this.prototype.hasOwnProperty(e))return;const i="symbol"==typeof e?Symbol():`__${e}`;Object.defineProperty(this.prototype,e,{get(){return this[i]},set(r){const o=this[e];this[i]=r,this._requestPropertyUpdate(e,o,t)},configurable:!0,enumerable:!0})}static _finalize(){if(this.hasOwnProperty("_finalized")&&this._finalized)return;const e=Object.getPrototypeOf(this);"function"==typeof e._finalize&&e._finalize(),this._finalized=!0,this._attributeToPropertyMap=new Map;const t=this.properties,i=[...Object.getOwnPropertyNames(t),..."function"==typeof Object.getOwnPropertySymbols?Object.getOwnPropertySymbols(t):[]];for(const e of i)this.createProperty(e,t[e])}static _attributeNameForProperty(e,t){const i=void 0!==t&&t.attribute;return!1===i?void 0:"string"==typeof i?i:"string"==typeof e?e.toLowerCase():void 0}static _valueHasChanged(e,t,i=notEqual){return i(e,t)}static _propertyValueFromAttribute(e,t){const i=t&&t.type;if(void 0===i)return e;const r=i===Boolean?fromBooleanAttribute:"function"==typeof i?i:i.fromAttribute;return r?r(e):e}static _propertyValueToAttribute(e,t){if(void 0===t||void 0===t.reflect)return;return(t.type===Boolean?toBooleanAttribute:t.type&&t.type.toAttribute||String)(e)}initialize(){this.renderRoot=this.createRenderRoot(),this._saveInstanceProperties()}_saveInstanceProperties(){for(const[e]of this.constructor._classProperties)if(this.hasOwnProperty(e)){const t=this[e];delete this[e],this._instanceProperties||(this._instanceProperties=new Map),this._instanceProperties.set(e,t)}}_applyInstanceProperties(){for(const[e,t]of this._instanceProperties)this[e]=t;this._instanceProperties=void 0}createRenderRoot(){return this.attachShadow({mode:"open"})}connectedCallback(){this._updateState&STATE_HAS_UPDATED?void 0!==window.ShadyCSS&&window.ShadyCSS.styleElement(this):this.requestUpdate()}disconnectedCallback(){}attributeChangedCallback(e,t,i){t!==i&&this._attributeToProperty(e,i)}_propertyToAttribute(e,t,i=defaultPropertyDeclaration){const r=this.constructor,o=r._propertyValueToAttribute(t,i);if(void 0!==o){const t=r._attributeNameForProperty(e,i);void 0!==t&&(this._updateState=this._updateState|STATE_IS_REFLECTING,null===o?this.removeAttribute(t):this.setAttribute(t,o),this._updateState=this._updateState&~STATE_IS_REFLECTING)}}_attributeToProperty(e,t){if(!(this._updateState&STATE_IS_REFLECTING)){const i=this.constructor,r=i._attributeToPropertyMap.get(e);if(void 0!==r){const e=i._classProperties.get(r);this[r]=i._propertyValueFromAttribute(t,e)}}}requestUpdate(e,t){if(void 0!==e){const i=this.constructor._classProperties.get(e)||defaultPropertyDeclaration;return this._requestPropertyUpdate(e,t,i)}return this._invalidate()}_requestPropertyUpdate(e,t,i){return this.constructor._valueHasChanged(this[e],t,i.hasChanged)?(this._changedProperties.has(e)||this._changedProperties.set(e,t),!0===i.reflect&&(void 0===this._reflectingProperties&&(this._reflectingProperties=new Map),this._reflectingProperties.set(e,i)),this._invalidate()):this.updateComplete}async _invalidate(){if(!this._hasRequestedUpdate){let e;this._updateState=this._updateState|STATE_UPDATE_REQUESTED;const t=this._updatePromise;this._updatePromise=new Promise(t=>e=t),await t,this._validate(),e(!this._hasRequestedUpdate)}return this.updateComplete}get _hasRequestedUpdate(){return this._updateState&STATE_UPDATE_REQUESTED}_validate(){if(this._instanceProperties&&this._applyInstanceProperties(),this.shouldUpdate(this._changedProperties)){const e=this._changedProperties;this.update(e),this._markUpdated(),this._updateState&STATE_HAS_UPDATED||(this._updateState=this._updateState|STATE_HAS_UPDATED,this.firstUpdated(e)),this.updated(e)}else this._markUpdated()}_markUpdated(){this._changedProperties=new Map,this._updateState=this._updateState&~STATE_UPDATE_REQUESTED}get updateComplete(){return this._updatePromise}shouldUpdate(e){return!0}update(e){if(void 0!==this._reflectingProperties&&this._reflectingProperties.size>0){for(const[e,t]of this._reflectingProperties)this._propertyToAttribute(e,this[e],t);this._reflectingProperties=void 0}}updated(e){}firstUpdated(e){}}UpdatingElement._attributeToPropertyMap=new Map,UpdatingElement._finalized=!0,UpdatingElement._classProperties=new Map,UpdatingElement.properties={};class LitElement extends UpdatingElement{update(e){super.update(e);const t=this.render();t instanceof TemplateResult&&this.constructor.render(t,this.renderRoot,{scopeName:this.localName,eventContext:this})}render(){}}LitElement.render=render$1;const MEDIA_INFO=[{attr:"media_title"},{attr:"media_artist"},{attr:"media_series_title"},{attr:"media_season",prefix:"S"},{attr:"media_episode",prefix:"E"}],ICON={dropdown:"mdi:chevron-down",mute:{true:"mdi:volume-off",false:"mdi:volume-high"},next:"mdi:skip-next",playing:{true:"mdi:pause",false:"mdi:play"},power:"mdi:power",prev:"mdi:skip-previous",send:"mdi:send",shuffle:"mdi:shuffle-variant",volume_down:"mdi:volume-medium",volume_up:"mdi:volume-high"};class MiniMediaPlayer extends LitElement{constructor(){super()}static get properties(){return{_hass:Object,config:Object,entity:Object,source:String,position:Number,active:Boolean}}set hass(e){const t=e.states[this.config.entity];this._hass=e,t&&this.entity!==t&&(this.entity=t)}setConfig(e){if(!e.entity||"media_player"!==e.entity.split(".")[0])throw new Error("Specify an entity from within the media_player domain.");const t={artwork:"default",artwork_border:!1,background:!1,consider_idle_after:!1,group:!1,hide_controls:!1,hide_icon:!1,hide_info:!1,hide_mute:!1,hide_power:!1,hide_volume:!1,icon:!1,max_volume:100,more_info:!0,power_color:!1,scroll_info:!1,short_info:!1,show_progress:!1,show_shuffle:!1,show_source:!1,show_tts:!1,title:"",toggle_power:!0,volume_stateless:!1,...e};t.consider_idle_after=60*Number(t.consider_idle_after)||!1,t.max_volume=Number(t.max_volume)||100,t.collapse=t.hide_controls||t.hide_volume,t.short_info=t.short_info||t.scroll_info||t.collapse,this.config=t}shouldUpdate(e){if(this.entity&&(e.has("entity")||e.has("source")||e.has("position")))return this.active=this._isActive(),this.config.show_progress&&this._checkProgress(),!0}updated(){this.config.scroll_info&&this._hasOverflow()}render({_hass:e,config:t,entity:i}=this){const r=this._computeArtwork();return html`
       ${this._style()}
-      <ha-card ?group=${config.group}
-        ?more-info=${config.more_info} ?has-title=${config.title !== ''}
-        artwork=${config.artwork} ?has-artwork=${artwork} state=${entity.state}
-        ?hide-icon=${config.hide_icon} ?hide-info=${this.config.hide_info}
-        @click='${(e) => this._handleMore()}'>
-        <div class='bg' ?bg=${config.background}
-          style='background-image: url("${this._computeBackground()}")'>
+      <ha-card ?group=${t.group}
+        ?more-info=${t.more_info} ?has-title=${""!==t.title}
+        artwork=${t.artwork} ?has-artwork=${r} state=${i.state}
+        ?hide-icon=${t.hide_icon} ?hide-info=${this.config.hide_info}
+        @click='${e=>this._handleMore()}'>
+        <div class='bg' ?bg=${t.background}
+          style='background-image: url("${this._computeCover(r)}")'>
         </div>
-        <header>${config.title}</header>
+        <header>${t.title}</header>
         <div class='entity flex'>
-          ${this._renderIcon()}
-          <div class='entity__info' ?short=${short}>
+          ${this._renderIcon(r)}
+          <div class='entity__info' ?short=${t.short_info||!this.active}>
             <div class='entity__info__name' ?has-info=${this._hasMediaInfo()}>
               ${this._computeName()}
             </div>
-            ${this._renderMediaInfo(short)}
+            ${this._renderMediaInfo()}
           </div>
           <div class='entity__control-row--top flex'>
-            ${this._renderPowerStrip(entity)}
+            ${this._renderPowerStrip()}
           </div>
         </div>
-        ${this._isActive() && !hide_controls ? this._renderControlRow(entity) : html``}
-        ${config.show_tts ? this._renderTts() : html``}
-        ${config.show_progress ? this._renderProgress(entity) : ''}
-      </ha-card>`;
-  }
-  _computeName() {
-    return this.config.name || this.entity.attributes.friendly_name;
-  }
-  _computeBackground() {
-    const artwork = this._computeArtwork();
-    return artwork && this.config.artwork == "cover" ? artwork : this.config.background;
-  }
-  _computeArtwork() {
-    return (this.entity.attributes.entity_picture
-      && this.entity.attributes.entity_picture != '')
-      && this.config.artwork !== 'none'
-      ? this.entity.attributes.entity_picture
-      : false;
-  }
-  _computeIcon() {
-    return this.config.icon
-      ? this.config.icon : this.entity.attributes.icon
-      || 'mdi:cast';
-  }
-  _hasOverflow() {
-    const element = this.shadowRoot.querySelector('.marquee');
-    const status = element.clientWidth > (element.parentNode.clientWidth);
-    element.parentNode.parentNode.setAttribute('scroll', status);
-  }
-  _renderIcon() {
-    if (this.config.hide_icon) return;
-    const artwork = this._computeArtwork();
-    if (this._isActive() && artwork && this.config.artwork == 'default') {
-      return html`
+        <div class='rows'>
+          <div class='control-row flex flex-wrap justify' ?wrap=${this.config.volume_stateless}>
+            ${!t.collapse&&this.active?this._renderControlRow():""}
+          </div>
+          ${t.show_tts?this._renderTts():""}
+        </div>
+        ${t.show_progress&&this._showProgress?this._renderProgress():""}
+      </ha-card>`}_computeName(){return this.config.name||this.entity.attributes.friendly_name}_computeCover(e){return e&&"cover"==this.config.artwork?e:this.config.background}_computeArtwork(){return!(!this.entity.attributes.entity_picture||""==this.entity.attributes.entity_picture||"none"===this.config.artwork||!this.active)&&this.entity.attributes.entity_picture}_computeIcon(){return this.config.icon?this.config.icon:this.entity.attributes.icon||"mdi:cast"}_hasOverflow(){const e=this.shadowRoot.querySelector(".marquee"),t=e.clientWidth>e.parentNode.clientWidth;e.parentNode.parentNode.setAttribute("scroll",t)}_renderIcon(e){if(!this.config.hide_icon)return this.active&&e&&"default"==this.config.artwork?html`
         <div class='entity__artwork' ?border=${this.config.artwork_border}
-          style='background-image: url("${artwork}")'
+          style='background-image: url("${e}")'
           state=${this.entity.state}>
-        </div>`;
-    }
-    return html`
+        </div>`:html`
       <div class='entity__icon'>
         <ha-icon icon='${this._computeIcon()}'></ha-icon>
       </div>
-    `;
-  }
-  _renderPower() {
-    return html`
+    `}_renderPower(){return html`
       <paper-icon-button class='power-button'
-        .icon=${ICON['power']}
-        @click='${(e) => this._callService(e, "toggle")}'
-        ?color=${this.config.power_color && this._isActive()}>
-      </paper-icon-button>`;
-  }
-  _renderMediaInfo(short) {
-    const items = MEDIA_INFO.map(item => {
-      return Object.assign({
-        info: this._getAttribute(item.attr),
-        prefix: item.prefix || ''
-      }, item);
-    }).filter(item => item.info !== '');
-    return html`
-      <div class='entity__info__media' ?short=${short}>
-        ${this.config.scroll_info ? html`
+        .icon=${ICON.power}
+        @click='${e=>this._handlePower(e)}'
+        ?color=${this.config.power_color&&this.active}>
+      </paper-icon-button>`}_renderPlayButton(){return html`
+      <paper-icon-button .icon=${ICON.playing[this._isPlaying()]}
+        @click='${e=>this._callService(e,"media_play_pause")}'>
+      </paper-icon-button>`}_renderMediaInfo(){const e=MEDIA_INFO.map(e=>({info:this._getAttribute(e.attr),prefix:e.prefix||"",...e})).filter(e=>""!==e.info);return html`
+      <div class='entity__info__media' ?inactive=${!this.active}>
+        ${this.config.scroll_info?html`
           <div>
             <div class='marquee'>
-              ${items.map(item => html`<span>${item.prefix + item.info}</span>`)}
+              ${e.map(e=>html`<span>${e.prefix+e.info}</span>`)}
             </div>
-          </div>` : '' }
-          ${items.map(item => html`<span>${item.prefix + item.info}</span>`)}
-      </div>`;
-  }
-  _renderProgress(entity) {
-    const show = this._showProgress();
-    return html`
-      <paper-progress max=${entity.attributes.media_duration}
-        value=${this.position} class='progress transiting ${!show ? "hidden" : ""}'>
-      </paper-progress>`;
-  }
-  _renderPowerStrip(entity, {config} = this) {
-    const active = this._isActive();
-    if (entity.state == 'unavailable') {
-      return html`
-        <span class='unavailable'>
-          ${this._getLabel('state.default.unavailable', 'Unavailable')}
-        </span>`;
-    }
-    return html`
+          </div>`:""}
+          ${e.map(e=>html`<span>${e.prefix+e.info}</span>`)}
+      </div>`}_renderProgress(){return html`
+      <paper-progress class='progress transiting' value=${this.position}
+        max=${this.entity.attributes.media_duration}>
+      </paper-progress>`}_renderString(e,t="Unknown"){return html`
+      <span class='string'>
+        ${this._getLabel(e,t)}
+      </span>`}_renderIdleStatus(){if(this._isInactive())return this._isPaused()?this._renderPlayButton():this._renderString("state.media_player.idle","Idle")}_renderShuffle(){const e=this.entity.attributes.shuffle||!1;return html`
+      <paper-icon-button class='shuffle' .icon=${ICON.shuffle} ?color=${e}
+        @click='${t=>this._callService(t,"shuffle_set",{shuffle:!e})}'>
+      </paper-icon-button>`}_renderPowerStrip({config:e}=this){const t=this.active;return"unavailable"==this.entity.state&&this._renderString("state.default.unavailable","Unavailable"),html`
       <div class='select flex'>
-        ${active && config.hide_controls && !config.hide_volume ? this._renderVolControls(entity) : html``}
-        ${active && config.hide_volume && !config.hide_controls ? this._renderMediaControls(entity) : html``}
+        ${t&&e.collapse?this._renderControlRow():html``}
         <div class='flex right'>
-          ${config.show_source !== false ? this._renderSource(entity) : html``}
-          ${!config.hide_power ? this._renderPower(active) : html``}
+          ${e.show_source?this._renderSource():html``}
+          ${e.consider_idle_after?this._renderIdleStatus():html``}
+          ${e.hide_power?html``:this._renderPower()}
         <div>
-      </div>`;
-  }
-  _renderSource(entity) {
-    const sources = entity.attributes['source_list'] || false;
-    const source = entity.attributes['source'] || '';
-    if (sources) {
-      const selected = sources.indexOf(source);
-      return html`
+      </div>`}_renderSource({entity:e}=this){const t=e.attributes.source_list||!1,i=e.attributes.source||"";if(t){const e=t.indexOf(i);return html`
         <paper-menu-button class='source-menu' slot='dropdown-trigger'
-          .horizontalAlign=${'right'} .verticalAlign=${'top'}
-          .verticalOffset=${40} .noAnimations=${true}
-          @click='${(e) => e.stopPropagation()}'>
+          .horizontalAlign=${"right"} .verticalAlign=${"top"}
+          .verticalOffset=${40} .noAnimations=${!0}
+          @click='${e=>e.stopPropagation()}'>
           <paper-button class='source-menu__button' slot='dropdown-trigger'>
-            ${this.config.show_source !== 'small' ? html`
-            <span class='source-menu__source'>${this.source || source}</span>` : '' }
-            <iron-icon .icon=${ICON['dropdown']}></iron-icon>
+            ${"small"!==this.config.show_source?html`
+            <span class='source-menu__source'>${this.source||i}</span>`:""}
+            <iron-icon .icon=${ICON.dropdown}></iron-icon>
           </paper-button>
-          <paper-listbox slot='dropdown-content' selected=${selected}
-            @click='${(e) => this._handleSource(e)}'>
-            ${sources.map(item => html`<paper-item value=${item}>${item}</paper-item>`)}
+          <paper-listbox slot='dropdown-content' selected=${e}
+            @click='${e=>this._handleSource(e)}'>
+            ${t.map(e=>html`<paper-item value=${e}>${e}</paper-item>`)}
           </paper-listbox>
-        </paper-menu-button>`;
-    }
-  }
-  _renderControlRow(entity) {
-    return html`
-      <div class='control-row flex flex-wrap justify' ?wrap=${this.config.volume_stateless}>
-        ${this._renderVolControls(entity)}
-        ${this._renderMediaControls(entity)}
-      </div>`;
-  }
-  _renderMediaControls(entity) {
-    const playing = entity.state == 'playing';
-    return html`
+        </paper-menu-button>`}}_renderControlRow(){return html`
+      ${this.config.hide_volume?"":this._renderVolControls()}
+      ${this.config.show_shuffle?this._renderShuffle():""}
+      ${this.config.hide_controls?"":this._renderMediaControls()}`}_renderMediaControls(){return html`
       <div class='flex'>
-        <paper-icon-button .icon=${ICON["prev"]}
-          @click='${(e) => this._callService(e, "media_previous_track")}'>
+        <paper-icon-button .icon=${ICON.prev}
+          @click='${e=>this._callService(e,"media_previous_track")}'>
         </paper-icon-button>
-        <paper-icon-button .icon=${ICON.playing[playing]}
-          @click='${(e) => this._callService(e, "media_play_pause")}'>
+        ${this._renderPlayButton()}
+        <paper-icon-button .icon=${ICON.next}
+          @click='${e=>this._callService(e,"media_next_track")}'>
         </paper-icon-button>
-        <paper-icon-button .icon=${ICON["next"]}
-          @click='${(e) => this._callService(e, "media_next_track")}'>
-        </paper-icon-button>
-      </div>`;
-  }
-  _renderVolControls(entity) {
-    const muted = entity.attributes.is_volume_muted || false;
-    if (this.config.volume_stateless) {
-      return this._renderVolButtons(entity, muted);
-    } else {
-      return this._renderVolSlider(entity, muted);
-    }
-  }
-  _renderMuteButton(muted) {
-    if (!this.config.hide_mute)
-      return html`
-        <paper-icon-button .icon=${ICON.mute[muted]}
-          @click='${(e) => this._callService(e, "volume_mute", { is_volume_muted: !muted })}'>
-        </paper-icon-button>`;
-  }
-  _renderVolSlider(entity, muted = false) {
-    const volumeSliderValue = entity.attributes.volume_level * 100;
-    return html`
+      </div>`}_renderVolControls(){const e=this.entity.attributes.is_volume_muted||!1;return this.config.volume_stateless?this._renderVolButtons(e):this._renderVolSlider(e)}_renderMuteButton(e){const t={is_volume_muted:!e};if(!this.config.hide_mute)return html`
+        <paper-icon-button .icon=${ICON.mute[e]}
+          @click='${e=>this._callService(e,"volume_mute",t)}'>
+        </paper-icon-button>`}_renderVolSlider(e=!1){const t=100*this.entity.attributes.volume_level;return html`
       <div class='vol-control flex'>
         <div>
-          ${this._renderMuteButton(muted)}
+          ${this._renderMuteButton(e)}
         </div>
-        <paper-slider ?disabled=${muted}
-          @change='${(e) => this._handleVolumeChange(e)}'
-          @click='${(e) => e.stopPropagation()}'
-          min='0' max=${this.config.max_volume} value=${volumeSliderValue}
+        <paper-slider ?disabled=${e}
+          @change='${e=>this._handleVolumeChange(e)}'
+          @click='${e=>e.stopPropagation()}'
+          min='0' max=${this.config.max_volume} value=${t}
           ignore-bar-touch pin>
         </paper-slider>
-      </div>`;
-  }
-  _renderVolButtons(entity, muted = false) {
-    return html`
+      </div>`}_renderVolButtons(e=!1){return html`
       <div class='flex'>
-        ${this._renderMuteButton(muted)}
+        ${this._renderMuteButton(e)}
         <paper-icon-button .icon=${ICON.volume_down}
-          @click='${(e) => this._callService(e, "volume_down")}'>
+          @click='${e=>this._callService(e,"volume_down")}'>
         </paper-icon-button>
         <paper-icon-button .icon=${ICON.volume_up}
-          @click='${(e) => this._callService(e, "volume_up")}'>
+          @click='${e=>this._callService(e,"volume_up")}'>
         </paper-icon-button>
-      </div>`;
-  }
-  _renderTts() {
-    return html`
+      </div>`}_renderTts(){return html`
       <div class='tts flex justify'>
         <paper-input class='tts__input' no-label-float
-          placeholder=${this._getLabel('ui.card.media_player.text_to_speak', 'Say')}...
-          @click='${(e) => e.stopPropagation()}'>
+          placeholder=${this._getLabel("ui.card.media_player.text_to_speak","Say")}...
+          @click='${e=>e.stopPropagation()}'>
         </paper-input>
         <div>
-          <paper-button @click='${(e) => this._handleTts(e)}'>
+          <paper-button @click='${e=>this._handleTts(e)}'>
             SEND
           </paper-button>
         </div>
-      </div>`;
-  }
-  _callService(e, service, options, component = 'media_player') {
-    e.stopPropagation();
-    options = (options === null || options === undefined) ? {} : options;
-    options.entity_id = options.entity_id || this.config.entity;
-    this._hass.callService(component, service, options);
-  }
-  _handleVolumeChange(e) {
-    e.stopPropagation();
-    const volPercentage = parseFloat(e.target.value);
-    const vol = volPercentage > 0 ? volPercentage / 100 : 0;
-    this._callService(e, 'volume_set', { volume_level: vol });
-  }
-  _handleTts(e) {
-    e.stopPropagation();
-    const input = this.shadowRoot.querySelector('#tts paper-input');
-    const options = { message: input.value };
-    this._callService(e, this.config.show_tts + '_say' , options, 'tts');
-    input.value = '';
-  }
-  _handleMore({config} = this) {
-    if(config.more_info)
-      this._fire('hass-more-info', { entityId: config.entity });
-  }
-  _handleSource(e) {
-    e.stopPropagation();
-    const source = e.target.getAttribute('value');
-    const options = { 'source': source };
-    this._callService(e, 'select_source' , options);
-    this.source = source;
-  }
-  _fire(type, detail, options) {
-    options = options || {};
-    detail = (detail === null || detail === undefined) ? {} : detail;
-    const e = new Event(type, {
-      bubbles: options.bubbles === undefined ? true : options.bubbles,
-      cancelable: Boolean(options.cancelable),
-      composed: options.composed === undefined ? true : options.composed
-    });
-    e.detail = detail;
-    this.dispatchEvent(e);
-    return e;
-  }
-  async _checkProgress() {
-    if (this._isPlaying() && this._showProgress()) {
-      if (!this._positionTracker) {
-        this._positionTracker = setInterval(() => this.position = this._currentProgress(), 1000);
-      }
-    } else if (this._positionTracker) {
-      clearInterval(this._positionTracker);
-      this._positionTracker = null;
-    }
-    if (this._showProgress) this.position = this._currentProgress();
-  }
-  _showProgress() {
-    return (
-      (this._isPlaying() || this._isPaused())
-      && 'media_duration' in this.entity.attributes
-      && 'media_position' in this.entity.attributes
-      && 'media_position_updated_at' in this.entity.attributes);
-  }
-  _currentProgress() {
-    let progress = this.entity.attributes.media_position;
-    if (this._isPlaying()) {
-      progress += (Date.now() - new Date(this.entity.attributes.media_position_updated_at).getTime()) / 1000.0;
-    }
-    return progress;
-  }
-  _isPaused() {
-    return this.entity.state === 'paused';
-  }
-  _isPlaying() {
-    return this.entity.state === 'playing';
-  }
-  _isActive() {
-    return (this.entity.state !== 'off' && this.entity.state !== 'unavailable') || false;
-  }
-  _hasMediaInfo() {
-    const items = MEDIA_INFO.map(item => {
-      return this._getAttribute(item.attr);
-    }).filter(item => item !== '');
-    return items.length == 0 ? false : true;
-  }
-  _getAttribute(attr, {entity} = this) {
-    return entity.attributes[attr] || '';
-  }
-  _getLabel(label, fallback = 'unknown') {
-    const lang = this._hass.selectedLanguage || this._hass.language;
-    const resources = this._hass.resources[lang];
-    return (resources && resources[label] ? resources[label] : fallback);
-  }
-  _style() {
-    return html`
+      </div>`}_callService(e,t,i,r="media_player"){e.stopPropagation(),(i=null==i?{}:i).entity_id=i.entity_id||this.config.entity,this._hass.callService(r,t,i)}_handleVolumeChange(e){const t=parseFloat(e.target.value),i=t>0?t/100:0;this._callService(e,"volume_set",{volume_level:i})}_handlePower(e){this.config.toggle_power?this._callService(e,"toggle"):"off"===this.entity.state?this._callService(e,"turn_on"):this._callService(e,"turn_off")}_handleTts(e){const t=this.shadowRoot.querySelector(".tts paper-input"),i={message:t.value};this._callService(e,this.config.show_tts+"_say",i,"tts"),t.value=""}_handleMore({config:e}=this){e.more_info&&this._fire("hass-more-info",{entityId:e.entity})}_handleSource(e){const t=e.target.getAttribute("value"),i={source:t};this._callService(e,"select_source",i),this.source=t}_fire(e,t,i){i=i||{},t=null==t?{}:t;const r=new Event(e,{bubbles:void 0===i.bubbles||i.bubbles,cancelable:Boolean(i.cancelable),composed:void 0===i.composed||i.composed});return r.detail=t,this.dispatchEvent(r),r}_checkProgress(){this._isPlaying()&&this._showProgress?this._positionTracker||(this._positionTracker=setInterval(()=>this.position=this._currentProgress,1e3)):this._positionTracker&&(clearInterval(this._positionTracker),this._positionTracker=null),this.position=this._currentProgress}get _showProgress(){return(this._isPlaying()||this._isPaused())&&this.active&&"media_duration"in this.entity.attributes&&"media_position"in this.entity.attributes&&"media_position_updated_at"in this.entity.attributes}get _currentProgress(){const e=this.entity.attributes.media_position_updated_at;return this.entity.attributes.media_position+(Date.now()-new Date(e).getTime())/1e3}_isPaused(){return"paused"===this.entity.state}_isPlaying(){return"playing"===this.entity.state}_isActive(e=!1){return this.config.consider_idle_after&&(e=this._isInactive()),"off"!==this.entity.state&&"unavailable"!==this.entity.state&&!e||!1}_isInactive(){const e=this.entity.attributes.media_position_updated_at;if(e){const t=(Date.now()-new Date(e).getTime())/1e3;if(t>this.config.consider_idle_after)return!0;this._inactiveTracker||(this._inactiveTracker=setTimeout(()=>{this.position=0,this._inactiveTracker=null},1e3*(this.config.consider_idle_after-t)))}return!1}_hasMediaInfo(){return 0!==MEDIA_INFO.map(e=>this._getAttribute(e.attr)).filter(e=>""!==e).length}_getAttribute(e,{entity:t}=this){return t.attributes[e]||""}_getLabel(e,t="unknown"){const i=this._hass.selectedLanguage||this._hass.language,r=this._hass.resources[i];return r&&r[e]?r[e]:t}_style(){return html`
       <style>
         div:empty { display: none; }
         ha-card {
@@ -1546,15 +219,12 @@ class MiniMediaPlayer extends LitElement {
           display: block;
           position: relative;
         }
-        .control-row, .tts {
+        .rows {
           margin-left: 56px;
           position: relative;
           transition: margin-left 0.25s;
         }
-        ha-card[hide-icon] .control-row,
-        ha-card[hide-icon] .tts,
-        ha-card[hide-info] .control-row,
-        ha-card[hide-info] .tts {
+        ha-card[hide-icon] .rows {
           margin-left: 0;
         }
         .entity__info[short] {
@@ -1607,10 +277,14 @@ class MiniMediaPlayer extends LitElement {
         .entity__info__media {
           color: var(--secondary-text-color);
         }
-        .entity__info__media[short] {
+        .entity__info[short] .entity__info__media {
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
+        }
+        .entity__info__media[inactive] {
+          color: var(--primary-text-color);
+          opacity: .5;
         }
         .entity__info__media[scroll='true'] > span {
           visibility: hidden;
@@ -1624,7 +298,7 @@ class MiniMediaPlayer extends LitElement {
           visibility: visible;
         }
         .entity__info__media[scroll='true'] {
-          text-overflow: clip;
+          text-overflow: clip !important;
           mask-image: linear-gradient(to right, transparent 0%, var(--secondary-text-color) 5%, var(--secondary-text-color) 95%, transparent 100%);
           -webkit-mask-image: linear-gradient(to right, transparent 0%, var(--secondary-text-color) 5%, var(--secondary-text-color) 95%, transparent 100%);
         }
@@ -1634,9 +308,18 @@ class MiniMediaPlayer extends LitElement {
           white-space: nowrap;
         }
         ha-card[artwork='cover'][has-artwork] .entity__info__media,
-        .power-button[color] {
+        paper-icon-button[color] {
           color: var(--accent-color) !important;
+        }
+        paper-icon-button {
           transition: color .25s ease-in-out;
+        }
+        paper-icon-button.shuffle {
+          align-self: center;
+          height: 36px;
+          min-width: 36px;
+          text-align: center;
+          width: 36px;
         }
         .entity__info__media span:before {
           content: ' - ';
@@ -1652,9 +335,6 @@ class MiniMediaPlayer extends LitElement {
           cursor: text;
           flex: 1;
           -webkit-flex: 1;
-        }
-        .entity__control-row--top {
-          padding-left: 5px;
         }
         .select .vol-control {
           max-width: 200px;
@@ -1674,7 +354,7 @@ class MiniMediaPlayer extends LitElement {
         }
         .vol-control {
           flex: 1;
-          min-width: 120px;
+          min-width: 140px;
           max-height: 40px;
         }
         paper-slider {
@@ -1737,7 +417,8 @@ class MiniMediaPlayer extends LitElement {
         ha-card[group] paper-progress {
           position: relative
         }
-        .unavailable {
+        .string {
+          margin: 0 8px;
           white-space: nowrap;
         }
         ha-card[hide-info] .entity__info,
@@ -1768,7 +449,7 @@ class MiniMediaPlayer extends LitElement {
           to {transform: translate(0, 0); }
         }
         @media screen and (max-width: 325px) {
-          .control-row, .tts {
+          .rows {
             margin-left: 0;
           }
           .source-menu__source {
@@ -1776,10 +457,4 @@ class MiniMediaPlayer extends LitElement {
           }
         }
       </style>
-    `;
-  }
-  getCardSize() {
-    return 1;
-  }
-}
-customElements.define('mini-media-player', MiniMediaPlayer);
+    `}getCardSize(){return 1}}customElements.define("mini-media-player",MiniMediaPlayer);
