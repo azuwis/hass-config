@@ -171,8 +171,8 @@ views:
         card:
           type: custom:mini-media-player
           entity: media_player.tv
-          artwork: cover
-          power_color: true
+          hide_controls: yes
+          power_color: yes
           show_source: small
 
       - type: conditional
