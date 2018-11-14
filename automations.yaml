@@ -380,6 +380,16 @@
       message: >-
         {{ state_attr(trigger.entity_id, 'friendly_name') }} arrived home
 
+- alias: Notify update
+  trigger:
+    platform: state
+    entity_id: updater.updater
+  action:
+    service: notify.html5
+    data_template:
+      message: >-
+        Home assistant version {{ states(trigger.entity_id) }} available
+
 ##### Water heater #####
 
 - alias: Water heater
