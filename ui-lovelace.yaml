@@ -87,6 +87,12 @@ views:
               top: 64.8%
               left: 29.5%
           - type: state-icon
+            entity: light.bedroom
+            hold_action: toggle
+            style:
+              top: 71%
+              left: 18%
+          - type: state-icon
             entity: climate.bedroom
             hold_action: call-service
             service: switch.toggle

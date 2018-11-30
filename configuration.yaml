@@ -328,9 +328,14 @@ input_boolean:
 light:
   - platform: yeelight
     devices:
-      !secret yeelight_host:
+      !secret yeelight_living_room_host:
         name: Living room
         model: ceiling4
+        save_on_change: no
+        transition: 1000
+      !secret yeelight_bedroom_host:
+        name: Bedroom
+        model: ceiling3
         save_on_change: no
         transition: 1000
 
