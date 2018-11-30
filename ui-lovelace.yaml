@@ -5,8 +5,6 @@ resources:
     type: module
   - url: /local/slider-entity-row.js?v=1
     type: module
-  - url: /local/state-icon.js?v=6
-    type: module
 
 excluded_entities:
   - automation.disable_zigbee2mqtt_join
@@ -67,8 +65,8 @@ views:
             style:
               top: 33%
               left: 50%
-          - type: custom:state-icon
-            entity: media_player.tv
+          - type: state-icon
+            entity: switch.tv
             hold_action: toggle
             style:
               top: 54%
