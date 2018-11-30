@@ -280,7 +280,6 @@ views:
               message: This is a test message
           - group.all_automations
       - type: entities
-        show_header_toggle: no
         entities:
           - input_boolean.zigbee2mqtt_permit_join
           - timer.zigbee2mqtt_permit_join
