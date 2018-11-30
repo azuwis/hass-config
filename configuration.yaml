@@ -305,9 +305,6 @@ climate:
     temp_sensor: sensor.ht_bedroom_temperature
 
 device_tracker:
-  - platform: owntracks
-    max_gps_accuracy: 200
-
   - platform: ubus
     host: !secret ubus_host
     username: !secret ubus_username
@@ -365,6 +362,9 @@ notify:
     platform: html5
     gcm_api_key: !secret gcm_api_key
     gcm_sender_id: !secret gcm_sender_id
+
+owntracks:
+  max_gps_accuracy: 200
 
 paplay:
 
