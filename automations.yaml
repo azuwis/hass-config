@@ -378,9 +378,18 @@
 
 - alias: Notify AQI
   trigger:
-    platform: numeric_state
-    entity_id:  sensor.us_air_quality_index
-    above: 150
+    - platform: numeric_state
+      entity_id: sensor.us_air_quality_index
+      above: 150
+    - platform: time
+      at: '7:30:00'
+  condition:
+    - condition: numeric_state
+      entity_id: sensor.us_air_quality_index
+      above: 150
+    - condition: time
+      after: '07:30'
+      before: '22:00'
   action:
     service: notify.html5
     data_template:
