@@ -376,6 +376,17 @@
 
 ##### Notification #####
 
+- alias: Notify AQI
+  trigger:
+    platform: numeric_state
+    entity_id:  sensor.us_air_quality_index
+    above: 150
+  action:
+    service: notify.html5
+    data_template:
+      message: >-
+        AQI {{ states(trigger.entity_id) }}
+
 - alias: Notify home
   trigger:
     platform: state
