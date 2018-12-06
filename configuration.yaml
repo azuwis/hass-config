@@ -154,7 +154,7 @@ intent_script:
     async_action: yes
     speech:
       text: &intent_turn_on_off >-
-        {% if name | regex_match('电视|客厅|吸顶|空调|热水|阅读|看书|月光') %}
+        {% if name | regex_match('电视|客厅|吸顶|卧室|空调|热水|阅读|看书|月光') %}
           已{{ action }}{{ name }}
         {% else %}
           找不到{{ name }}
@@ -170,8 +170,10 @@ intent_script:
               media_player.tv
             {% elif name | regex_match('客厅|吸顶') %}
               light.living_room
+            {% elif name | regex_match('卧室') %}
+              light.bedroom
             {% elif name | regex_match('空调') %}
-              switch.climate_living_room
+              switch.climate_bedroom
             {% elif name | regex_match('热水') %}
               switch.water_heater
             {% elif name | regex_match('阅读|看书') %}
