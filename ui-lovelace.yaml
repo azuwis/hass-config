@@ -61,20 +61,23 @@ views:
               left: 68%
           - type: state-icon
             entity: light.living_room
-            hold_action: toggle
+            hold_action:
+              action: toggle
             style:
               top: 33%
               left: 50%
           - type: state-icon
             entity: switch.tv
-            hold_action: toggle
+            hold_action:
+              action: toggle
             style:
               top: 54%
               left: 50%
           # living room balcony
           - type: state-icon
             entity: switch.water_heater
-            hold_action: toggle
+            hold_action:
+              action: toggle
             style:
               top: 17%
               left: 22%
@@ -86,32 +89,38 @@ views:
               left: 29.5%
           - type: state-icon
             entity: light.bedroom
-            hold_action: toggle
+            hold_action:
+              action: toggle
             style:
               top: 71%
               left: 18%
           - type: state-icon
             entity: climate.bedroom
-            hold_action: call-service
-            service: switch.toggle
-            service_data:
-              entity_id: switch.climate_bedroom
+            hold_action:
+              action: call-service
+              service: switch.toggle
+              service_data:
+                entity_id: switch.climate_bedroom
             style:
               top: 83%
               left: 34%
           - type: state-label
             entity: sensor.ht_bedroom_temperature
-            tap_action: navigate
-            navigation_path: /lovelace/history
-            hold_action: more-info
+            tap_action:
+              action: navigate
+              navigation_path: /lovelace/history
+            hold_action:
+              action: more-info
             style:
               top: 90%
               left: 12.5%
           - type: state-label
             entity: sensor.ht_bedroom_humidity
-            tap_action: navigate
-            navigation_path: /lovelace/history
-            hold_action: more-info
+            tap_action:
+              action: navigate
+              navigation_path: /lovelace/history
+            hold_action:
+              action: more-info
             style:
               top: 85%
               left: 12%
@@ -145,25 +154,31 @@ views:
           # outside
           - type: state-label
             entity: sensor.ht_outside_temperature
-            tap_action: navigate
-            navigation_path: /lovelace/history
-            hold_action: more-info
+            tap_action:
+              action: navigate
+              navigation_path: /lovelace/history
+            hold_action:
+              action: more-info
             style:
               top: 72%
               left: 90%
           - type: state-label
             entity: sensor.ht_outside_humidity
-            tap_action: navigate
-            navigation_path: /lovelace/history
-            hold_action: more-info
+            tap_action:
+              action: navigate
+              navigation_path: /lovelace/history
+            hold_action:
+              action: more-info
             style:
               top: 67%
               left: 89.6%
           - type: state-label
             entity: sensor.us_air_quality_index
-            tap_action: navigate
-            navigation_path: /lovelace/history
-            hold_action: more-info
+            tap_action:
+              action: navigate
+              navigation_path: /lovelace/history
+            hold_action:
+              action: more-info
             style:
               top: 77%
               left: 88.7%
