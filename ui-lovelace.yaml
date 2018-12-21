@@ -10,7 +10,6 @@ excluded_entities:
   - automation.disable_zigbee2mqtt_join
   - automation.disable_zigbee2mqtt_join_timer
   - automation.enable_zigbee2mqtt_join
-  - automation.flux_living_room_hass_started
   - automation.set_custom_theme_at_startup
   - automation.zigbee2mqtt_log_level
   - binary_sensor.door_bedroom
@@ -62,7 +61,10 @@ views:
           - type: state-icon
             entity: light.living_room
             hold_action:
-              action: toggle
+              action: call-service
+              service: switch.toggle
+              service_data:
+                entity_id: switch.light_living_room
             style:
               top: 33%
               left: 50%
@@ -205,7 +207,6 @@ views:
               entity: light.living_room
             - switch.reading_living_room
             - input_boolean.moonlight_living_room
-            - switch.flux_living_room
 
       - type: conditional
         conditions:

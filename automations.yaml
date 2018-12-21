@@ -9,9 +9,9 @@
     value_template: >-
       {{ trigger.payload_json.click == 'single' }}
   action:
-    service: light.toggle
+    service: switch.toggle
     data:
-      entity_id: light.living_room
+      entity_id: switch.light_living_room
 
 - alias: Button 1 long
   trigger:
@@ -65,9 +65,9 @@
     value_template: >-
       {{ trigger.payload_json.click == 'long' }}
   action:
-    service: light.toggle
+    service: switch.toggle
     data:
-      entity_id: light.living_room
+      entity_id: switch.light_living_room
 
 - alias: Cube flip90
   trigger:
@@ -194,40 +194,18 @@
           midnight
         {% endif %}
 
-##### Flux #####
-
-- alias: Flux living room off
-  trigger:
-    platform: time
-    at: '23:00'
-  action:
-    service: switch.turn_off
-    data:
-      entity_id: switch.flux_living_room
-
-- alias: Flux living room on
-  trigger:
-    platform: time
-    at: '7:00'
-  action:
-    service: switch.turn_on
-    data:
-      entity_id: switch.flux_living_room
-
-- alias: Flux living room on when hass start
-  trigger:
-    platform: homeassistant
-    event: start
-  condition:
-    condition: time
-    after: '7:00'
-    before: '23:00'
-  action:
-    service: switch.turn_on
-    data:
-      entity_id: switch.flux_living_room
-
 ##### Light #####
+
+- alias: Light living room set brightness when available
+  trigger:
+    platform: state
+    entity_id: light.living_room
+    from: 'unavailable'
+    to: 'on'
+  action:
+    service: switch.turn_on
+    data:
+      entity_id: switch.light_living_room
 
 - alias: Light living room off when occupancy off
   trigger:
@@ -239,11 +217,11 @@
   condition:
     condition: time
     after: '23:00'
-    before: '18:00'
+    before: '16:00'
   action:
-    service: light.turn_off
+    service: switch.turn_off
     data:
-      entity_id: light.living_room
+      entity_id: switch.light_living_room
 
 - alias: Light living room on when occupancy on
   trigger:
@@ -252,29 +230,13 @@
     from: 'off'
     to: 'on'
   condition:
-    condition: time
-    after: '07:00'
-    before: '00:00'
+    condition: state
+    entity_id: light.living_room
+    state: 'off'
   action:
-    service: light.turn_on
+    service: switch.turn_on
     data:
-      entity_id: light.living_room
-
-- alias: Light living room on when occupancy on midnight
-  trigger:
-    platform: state
-    entity_id: binary_sensor.occupancy_living_room
-    from: 'off'
-    to: 'on'
-  condition:
-    condition: time
-    after: '00:00'
-    before: '07:00'
-  action:
-    service: light.turn_on
-    data:
-      entity_id: light.living_room
-      brightness: 1
+      entity_id: switch.light_living_room
 
 - alias: Moonlight living room off when door open
   trigger:
@@ -326,9 +288,10 @@
     from: 'on'
     to: 'off'
   action:
-    service: switch.turn_on
+    service: light.yeelight_set_mode
     data:
-      entity_id: switch.flux_living_room
+      entity_id: light.living_room
+      mode: normal
 
 - alias: Moonlight living room on
   hide_entity: yes
@@ -338,9 +301,6 @@
     from: 'off'
     to: 'on'
   action:
-    - service: switch.turn_off
-      data:
-        entity_id: switch.flux_living_room
     - service: light.yeelight_set_mode
       data:
         entity_id: light.living_room

@@ -390,17 +390,6 @@ switch:
     host: !secret broadlink_host
     mac: !secret broadlink_mac
 
-  - platform: flux
-    name: flux_living_room
-    lights:
-      - light.living_room
-    start_time: '7:00'
-    stop_time: '23:00'
-    start_colortemp: 5600
-    sunset_colortemp: 4000
-    stop_colortemp: 2700
-    mode: mired
-
   - platform: template
     switches:
       climate_bedroom:
@@ -419,47 +408,50 @@ switch:
             entity_id: climate.bedroom
             operation_mode: 'off'
 
-      # dimming_living_room:
-      #   friendly_name: Dimming living room
-      #   value_template: >-
-      #     {{ is_state('light.living_room', 'on') and is_state('switch.flux_living_room', 'off') and state_attr('light.living_room', 'brightness') <= 5 }}
-      #   icon_template: mdi:book-open-page-variant
-      #   turn_on:
-      #     - service: switch.turn_off
-      #       data:
-      #         entity_id: switch.flux_living_room
-      #     - service: light.yeelight_set_mode
-      #       data:
-      #         entity_id: light.living_room
-      #         mode: moonlight
-      #     - service: light.turn_on
-      #       entity_id: light.living_room
-      #       data:
-      #         brightness: 255
-      #   turn_off:
-      #     service: switch.turn_on
-      #     data:
-      #       entity_id: switch.flux_living_room
+      light_living_room:
+        friendly_name: Light living room
+        value_template: >-
+          {{ states('light.living_room') }}
+        turn_on:
+          service: light.turn_on
+          data_template:
+            entity_id: light.living_room
+            brightness: >-
+              {% if now().hour >= 7 and now().hour < 23 %}
+                200
+              {% else %}
+                1
+              {% endif %}
+            kelvin: >-
+              {% if now().hour >= 7 and now().hour < 23 %}
+                5000
+              {% else %}
+                2700
+              {% endif %}
+        turn_off:
+          service: light.turn_off
+          data:
+            entity_id: light.living_room
 
       reading_living_room:
         friendly_name: Reading living room
         value_template: >-
-          {{ is_state('light.living_room', 'on') and is_state('switch.flux_living_room', 'off') and state_attr('light.living_room', 'brightness') >= 160 }}
+          {{ is_state('light.living_room', 'on') and state_attr('light.living_room', 'brightness') >= 200 }}
         icon_template: mdi:book-open-page-variant
         turn_on:
-          - service: switch.turn_off
-            data:
-              entity_id: switch.flux_living_room
-          - service: light.turn_on
-            data:
-              entity_id: light.living_room
-              brightness: 162
-              kelvin: 5000
-              transition: 5
-        turn_off:
-          service: switch.turn_on
+          service: light.turn_on
           data:
-            entity_id: switch.flux_living_room
+            entity_id: light.living_room
+            brightness: 202
+            kelvin: 5000
+            transition: 5
+        turn_off:
+          service: light.turn_on
+          data:
+            entity_id: light.living_room
+            brightness: 162
+            kelvin: 5000
+            transition: 5
 
       tv:
         friendly_name: TV
