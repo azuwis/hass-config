@@ -13,19 +13,6 @@
     data:
       entity_id: light.living_room
 
-- alias: Button 1 double
-  trigger:
-    platform: mqtt
-    topic: zigbee2mqtt/button_1
-  condition:
-    condition: template
-    value_template: >-
-      {{ trigger.payload_json.click == 'double' }}
-  action:
-    service: media_player.toggle
-    data:
-      entity_id: media_player.tv
-
 - alias: Button 1 long
   trigger:
     platform: mqtt
@@ -68,6 +55,19 @@
     service: light.toggle
     data:
       entity_id: light.bedroom
+
+- alias: Button 3 long
+  trigger:
+    platform: mqtt
+    topic: zigbee2mqtt/button_3
+  condition:
+    condition: template
+    value_template: >-
+      {{ trigger.payload_json.click == 'long' }}
+  action:
+    service: light.toggle
+    data:
+      entity_id: light.living_room
 
 - alias: Cube flip90
   trigger:
