@@ -178,9 +178,8 @@
   trigger:
     - platform: homeassistant
       event: start
-    - platform: state
-      entity_id: sun.sun
-      to: above_horizon
+    - platform: time
+      at: '8:00:00'
     - platform: state
       entity_id: sun.sun
       to: below_horizon
