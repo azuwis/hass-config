@@ -36,7 +36,7 @@ excluded_entities:
 
 views:
   - title: Home
-    id: home
+    path: home
     icon: mdi:view-grid
     cards:
       - type: picture-elements
@@ -226,7 +226,7 @@ views:
           entity: weather.hangzhou
 
   - title: History
-    id: history
+    path: history
     icon: mdi:chart-line
     cards:
       - type: history-graph
@@ -238,7 +238,7 @@ views:
           - sensor.us_air_quality_index
 
   - title: Map
-    id: map
+    path: map
     icon: mdi:map
     panel: yes
     cards:
@@ -250,7 +250,7 @@ views:
           - zone.work
 
   - title: Settings
-    id: settings
+    path: settings
     icon: mdi:settings
     cards:
       - type: entities
