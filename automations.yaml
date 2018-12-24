@@ -277,7 +277,7 @@
       after: '22:00'
       before: '08:30'
   action:
-    service: turn_off
+    service: input_boolean.turn_off
     data:
       entity_id: input_boolean.moonlight_living_room
 
@@ -295,7 +295,7 @@
       after: '22:00'
       before: '08:30'
   action:
-    service: turn_on
+    service: input_boolean.turn_on
     data:
       entity_id: input_boolean.moonlight_living_room
 
