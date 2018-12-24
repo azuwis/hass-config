@@ -256,16 +256,13 @@
     data:
       entity_id: input_boolean.moonlight_living_room
 
-- alias: Moonlight living room on off when door on off
+- alias: Moonlight living room off when door off
   trigger:
-    - platform: state
-      entity_id: binary_sensor.door_bedroom
-      from: 'on'
-      to: 'off'
-    - platform: state
-      entity_id: binary_sensor.door_bedroom
-      from: 'off'
-      to: 'on'
+    platform: state
+    entity_id: binary_sensor.door_bedroom
+    from: 'on'
+    to: 'off'
+    for: '00:00:1'
   condition:
     - condition: state
       entity_id: light.living_room
@@ -274,8 +271,25 @@
       after: '22:00'
       before: '08:30'
   action:
-    service_template: >-
-      input_boolean.turn_{{ states(trigger.entity_id) }}
+    service: turn_off
+    data:
+      entity_id: input_boolean.moonlight_living_room
+
+- alias: Moonlight living room on when door on
+  trigger:
+    platform: state
+    entity_id: binary_sensor.door_bedroom
+    from: 'off'
+    to: 'on'
+  condition:
+    - condition: state
+      entity_id: light.living_room
+      state: 'on'
+    - condition: time
+      after: '22:00'
+      before: '08:30'
+  action:
+    service: turn_on
     data:
       entity_id: input_boolean.moonlight_living_room
 
