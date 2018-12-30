@@ -280,12 +280,13 @@ binary_sensor:
           - binary_sensor.motion_sofas
         value_template: >-
           {% if is_state('binary_sensor.motion_dining_room', 'on')
-             or is_state('binary_sensor.motion_living_room', 'on') %}
-            true
+             or is_state('binary_sensor.motion_living_room', 'on')
+             or states('sensor.plug_power') >= 1 %}
+            on
           {% elif is_state('binary_sensor.motion_dining_room', 'off')
              and is_state('binary_sensor.motion_living_room', 'off')
              and is_state('binary_sensor.motion_sofas', 'off') %}
-            false
+            off
           {% else %}
             {{ states('binary_sensor.occupancy_living_room') }}
           {% endif %}
