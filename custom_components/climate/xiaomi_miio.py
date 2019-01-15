@@ -40,7 +40,7 @@ DEFAULT_SLOT = 30
 
 ATTR_AIR_CONDITION_MODEL = 'ac_model'
 ATTR_SWING_MODE = 'swing_mode'
-ATTR_FAN_SPEED = 'fan_speed'
+ATTR_FAN_MODE = 'fan_mode'
 ATTR_LOAD_POWER = 'load_power'
 ATTR_LED = 'led'
 
@@ -176,7 +176,6 @@ class XiaomiAirConditioningCompanion(ClimateDevice):
             ATTR_LOAD_POWER: None,
             ATTR_TEMPERATURE: None,
             ATTR_SWING_MODE: None,
-            ATTR_FAN_SPEED: None,
             ATTR_OPERATION_MODE: None,
             ATTR_LED: None,
         }
@@ -256,7 +255,6 @@ class XiaomiAirConditioningCompanion(ClimateDevice):
     def async_update(self):
         """Update the state of this climate device."""
         from miio import DeviceException
-        from miio.airconditioningcompanion import SwingMode
 
         try:
             state = yield from self.hass.async_add_job(self._device.status)
@@ -268,9 +266,9 @@ class XiaomiAirConditioningCompanion(ClimateDevice):
                 ATTR_AIR_CONDITION_MODEL: state.air_condition_model.hex(),
                 ATTR_LOAD_POWER: state.load_power,
                 ATTR_TEMPERATURE: state.target_temperature,
-                ATTR_SWING_MODE: state.swing_mode.name,
-                ATTR_FAN_SPEED: state.fan_speed.name,
-                ATTR_OPERATION_MODE: state.mode.name,
+                ATTR_SWING_MODE: state.swing_mode.name.lower(),
+                ATTR_FAN_MODE: state.fan_speed.name.lower(),
+                ATTR_OPERATION_MODE: state.mode.name.lower() if self._state else "off",
                 ATTR_LED: state.led,
             })
 
@@ -350,24 +348,24 @@ class XiaomiAirConditioningCompanion(ClimateDevice):
     @property
     def current_operation(self):
         """Return current operation ie. heat, cool, idle."""
-        return self._current_operation.name
+        return self._current_operation.name.lower() if self._state else "off"
 
     @property
     def operation_list(self):
         """Return the list of available operation modes."""
         from miio.airconditioningcompanion import OperationMode
-        return [mode.name for mode in OperationMode]
+        return [mode.name.lower() for mode in OperationMode] + ["off"]
 
     @property
     def current_fan_mode(self):
         """Return the current fan mode."""
-        return self._current_fan_mode.name
+        return self._current_fan_mode.name.lower()
 
     @property
     def fan_list(self):
         """Return the list of available fan modes."""
         from miio.airconditioningcompanion import FanSpeed
-        return [speed.name for speed in FanSpeed]
+        return [speed.name.lower() for speed in FanSpeed]
 
     @property
     def is_on(self) -> bool:
@@ -404,25 +402,29 @@ class XiaomiAirConditioningCompanion(ClimateDevice):
     @asyncio.coroutine
     def async_set_operation_mode(self, operation_mode):
         """Set operation mode."""
-        from miio.airconditioningcompanion import OperationMode
-        self._current_operation = OperationMode[operation_mode.title()]
+        if operation_mode == "off":
+            self._state = False
+        else:
+            from miio.airconditioningcompanion import OperationMode
+            self._current_operation = OperationMode[operation_mode.title()]
+            self._state = True
         yield from self._send_configuration()
 
     @property
     def current_swing_mode(self):
         """Return the current swing setting."""
-        return self._current_swing_mode.name
+        return self._current_swing_mode.name.lower()
 
     @property
     def swing_list(self):
         """List of available swing modes."""
         from miio.airconditioningcompanion import SwingMode
-        return [mode.name for mode in SwingMode]
+        return [mode.name.lower() for mode in SwingMode]
 
     @asyncio.coroutine
     def _send_configuration(self):
         from miio.airconditioningcompanion import \
-            Power, FanSpeed, SwingMode, Led
+            Power, Led
 
         if self._air_condition_model is not None:
             yield from self._try_command(
