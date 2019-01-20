@@ -254,6 +254,9 @@
     - condition: state
       entity_id: light.living_room
       state: 'on'
+    - condition: state
+      entity_id: light.bedroom
+      state: 'off'
     - condition: time
       after: '22:00'
       before: '08:30'
