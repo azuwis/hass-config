@@ -259,7 +259,7 @@
       state: 'off'
     - condition: time
       after: '22:00'
-      before: '08:30'
+      before: '08:15'
   action:
     service: input_boolean.turn_off
     data:
@@ -278,7 +278,7 @@
       state: 'on'
     - condition: time
       after: '22:00'
-      before: '08:30'
+      before: '08:15'
   action:
     service: input_boolean.turn_off
     data:
