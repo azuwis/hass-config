@@ -507,9 +507,12 @@ switch:
           - *water_heater_heating
 
 weather:
-  - platform: yweather
+  - platform: darksky
     name: Hangzhou
-    woeid: 2132574
+    mode: daily
+    api_key: !secret darksky_api_key
+    latitude: !secret alt_latitude
+    longitude: !secret alt_longitude
 
 web_speech:
   chrome_extra_args: --enable-low-end-device-mode --no-sandbox
