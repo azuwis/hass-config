@@ -195,6 +195,12 @@ views:
           hide_controls: yes
           power_color: yes
           show_source: small
+          # - type: custom:mini-media-player
+          #   entity: media_player.vlc
+          #   hide_controls: yes
+          #   hide_power: yes
+          #   group: yes
+          #   show_tts: google
 
       - type: conditional
         conditions:
