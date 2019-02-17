@@ -313,6 +313,16 @@ climate:
     ircodes_ini: broadlink_climate_codes/gree.ini
     target_temp: 26
     temp_sensor: sensor.ht_bedroom_temperature
+    customize:
+      operations:
+        - auto
+        - cool
+        - heat
+      fan_modes:
+        - auto
+        - low
+        - mid
+        - high
 
 device_tracker:
   - platform: ubus
@@ -400,15 +410,13 @@ switch:
           {{ not is_state_attr('climate.bedroom', 'operation_mode', 'off') }}
         icon_template: mdi:air-conditioner
         turn_on:
-          service: climate.set_operation_mode
+          service: climate.turn_on
           data:
             entity_id: climate.bedroom
-            operation_mode: cool
         turn_off:
-          service: climate.set_operation_mode
+          service: climate.turn_off
           data:
             entity_id: climate.bedroom
-            operation_mode: 'off'
 
       light_living_room:
         friendly_name: Light living room
