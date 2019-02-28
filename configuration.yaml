@@ -207,7 +207,7 @@ sensor:
     longitude: !secret alt_longitude
     language: zh
     api_key: !secret darksky_api_key
-    update_interval: '00:10'
+    scan_interval: '00:10:00'
     forecast:
       - 1
     monitored_conditions:
@@ -311,7 +311,7 @@ climate:
     host: !secret broadlink_host
     mac: !secret broadlink_mac
     ircodes_ini: broadlink_climate_codes/gree.ini
-    target_temp: 26
+    # target_temp: 26
     temp_sensor: sensor.ht_bedroom_temperature
     customize:
       operations:

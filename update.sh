@@ -3,13 +3,14 @@ download() {
     file="$1"
     url="$2"
     echo "Downloading $file"
-    curl --create-dirs -#fSLo "$file" "$url"
+    curl --create-dirs -sfSLo "$file" "$url"
 }
 
 
 download broadlink_climate_codes/gree.ini https://github.com/vpnmaster/homeassistant-custom-components/raw/master/broadlink_climate_codes/gree.ini
 download custom_components/climate/broadlink.py https://github.com/vpnmaster/homeassistant-custom-components/raw/master/custom_components/climate/broadlink.py
-download custom_components/climate/xiaomi_miio.py https://github.com/syssi/xiaomi_airconditioningcompanion/raw/develop/custom_components/climate/xiaomi_miio.py
+download custom_components/xiaomi_miio/climate.py https://github.com/syssi/xiaomi_airconditioningcompanion/raw/develop/custom_components/xiaomi_miio/climate.py
+download custom_components/xiaomi_miio/__init__.py https://github.com/syssi/xiaomi_airconditioningcompanion/raw/develop/custom_components/xiaomi_miio/__init__.py
 download custom_components/media_player/braviatv_psk.py https://github.com/gerard33/home-assistant/raw/master/braviatv_psk.py
 download www/slider-entity-row.js https://github.com/thomasloven/lovelace-slider-entity-row/raw/master/slider-entity-row.js
 
