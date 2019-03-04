@@ -387,6 +387,7 @@ recorder:
       - switch.climate_bedroom
 
 smartir:
+  check_updates: no
 
 switch:
   - platform: broadlink

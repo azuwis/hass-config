@@ -9,6 +9,7 @@ download() {
 
 download custom_components/smartir/climate.py https://github.com/smartHomeHub/SmartIR/raw/master/smartir/climate.py
 download custom_components/smartir/__init__.py https://github.com/smartHomeHub/SmartIR/raw/master/smartir/__init__.py
+download custom_components/smartir/codes/climate/1180.json https://github.com/smartHomeHub/SmartIR/raw/master/smartir/codes/climate/1180.json
 
 download custom_components/xiaomi_miio/climate.py https://github.com/syssi/xiaomi_airconditioningcompanion/raw/develop/custom_components/xiaomi_miio/climate.py
 download custom_components/xiaomi_miio/__init__.py https://github.com/syssi/xiaomi_airconditioningcompanion/raw/develop/custom_components/xiaomi_miio/__init__.py
