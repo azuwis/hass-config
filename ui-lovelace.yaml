@@ -3,7 +3,7 @@ title: Home
 resources:
   - url: /local/mini-media-player.js?v=10
     type: module
-  - url: /local/slider-entity-row.js?v=4
+  - url: /local/slider-entity-row.js?v=5
     type: module
 
 excluded_entities:
