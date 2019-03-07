@@ -423,7 +423,7 @@
 - alias: Water heater season
   trigger:
     platform: time
-    at: '21:00:00'
+    at: '20:40:00'
   condition:
     condition: template
     value_template: >-
