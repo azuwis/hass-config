@@ -299,7 +299,7 @@ camera:
     name: Living room
 
 climate:
-  - platform: xiaomi_miio
+  - platform: xiaomi_miio_airconditioningcompanion
     name: AC partner
     host: !secret ac_partner_host
     token: !secret ac_partner_token
@@ -539,7 +539,7 @@ logger:
     custom_components.web_speech: debug
     homeassistant.components.light.yeelight: critical
     urllib3.connectionpool: critical
-    # custom_components.climate.xiaomi_miio: debug
+    # custom_components.xiaomi_miio_airconditioningcompanion.climate: debug
     # custom_components.rhasspy_train: debug
     # custom_components.stt_pocketsphinx: debug
     # homeassistant.components.binary_sensor.xiaomi_aqara: debug

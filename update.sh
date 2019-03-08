@@ -11,8 +11,8 @@ download custom_components/smartir/climate.py https://github.com/smartHomeHub/Sm
 download custom_components/smartir/__init__.py https://github.com/smartHomeHub/SmartIR/raw/master/smartir/__init__.py
 download custom_components/smartir/codes/climate/1180.json https://github.com/smartHomeHub/SmartIR/raw/master/smartir/codes/climate/1180.json
 
-download custom_components/xiaomi_miio/climate.py https://github.com/syssi/xiaomi_airconditioningcompanion/raw/develop/custom_components/xiaomi_miio/climate.py
-download custom_components/xiaomi_miio/__init__.py https://github.com/syssi/xiaomi_airconditioningcompanion/raw/develop/custom_components/xiaomi_miio/__init__.py
+download custom_components/xiaomi_miio_airconditioningcompanion/climate.py https://github.com/syssi/xiaomi_airconditioningcompanion/raw/develop/custom_components/xiaomi_miio_airconditioningcompanion/climate.py
+download custom_components/xiaomi_miio_airconditioningcompanion/__init__.py https://github.com/syssi/xiaomi_airconditioningcompanion/raw/develop/custom_components/xiaomi_miio_airconditioningcompanion/__init__.py
 
 download custom_components/media_player/braviatv_psk.py https://github.com/gerard33/home-assistant/raw/master/braviatv_psk.py
 
