@@ -1,7 +1,7 @@
 title: Home
 
 resources:
-  - url: /local/mini-media-player.js?v=10
+  - url: /local/mini-media-player.js?v=11
     type: module
   - url: /local/slider-entity-row.js?v=5
     type: module
