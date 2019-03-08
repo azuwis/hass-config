@@ -413,7 +413,7 @@ switch:
       light_living_room:
         friendly_name: Light living room
         value_template: >-
-          {{ states('light.living_room') }}
+          {{ is_state('light.living_room', 'on') }}
         turn_on:
           service: light.turn_on
           data_template:
