@@ -327,6 +327,8 @@ class SmartIRClimate(ClimateDevice, RestoreEntity):
 
             if operation_mode.lower() == STATE_OFF:
                 command = self._commands['off']
+                if isinstance(command, dict):
+                    command = command[self._last_on_operation]
             else:
                 command = self._commands[operation_mode][fan_mode][target_temperature]
 
