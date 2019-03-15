@@ -384,7 +384,6 @@ recorder:
       - binary_sensor.mqtt_motion_sofas
       - climate.ac_partner
       - switch.tv
-      - switch.climate_bedroom
 
 smartir:
   check_updates: no
@@ -396,20 +395,6 @@ switch:
 
   - platform: template
     switches:
-      climate_bedroom:
-        friendly_name: Climate bedroom
-        value_template: >-
-          {{ not is_state('climate.bedroom', 'off') }}
-        icon_template: mdi:air-conditioner
-        turn_on:
-          service: climate.turn_on
-          data:
-            entity_id: climate.bedroom
-        turn_off:
-          service: climate.turn_off
-          data:
-            entity_id: climate.bedroom
-
       light_living_room:
         friendly_name: Light living room
         value_template: >-

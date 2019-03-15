@@ -31,7 +31,6 @@ excluded_entities:
   - sensor.ht_outside_temperature
   - sensor.illumination_acpartner
   - sun.sun
-  - switch.climate_bedroom
   - switch.reading_living_room
   - switch.tv
   - switch.water_heater
