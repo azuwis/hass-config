@@ -399,7 +399,7 @@ switch:
       climate_bedroom:
         friendly_name: Climate bedroom
         value_template: >-
-          {{ states('climate.bedroom') }}
+          {{ not is_state('climate.bedroom', 'off') }}
         icon_template: mdi:air-conditioner
         turn_on:
           service: climate.turn_on
