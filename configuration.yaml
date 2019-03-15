@@ -176,7 +176,7 @@ intent_script:
             {% elif name | regex_match('卧室') %}
               light.bedroom
             {% elif name | regex_match('空调') %}
-              switch.climate_bedroom
+              climate.bedroom
             {% elif name | regex_match('热水') %}
               switch.water_heater
             {% elif name | regex_match('阅读|看书') %}
