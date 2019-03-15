@@ -5,7 +5,7 @@ resources:
     type: module
   - url: /local/slider-entity-row.js?v=6
     type: module
-  - url: /local/state-icon.js?v=1
+  - url: /local/state-icon.js?v=2
     type: module
 
 excluded_entities:
