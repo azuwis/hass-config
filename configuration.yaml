@@ -383,7 +383,6 @@ recorder:
     entities:
       - binary_sensor.mqtt_motion_sofas
       - climate.ac_partner
-      - switch.tv
 
 smartir:
   check_updates: no
@@ -439,20 +438,6 @@ switch:
             brightness: 162
             kelvin: 5000
             transition: 5
-
-      tv:
-        friendly_name: TV
-        value_template: >-
-          {{ states('media_player.tv') }}
-        turn_on:
-          service: media_player.turn_on
-          data:
-            entity_id: media_player.tv
-        turn_off:
-          service: media_player.turn_off
-          data:
-            entity_id: media_player.tv
-        icon_template: mdi:television
 
       water_heater:
         friendly_name: Water heater

@@ -32,7 +32,6 @@ excluded_entities:
   - sensor.illumination_acpartner
   - sun.sun
   - switch.reading_living_room
-  - switch.tv
   - switch.water_heater
 
 views:
@@ -69,8 +68,8 @@ views:
             style:
               top: 33%
               left: 50%
-          - type: state-icon
-            entity: switch.tv
+          - type: custom:state-icon
+            entity: media_player.tv
             hold_action:
               action: toggle
             style:
