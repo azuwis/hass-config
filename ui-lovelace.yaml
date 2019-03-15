@@ -5,6 +5,8 @@ resources:
     type: module
   - url: /local/slider-entity-row.js?v=6
     type: module
+  - url: /local/state-icon.js?v=1
+    type: module
 
 excluded_entities:
   - automation.disable_zigbee2mqtt_join
@@ -96,13 +98,10 @@ views:
             style:
               top: 71%
               left: 18%
-          - type: state-icon
+          - type: custom:state-icon
             entity: climate.bedroom
             hold_action:
-              action: call-service
-              service: switch.toggle
-              service_data:
-                entity_id: switch.climate_bedroom
+              action: toggle
             style:
               top: 83%
               left: 34%
@@ -216,8 +215,8 @@ views:
 
       - type: conditional
         conditions:
-          - entity: switch.climate_bedroom
-            state: 'on'
+          - entity: climate.bedroom
+            state_not: 'off'
         card:
           type: entities
           entities:
