@@ -243,24 +243,38 @@
     data:
       entity_id: switch.light_living_room
 
-- alias: Moonlight living room off when door open
+- alias: Moonlight living room automation off
   trigger:
-    platform: state
-    entity_id: binary_sensor.door_bedroom
-    from: 'off'
-    to: 'on'
-    for: '00:00:15'
+    - platform: state
+      entity_id: binary_sensor.door_bedroom
+      from: 'off'
+      to: 'on'
+      for: '00:01:00'
+    - platform: time
+      at: '08:15:00'
   condition:
-    - condition: state
-      entity_id: light.living_room
-      state: 'on'
     - condition: time
       after: '22:00'
-      before: '08:15'
+      before: '08:16'
   action:
-    service: input_boolean.turn_off
-    data:
-      entity_id: input_boolean.moonlight_living_room
+    - service: automation.turn_off
+      data:
+        entity_id: automation.moonlight_living_room_on_when_door_on
+    - service: automation.turn_off
+      data:
+        entity_id: automation.moonlight_living_room_off_when_door_off
+
+- alias: Moonlight living room automation on
+  trigger:
+    platform: time
+    at: '22:00:00'
+  action:
+    - service: automation.turn_on
+      data:
+        entity_id: automation.moonlight_living_room_on_when_door_on
+    - service: automation.turn_on
+      data:
+        entity_id: automation.moonlight_living_room_off_when_door_off
 
 - alias: Moonlight living room off when door off
   trigger:
@@ -270,12 +284,9 @@
     to: 'off'
     for: '00:00:1'
   condition:
-    - condition: state
-      entity_id: light.living_room
-      state: 'on'
-    - condition: time
-      after: '22:00'
-      before: '08:15'
+    condition: state
+    entity_id: light.living_room
+    state: 'on'
   action:
     service: input_boolean.turn_off
     data:
@@ -294,13 +305,14 @@
     - condition: state
       entity_id: light.bedroom
       state: 'off'
-    - condition: time
-      after: '22:00'
-      before: '08:30'
   action:
-    service: input_boolean.turn_on
-    data:
-      entity_id: input_boolean.moonlight_living_room
+    - service: input_boolean.turn_on
+      data:
+        entity_id: input_boolean.moonlight_living_room
+    - delay: '00:00:10'
+    - service: input_boolean.turn_off
+      data:
+        entity_id: input_boolean.moonlight_living_room
 
 - alias: Moonlight living room off
   hide_entity: yes
