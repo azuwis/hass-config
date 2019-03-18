@@ -253,9 +253,9 @@
     - platform: time
       at: '08:15:00'
   condition:
-    - condition: time
-      after: '22:00'
-      before: '08:16'
+    condition: time
+    after: '07:00:00'
+    before: '08:30:00'
   action:
     - service: automation.turn_off
       data:
@@ -282,7 +282,7 @@
     entity_id: binary_sensor.door_bedroom
     from: 'on'
     to: 'off'
-    for: '00:00:1'
+    for: '00:00:01'
   condition:
     condition: state
     entity_id: light.living_room
