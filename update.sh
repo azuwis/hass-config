@@ -24,3 +24,6 @@ echo '  sidebar-icon-color: "#D0D0D0"' >> themes/midnight.yaml
 
 mini_media_player="$(curl --silent https://api.github.com/repos/kalkih/mini-media-player/releases/latest | awk -F'"' '/browser_download_url/ {print $4}')"
 download www/mini-media-player.js "$mini_media_player"
+
+simple_thermostat="$(curl --silent https://api.github.com/repos/nervetattoo/simple-thermostat/releases/latest | awk -F'"' '/browser_download_url/ {print $4}')"
+download www/simple-thermostat.js "$simple_thermostat"

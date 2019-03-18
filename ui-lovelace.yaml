@@ -3,6 +3,8 @@ title: Home
 resources:
   - url: /local/mini-media-player.js?v=11
     type: module
+  - url: /local/simple-thermostat.js?v=1
+    type: module
   - url: /local/slider-entity-row.js?v=6
     type: module
   - url: /local/state-icon.js?v=2
@@ -216,9 +218,12 @@ views:
           - entity: climate.bedroom
             state_not: 'off'
         card:
-          type: entities
-          entities:
-            - climate.bedroom
+          type: custom:simple-thermostat
+          entity: climate.bedroom
+          step_size: 1
+          sensors:
+            - entity: sensor.ht_bedroom_humidity
+              name: Humidity
 
       - type: conditional
         conditions:
