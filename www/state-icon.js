@@ -10,13 +10,15 @@ class StateIcon extends Polymer.Element {
     }
     this.content.setConfig(config);
     this.content.updateComplete.then(() => {
-      this.content.shadowRoot.querySelector('state-badge').shadowRoot.querySelector('style').innerHTML += `
+      const style = document.createElement('style');
+      style.innerHTML = `
 ha-icon[data-domain="media_player"][data-state="on"],
 ha-icon[data-domain="climate"]:not([data-state="off"])
 {
   color: var(--paper-item-icon-active-color);
 }
 `;
+      this.content.shadowRoot.querySelector('state-badge').shadowRoot.appendChild(style);
     });
   }
 }
