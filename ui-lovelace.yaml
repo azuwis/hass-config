@@ -239,6 +239,7 @@ views:
     cards:
       - type: history-graph
         entities:
+          - sensor.climate_bedroom_temperature_derivative
           - sensor.ht_bedroom_humidity
           - sensor.ht_bedroom_temperature
           - sensor.ht_outside_humidity

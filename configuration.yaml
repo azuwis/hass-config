@@ -220,6 +220,10 @@ sensor:
       - apparent_temperature_high
       - apparent_temperature_low
 
+  - platform: derivative
+    name: Climate bedroom temperature derivative
+    source: sensor.ht_outside_temperature
+
   - platform: season
     type: meteorological
 
