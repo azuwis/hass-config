@@ -421,12 +421,12 @@
 
 - alias: Water heater
   trigger:
-    - platform: sun
-      event: sunset
-      offset: '-00:30:00'
-    - platform: sun
-      event: sunset
-      offset: '-00:20:00'
+    - platform: time
+      at: '17:00:00'
+    - platform: time
+      at: '17:10:00'
+    - platform: time
+      at: '18:00:00'
   action:
     service: switch.turn_on
     data:
