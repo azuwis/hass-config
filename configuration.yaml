@@ -232,6 +232,30 @@ sensor:
       - type: disk_use_percent
         arg: /home
 
+  - platform: template
+    sensors:
+      climate_bedroom_mode:
+        value_template: >-
+          {% set delta = states('sensor.ht_outside_temperature')|float - states('sensor.ht_bedroom_temperature')|float %}
+          {% set derivative = states('sensor.climate_temperature_derivative')|float %}
+          {% if derivative > 0.5 %}
+            heat
+          {% elif derivative < 0.5 and derivative > -0.5 %}
+            {% if delta > 10 %}
+              heat
+            {% elif delta < -5 %}
+              cool
+            {% else %}
+              off
+            {% endif %}
+          {% else %}
+            {% if delta > 0 %}
+              off
+            {% elif delta <= 0 %}
+              cool
+            {% endif %}
+          {% endif %}
+
   # - platform: yr
   #   monitored_conditions:
   #     - humidity
@@ -316,6 +340,7 @@ climate:
     controller_send_service: !secret broadlink_send_packet
     temperature_sensor: sensor.ht_bedroom_temperature
     humidity_sensor: sensor.ht_bedroom_humidity
+    mode_sensor: sensor.climate_bedroom_mode
 
 device_tracker:
   - platform: ubus
