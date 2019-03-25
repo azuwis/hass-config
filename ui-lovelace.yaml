@@ -3,7 +3,7 @@ title: Home
 resources:
   - url: /local/mini-media-player.js?v=11
     type: module
-  - url: /local/simple-thermostat.js?v=1
+  - url: /local/simple-thermostat.js?v=2
     type: module
   - url: /local/slider-entity-row.js?v=6
     type: module
