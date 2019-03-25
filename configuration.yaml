@@ -237,8 +237,8 @@ sensor:
       climate_bedroom_mode:
         value_template: >-
           {% set delta = states('sensor.ht_outside_temperature')|float - states('sensor.ht_bedroom_temperature')|float %}
-          {% set derivative = states('sensor.climate_temperature_derivative')|float %}
-          {% if derivative > 0.5 %}
+          {% set derivative = states('sensor.climate_bedroom_temperature_derivative')|float %}
+          {% if derivative >= 0.5 %}
             heat
           {% elif derivative < 0.5 and derivative > -0.5 %}
             {% if delta > 10 %}
