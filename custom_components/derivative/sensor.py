@@ -104,8 +104,10 @@ class DerivativeSensor(RestoreEntity):
 
             try:
                 derivative = 0
-                elapsed_time = (new_state.last_updated
-                                - old_state.last_updated).total_seconds()
+                elapsed_time = (new_state.last_changed
+                                - old_state.last_changed).total_seconds()
+                if elapsed_time == 0:
+                    return
 
                 derivative = (Decimal(new_state.state)
                         - Decimal(old_state.state))/Decimal(elapsed_time)
