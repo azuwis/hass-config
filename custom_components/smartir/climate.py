@@ -30,6 +30,7 @@ CONF_CONTROLLER_SEND_SERVICE = "controller_send_service"
 CONF_CONTROLLER_COMMAND_TOPIC = "controller_command_topic"
 CONF_TEMPERATURE_SENSOR = 'temperature_sensor'
 CONF_HUMIDITY_SENSOR = 'humidity_sensor'
+CONF_MODE_SENSOR = 'mode_sensor'
 CONF_POWER_SENSOR = 'power_sensor'
 
 SUPPORT_FLAGS = (
@@ -47,6 +48,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend({
     vol.Optional(CONF_CONTROLLER_COMMAND_TOPIC): cv.string,
     vol.Optional(CONF_TEMPERATURE_SENSOR): cv.entity_id,
     vol.Optional(CONF_HUMIDITY_SENSOR): cv.entity_id,
+    vol.Optional(CONF_MODE_SENSOR): cv.entity_id,
     vol.Optional(CONF_POWER_SENSOR): cv.entity_id
 })
 
@@ -100,6 +102,7 @@ class SmartIRClimate(ClimateDevice, RestoreEntity):
         self._controller_command_topic = config.get(CONF_CONTROLLER_COMMAND_TOPIC)
         self._temperature_sensor = config.get(CONF_TEMPERATURE_SENSOR)
         self._humidity_sensor = config.get(CONF_HUMIDITY_SENSOR)
+        self._mode_sensor = config.get(CONF_MODE_SENSOR)
         self._power_sensor = config.get(CONF_POWER_SENSOR)
 
         self._manufacturer = device_data['manufacturer']
@@ -168,6 +171,10 @@ class SmartIRClimate(ClimateDevice, RestoreEntity):
             humidity_sensor_state = self.hass.states.get(self._humidity_sensor)
             if humidity_sensor_state and humidity_sensor_state.state != STATE_UNKNOWN:
                 self._async_update_humidity(humidity_sensor_state)
+
+        if self._mode_sensor:
+            async_track_state_change(self.hass, self._mode_sensor,
+                                     self._async_mode_sensor_changed)
 
         if self._power_sensor:
             async_track_state_change(self.hass, self._power_sensor, 
@@ -359,6 +366,16 @@ class SmartIRClimate(ClimateDevice, RestoreEntity):
             return
 
         self._async_update_humidity(new_state)
+        await self.async_update_ha_state()
+
+    async def _async_mode_sensor_changed(self, entity_id, old_state, new_state):
+        """Handle mode sensor changes."""
+        if new_state is None:
+            return
+
+        self._current_operation = new_state.state
+        # if not self._current_operation == STATE_OFF:
+        #     self._last_on_operation = operation_mode
         await self.async_update_ha_state()
 
     async def _async_power_sensor_changed(self, entity_id, old_state, new_state):
