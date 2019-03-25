@@ -238,6 +238,7 @@ views:
     icon: mdi:chart-line
     cards:
       - type: history-graph
+        refresh_interval: 60
         entities:
           - sensor.climate_bedroom_temperature_derivative
           - sensor.ht_bedroom_humidity
