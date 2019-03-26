@@ -136,7 +136,7 @@ views:
               action: more-info
             style:
               top: 72%
-              left: 90%
+              left: 90.3%
           - type: state-label
             entity: sensor.dark_sky_humidity
             tap_action:
@@ -156,7 +156,7 @@ views:
               action: more-info
             style:
               top: 77%
-              left: 88.7%
+              left: 89.8%
 
       - type: conditional
         conditions:
