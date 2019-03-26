@@ -210,6 +210,7 @@ views:
   - title: History
     path: history
     icon: mdi:chart-line
+    panel: yes
     cards:
       # - type: history-graph
       #   hours_to_show: 1
