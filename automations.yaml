@@ -121,7 +121,7 @@
 #     below: 25
 #   condition:
 #     condition: numeric_state
-#     entity_id: sensor.ht_outside_temperature
+#     entity_id: sensor.dark_sky_apparent_temperature
 #     below: 25
 #   action:
 #     service: climate.set_operation_mode
@@ -164,7 +164,7 @@
 #       entity_id: sensor.ht_bedroom_temperature
 #       above: 26.8
 #     - condition: numeric_state
-#       entity_id: sensor.ht_outside_temperature
+#       entity_id: sensor.dark_sky_apparent_temperature
 #       above: 26.8
 #   action:
 #     service: climate.set_operation_mode

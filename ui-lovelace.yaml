@@ -29,8 +29,6 @@ excluded_entities:
   - sensor.season
   - sensor.ht_bedroom_humidity
   - sensor.ht_bedroom_temperature
-  - sensor.ht_outside_humidity
-  - sensor.ht_outside_temperature
   - sensor.illumination_acpartner
   - sun.sun
   - switch.reading_living_room
@@ -154,7 +152,7 @@ views:
               border-radius: 50%
           # outside
           - type: state-label
-            entity: sensor.ht_outside_temperature
+            entity: sensor.dark_sky_apparent_temperature
             tap_action:
               action: navigate
               navigation_path: /lovelace/history
@@ -164,7 +162,7 @@ views:
               top: 72%
               left: 90%
           - type: state-label
-            entity: sensor.ht_outside_humidity
+            entity: sensor.dark_sky_humidity
             tap_action:
               action: navigate
               navigation_path: /lovelace/history
@@ -241,10 +239,10 @@ views:
         refresh_interval: 60
         entities:
           - sensor.climate_bedroom_temperature_derivative
+          - sensor.dark_sky_apparent_temperature
+          - sensor.dark_sky_humidity
           - sensor.ht_bedroom_humidity
           - sensor.ht_bedroom_temperature
-          - sensor.ht_outside_humidity
-          - sensor.ht_outside_temperature
           - sensor.us_air_quality_index
 
   - title: Map
