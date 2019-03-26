@@ -158,6 +158,34 @@ views:
               top: 77%
               left: 89.8%
 
+      - type: glance
+        show_name: no
+        show_state: no
+        columns: 6
+        entities:
+          - entity: light.living_room
+            name: Living room
+            tap_action:
+              action: call-service
+              service: switch.toggle
+              service_data:
+                entity_id: switch.light_living_room
+          - entity: light.bedroom
+            tap_action:
+              action: toggle
+          - entity: switch.water_heater
+            tap_action:
+              action: toggle
+          - entity: climate.bedroom
+            tap_action:
+              action: toggle
+          - entity: media_player.tv
+            tap_action:
+              action: toggle
+          - entity: input_boolean.moonlight_living_room
+            tap_action:
+              action: toggle
+
       - type: conditional
         conditions:
           - entity: media_player.tv
@@ -174,18 +202,6 @@ views:
           #   hide_power: yes
           #   group: yes
           #   show_tts: google
-
-      - type: conditional
-        conditions:
-          - entity: light.living_room
-            state: 'on'
-        card:
-          type: entities
-          entities:
-            - type: custom:slider-entity-row
-              entity: light.living_room
-            - switch.reading_living_room
-            - input_boolean.moonlight_living_room
 
       - type: conditional
         conditions:
