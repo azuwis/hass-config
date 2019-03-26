@@ -216,11 +216,16 @@ views:
         refresh_interval: 60
         entities:
           # - sensor.climate_bedroom_temperature_derivative
-          - sensor.dark_sky_apparent_temperature
-          - sensor.dark_sky_humidity
-          - sensor.ht_bedroom_humidity
-          - sensor.ht_bedroom_temperature
-          - sensor.us_air_quality_index
+          - entity: sensor.ht_bedroom_temperature
+            name: Bedroom
+          - entity: sensor.ht_bedroom_humidity
+            name: Bedroom
+          - entity: sensor.dark_sky_apparent_temperature
+            name: Outside
+          - entity: sensor.dark_sky_humidity
+            name: Outside
+          - entity: sensor.us_air_quality_index
+            name: Binjiang
 
   - title: Map
     path: map
