@@ -294,3 +294,16 @@ views:
           - input_boolean.zigbee2mqtt_permit_join
           - timer.zigbee2mqtt_permit_join
           - input_select.zigbee2mqtt_log_level
+
+  - title: Debug
+    path: debug
+    icon: mdi:bug
+    panel: yes
+    cards:
+      - type: history-graph
+        hours_to_show: 1
+        refresh_interval: 60
+        entities:
+          - sensor.climate_bedroom_mode
+          - sensor.climate_bedroom_temperature_derivative
+          - sensor.ht_climate_bedroom_temperature
