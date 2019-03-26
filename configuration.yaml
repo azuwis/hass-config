@@ -540,6 +540,7 @@ logger:
     homeassistant.components.light.yeelight: critical
     homeassistant.components.switch.broadlink: info
     urllib3.connectionpool: critical
+    # custom_components.derivative.sensor: debug
     # custom_components.rhasspy_train: debug
     # custom_components.stt_pocketsphinx: debug
     # custom_components.xiaomi_miio_airconditioningcompanion.climate: debug
