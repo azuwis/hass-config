@@ -242,7 +242,7 @@ sensor:
           {% if derivative >= 1 %}
             heat
           {% elif derivative < 1 and derivative > -1 %}
-            {% if delta > 10 %}
+            {% if delta > 20 %}
               heat
             {% elif delta < -5 %}
               cool
