@@ -211,11 +211,16 @@ views:
     path: history
     icon: mdi:chart-line
     cards:
+      # - type: history-graph
+      #   hours_to_show: 1
+      #   refresh_interval: 60
+      #   entities:
+      #     - sensor.climate_bedroom_mode
+      #     - sensor.climate_bedroom_temperature_derivative
+      #     - sensor.ht_climate_bedroom_temperature
       - type: history-graph
-        # hours_to_show: 4
         refresh_interval: 60
         entities:
-          # - sensor.climate_bedroom_temperature_derivative
           - entity: sensor.ht_bedroom_temperature
             name: Bedroom
           - entity: sensor.ht_bedroom_humidity
