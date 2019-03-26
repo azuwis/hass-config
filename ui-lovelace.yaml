@@ -239,7 +239,8 @@ views:
         # hours_to_show: 4
         refresh_interval: 60
         entities:
-          # - sensor.dark_sky_apparent_temperature
+          # - sensor.climate_bedroom_temperature_derivative
+          - sensor.dark_sky_apparent_temperature
           - sensor.dark_sky_humidity
           - sensor.ht_bedroom_humidity
           - sensor.ht_bedroom_temperature
