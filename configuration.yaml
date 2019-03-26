@@ -223,7 +223,7 @@ sensor:
 
   - platform: derivative
     name: Climate bedroom temperature derivative
-    source: sensor.ht_outside_temperature
+    source: sensor.ht_climate_bedroom_temperature
 
   - platform: season
     type: meteorological
@@ -237,7 +237,7 @@ sensor:
     sensors:
       climate_bedroom_mode:
         value_template: >-
-          {% set delta = states('sensor.ht_outside_temperature')|float - states('sensor.ht_bedroom_temperature')|float %}
+          {% set delta = states('sensor.ht_climate_bedroom_temperature')|float - states('sensor.ht_bedroom_temperature')|float %}
           {% set derivative = states('sensor.climate_bedroom_temperature_derivative')|float %}
           {% if derivative >= 0.5 %}
             heat
