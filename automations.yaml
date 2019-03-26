@@ -422,11 +422,13 @@
 - alias: Water heater
   trigger:
     - platform: time
-      at: '17:00:00'
+      at: '16:30:00'
     - platform: time
-      at: '17:10:00'
+      at: '16:40:00'
     - platform: time
-      at: '18:00:00'
+      at: '17:30:00'
+    - platform: time
+      at: '18:30:00'
   action:
     service: switch.turn_on
     data:
