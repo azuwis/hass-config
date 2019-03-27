@@ -222,7 +222,7 @@ sensor:
       - summary
 
   - platform: derivative
-    name: Climate bedroom temperature derivative
+    name: Climate bedroom temperature change
     source: sensor.ht_climate_bedroom_temperature
 
   - platform: season
@@ -237,22 +237,22 @@ sensor:
     sensors:
       climate_bedroom_mode:
         value_template: >-
-          {% set delta = states('sensor.ht_climate_bedroom_temperature')|float - states('sensor.ht_bedroom_temperature')|float %}
-          {% set derivative = states('sensor.climate_bedroom_temperature_derivative')|float %}
-          {% if derivative >= 1 %}
+          {% set diff = states('sensor.ht_climate_bedroom_temperature')|float - states('sensor.ht_bedroom_temperature')|float %}
+          {% set change = states('sensor.climate_bedroom_temperature_change')|float %}
+          {% if change >= 1 %}
             heat
-          {% elif derivative < 1 and derivative > -1 %}
-            {% if delta > 20 %}
+          {% elif change < 1 and change > -1 %}
+            {% if diff > 20 %}
               heat
-            {% elif delta < -5 %}
+            {% elif diff < -5 %}
               cool
             {% else %}
               off
             {% endif %}
-          {% else %}
-            {% if delta > 0 %}
+          {% else %} {# change <= -1 #}
+            {% if diff > 0 %}
               off
-            {% elif delta <= 0 %}
+            {% elif diff <= 0 %}
               cool
             {% endif %}
           {% endif %}

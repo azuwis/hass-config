@@ -228,13 +228,6 @@ views:
     icon: mdi:chart-line
     panel: yes
     cards:
-      # - type: history-graph
-      #   hours_to_show: 1
-      #   refresh_interval: 60
-      #   entities:
-      #     - sensor.climate_bedroom_mode
-      #     - sensor.climate_bedroom_temperature_derivative
-      #     - sensor.ht_climate_bedroom_temperature
       - type: history-graph
         refresh_interval: 60
         entities:
@@ -317,9 +310,9 @@ views:
     panel: yes
     cards:
       - type: history-graph
-        hours_to_show: 1
+        hours_to_show: 12
         refresh_interval: 60
         entities:
           - sensor.climate_bedroom_mode
-          - sensor.climate_bedroom_temperature_derivative
+          - sensor.climate_bedroom_temperature_change
           - sensor.ht_climate_bedroom_temperature
