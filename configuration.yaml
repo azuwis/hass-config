@@ -267,6 +267,9 @@ tts:
   - platform: google
     language: zh
 
+aligenie:
+  expire_hours: 30
+
 binary_sensor:
   # - platform: bayesian
   #   name: Occupancy living room
@@ -535,6 +538,7 @@ zone: !include zones.yaml
 logger:
   default: warning
   logs:
+    custom_components.aligenie: debug
     custom_components.hotword_snowboy: debug
     custom_components.web_speech: debug
     homeassistant.components.light.yeelight: critical

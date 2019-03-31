@@ -1,0 +1,24 @@
+light.living_room:
+  hagenie_deviceName: 灯
+  hagenie_deviceType: light
+  hagenie_zone: 客厅
+
+media_player.tv:
+  hagenie_deviceName: 电视
+  hagenie_deviceType: television
+  hagenie_zone: 客厅
+
+switch.water_heater:
+  hagenie_deviceName: 热水器
+  hagenie_deviceType: waterheater
+  hagenie_zone: 客厅
+
+light.bedroom:
+  hagenie_deviceName: 灯
+  hagenie_deviceType: light
+  hagenie_zone: 卧室
+
+climate.bedroom:
+  hagenie_deviceName: 空调
+  hagenie_deviceType: aircondition
+  hagenie_zone: 卧室
