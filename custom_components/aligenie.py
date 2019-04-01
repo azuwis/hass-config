@@ -382,9 +382,9 @@ TRANSLATIONS = {
     'light': {
         'TurnOn':  'turn_on',
         'TurnOff': 'turn_off',
-        'SetBrightness':        lambda state, payload: ('turn_on', {'brightness_pct': payload['value']}),
-        'AdjustUpBrightness':   lambda state, payload: ('turn_on', {'brightness_pct': min(state.attributes['brightness']*100//255 + payload['value'], 100)}),
-        'AdjustDownBrightness': lambda state, payload: ('turn_on', {'brightness_pct': max(state.attributes['brightness']*100//255 - payload['value'], 0)}),
+        'SetBrightness':        lambda state, payload: ('turn_on', {'brightness_pct': 100 if payload['value'] == 'max' else 1 if payload['value'] == 'min' else int(payload['value'])}),
+        'AdjustUpBrightness':   lambda state, payload: ('turn_on', {'brightness_pct': min(state.attributes['brightness'] * 100 // 255 + int(payload['value']), 100)}),
+        'AdjustDownBrightness': lambda state, payload: ('turn_on', {'brightness_pct': max(state.attributes['brightness'] * 100 // 255 - int(payload['value']), 0)}),
         'SetColor':             lambda state, payload: ('turn_on', {"color_name": payload['value']})
     },
 
