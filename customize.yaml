@@ -22,3 +22,13 @@ climate.bedroom:
   hagenie_deviceName: 空调
   hagenie_deviceType: aircondition
   hagenie_zone: 卧室
+
+sensor.ht_bedroom_temperature:
+  hagenie_deviceName: 温度
+  hagenie_deviceType: sensor
+  hagenie_zone: 卧室
+
+sensor.ht_bedroom_humidity:
+  hagenie_deviceName: 湿度
+  hagenie_deviceType: sensor
+  hagenie_zone: 卧室
