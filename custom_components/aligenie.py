@@ -369,6 +369,7 @@ ALL_ACTIONS = [
     'Cancel',
     'CancelMode']
 
+mapping = lambda dict, key: dict[key] if key in dict else key
 
 TRANSLATIONS = {
     'cover': {
@@ -382,7 +383,7 @@ TRANSLATIONS = {
     'light': {
         'TurnOn':  'turn_on',
         'TurnOff': 'turn_off',
-        'SetBrightness':        lambda state, payload: ('turn_on', {'brightness_pct': 100 if payload['value'] == 'max' else 1 if payload['value'] == 'min' else int(payload['value'])}),
+        'SetBrightness':        lambda state, payload: ('turn_on', {'brightness_pct': mapping({'max': 100, 'min': 1}, payload['value'])}),
         'AdjustUpBrightness':   lambda state, payload: ('turn_on', {'brightness_pct': min(state.attributes['brightness'] * 100 // 255 + int(payload['value']), 100)}),
         'AdjustDownBrightness': lambda state, payload: ('turn_on', {'brightness_pct': max(state.attributes['brightness'] * 100 // 255 - int(payload['value']), 0)}),
         'SetColor':             lambda state, payload: ('turn_on', {"color_name": payload['value']})
@@ -391,8 +392,8 @@ TRANSLATIONS = {
         'TurnOn': 'turn_on',
         'TurnOff': 'turn_off',
         'SetTemperature': lambda state, payload: ('set_temperature', {'temperature': int(payload['value'])}),
-        'SetMode': lambda state, payload: ('set_operation_mode', {'operation_mode': 'cool' if payload['value'] == 'cold' else payload['value']}),
-        'SetWindSpeed': lambda state, payload: ('set_fan_mode', {'fan_mode': 'high' if payload['value'] == 'max' else 'low' if payload['value'] == 'min' else payload['value']})
+        'SetMode': lambda state, payload: ('set_operation_mode', {'operation_mode': mapping({'cold': 'cool'}, payload['value'])}),
+        'SetWindSpeed': lambda state, payload: ('set_fan_mode', {'fan_mode': mapping({'max': 'high', 'min': 'low'}, payload['value'])}),
     },
 }
 
