@@ -392,6 +392,8 @@ TRANSLATIONS = {
         'TurnOn': 'turn_on',
         'TurnOff': 'turn_off',
         'SetTemperature': lambda state, payload: ('set_temperature', {'temperature': int(payload['value'])}),
+        'AdjustUpTemperature': lambda state, payload: ('set_temperature', {'temperature': min(state.attributes['temperature'] + int(payload['value']), state.attributes['max_temp'])}),
+        'AdjustDownTemperature': lambda state, payload: ('set_temperature', {'temperature': max(state.attributes['temperature'] - int(payload['value']), state.attributes['min_temp'])}),
         'SetMode': lambda state, payload: ('set_operation_mode', {'operation_mode': mapping({'cold': 'cool'}, payload['value'])}),
         'SetWindSpeed': lambda state, payload: ('set_fan_mode', {'fan_mode': mapping({'max': 'high', 'min': 'low'}, payload['value'])}),
     },
