@@ -182,7 +182,7 @@ intent_script:
             {% elif name | regex_match('阅读|看书') %}
               switch.reading_living_room
             {% elif name | regex_match('月光') %}
-              input_boolean.moonlight_living_room
+              switch.moonlight_living_room
             {% else %}
               input_boolean.dummy
             {% endif %}
@@ -359,23 +359,15 @@ device_tracker:
 input_boolean:
   dummy:
 
-  moonlight_living_room:
-    name: Moonlight living room
-    initial: no
-    icon: mdi:weather-night
-
-light:
-  - platform: yeelight
+yeelight:
     devices:
       !secret yeelight_living_room_host:
         name: Living room
         model: ceiling4
-        save_on_change: no
         transition: 1000
       !secret yeelight_bedroom_host:
         name: Bedroom
         model: ceiling3
-        save_on_change: no
         transition: 1000
 
 media_player:
@@ -471,6 +463,22 @@ switch:
             brightness: 162
             kelvin: 5000
             transition: 5
+
+      moonlight_living_room:
+        friendly_name: Moonlight living room
+        value_template: >-
+          {{ is_state('binary_sensor.living_room_nightlight', 'on') }}
+        icon_template: mdi:weather-night
+        turn_on:
+          service: yeelight.set_mode
+          data:
+            entity_id: light.living_room
+            mode: moonlight
+        turn_off:
+          service: yeelight.set_mode
+          data:
+            entity_id: light.living_room
+            mode: normal
 
       water_heater:
         friendly_name: Water heater

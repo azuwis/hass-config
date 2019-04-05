@@ -182,7 +182,7 @@ views:
           - entity: media_player.tv
             tap_action:
               action: toggle
-          - entity: input_boolean.moonlight_living_room
+          - entity: switch.moonlight_living_room
             tap_action:
               action: toggle
 
