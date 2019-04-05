@@ -47,10 +47,10 @@ conversation:
 
 history:
 
-hotword_snowboy:
-  model: snowboy/alexa.umdl
-  sensitivity: 0.15
-  apply_frontend: no
+# hotword_snowboy:
+#   model: snowboy/alexa.umdl
+#   sensitivity: 0.15
+#   apply_frontend: no
 
 intent_script:
   Default:
@@ -525,12 +525,12 @@ weather:
     latitude: !secret alt_latitude
     longitude: !secret alt_longitude
 
-web_speech:
-  chrome_extra_args: --enable-low-end-device-mode --no-sandbox
-  cleanup: yes
-  lang: cmn-Hans-CN
-  pulseaudio: yes
-  xvfb: yes
+# web_speech:
+#   chrome_extra_args: --enable-low-end-device-mode --no-sandbox
+#   cleanup: yes
+#   lang: cmn-Hans-CN
+#   pulseaudio: yes
+#   xvfb: yes
 
 xiaomi_aqara:
   interface: !secret interface
