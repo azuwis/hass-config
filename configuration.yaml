@@ -468,7 +468,7 @@ switch:
       moonlight_living_room:
         friendly_name: Moonlight living room
         value_template: >-
-          {{ is_state('binary_sensor.living_room_nightlight', 'on') }}
+          {{ is_state('binary_sensor.living_room_nightlight', 'on') and is_state('light.living_room', 'on') }}
         icon_template: mdi:weather-night
         turn_on:
           service: yeelight.set_mode
