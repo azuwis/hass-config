@@ -161,7 +161,7 @@ views:
       - type: glance
         show_name: no
         show_state: no
-        columns: 6
+        columns: 7
         entities:
           - entity: light.living_room
             name: Living room
@@ -183,6 +183,9 @@ views:
             tap_action:
               action: toggle
           - entity: switch.moonlight_living_room
+            tap_action:
+              action: toggle
+          - entity: switch.moonlight_bedroom
             tap_action:
               action: toggle
 
