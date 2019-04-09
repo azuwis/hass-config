@@ -35,7 +35,7 @@ SCHEMA_SERVICE_PAPLAY = vol.Schema({
     vol.Required(ATTR_FILENAME): cv.string
 }, extra=vol.ALLOW_EXTRA)
 
-def setup(hass, config):
+async def async_setup(hass, config):
     if (config[DOMAIN].get(CONF_PULSEAUDIO)):
         subprocess.Popen(['pulseaudio'])
 
@@ -43,7 +43,7 @@ def setup(hass, config):
         _LOGGER.error("'paplay' command not found")
         return False
 
-    def play(call):
+    async def play(call):
         filename = os.path.expanduser(call.data[ATTR_FILENAME])
         if not os.path.isabs(filename):
             filename = hass.config.path(filename)
@@ -60,7 +60,7 @@ def setup(hass, config):
         args.append(filename)
         subprocess.run(args)
 
-    hass.services.register(DOMAIN, SERVICE_PAPLAY, play,
+    hass.services.async_register(DOMAIN, SERVICE_PAPLAY, play,
                            schema=SCHEMA_SERVICE_PAPLAY)
 
     _LOGGER.info('Started')
