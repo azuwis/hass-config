@@ -5,7 +5,6 @@ import asyncio
 import concurrent.futures
 import logging
 import os
-import subprocess
 import voluptuous as vol
 
 from homeassistant.const import EVENT_HOMEASSISTANT_STOP
@@ -75,6 +74,7 @@ async def async_setup(hass, config):
         options.add_argument('--window-position=0,0')
 
     if (config[DOMAIN].get(CONF_PULSEAUDIO)):
+        import subprocess
         subprocess.Popen(['pulseaudio'])
 
     driver = webdriver.Chrome(
