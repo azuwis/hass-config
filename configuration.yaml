@@ -268,7 +268,7 @@ tts:
     language: zh
 
 aligenie:
-  expire_hours: 72
+  expire_hours: 8640
 
 binary_sensor:
   # - platform: bayesian
