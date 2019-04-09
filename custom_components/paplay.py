@@ -14,6 +14,14 @@ _LOGGER = logging.getLogger(__name__)
 
 DOMAIN = 'paplay'
 
+CONF_PULSEAUDIO = 'pulseaudio'
+
+CONFIG_SCHEMA = vol.Schema({
+    DOMAIN: vol.Schema({
+        vol.Optional(CONF_PULSEAUDIO, default=False): cv.boolean
+    })
+}, extra=vol.ALLOW_EXTRA)
+
 # --------
 # Services
 # --------
@@ -28,6 +36,9 @@ SCHEMA_SERVICE_PAPLAY = vol.Schema({
 }, extra=vol.ALLOW_EXTRA)
 
 def setup(hass, config):
+    if (config[DOMAIN].get(CONF_PULSEAUDIO)):
+        subprocess.Popen(['pulseaudio'])
+
     if shutil.which('paplay') is None:
         _LOGGER.error("'paplay' command not found")
         return False

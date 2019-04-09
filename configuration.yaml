@@ -402,6 +402,7 @@ owntracks:
   max_gps_accuracy: 200
 
 paplay:
+  pulseaudio: yes
 
 recorder:
   db_url: postgres://@/hass
