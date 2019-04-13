@@ -377,6 +377,22 @@
       message: >-
         {{ state_attr(trigger.entity_id, 'friendly_name') }} arrived home
 
+- alias: Notify smoke
+  trigger:
+   -  platform: state
+      entity_id: binary_sensor.smoke
+      from: 'off'
+      to: 'on'
+   -  platform: state
+      entity_id: binary_sensor.smoke
+      from: 'on'
+      to: 'off'
+  action:
+    service: notify.html5
+    data_template:
+      message: >-
+        Smoke {{ states(trigger.entity_id) | upper }}!
+
 - alias: Notify update
   trigger:
     platform: state
