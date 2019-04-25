@@ -264,7 +264,7 @@ sensor:
   #     - temperature
 
 tts:
-  - platform: google
+  - platform: google_translate
     language: zh
 
 aligenie:
@@ -341,7 +341,7 @@ climate:
   - platform: smartir
     name: Bedroom
     device_code: 1180
-    controller_send_service: !secret broadlink_send_packet
+    controller_data: !secret broadlink_host
     temperature_sensor: sensor.ht_bedroom_temperature
     humidity_sensor: sensor.ht_bedroom_humidity
     mode_sensor: sensor.climate_bedroom_mode
