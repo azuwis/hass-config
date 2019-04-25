@@ -431,7 +431,7 @@ switch:
             entity_id: light.living_room
             brightness: >-
               {% if now().hour >= 7 and now().hour < 23 %}
-                240
+                255
               {% else %}
                 1
               {% endif %}
