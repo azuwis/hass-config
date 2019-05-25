@@ -78,9 +78,12 @@
     value_template: >-
       {{ trigger.payload_json.action == 'flip90' }}
   action:
-    service: switch.toggle
-    data:
-      entity_id: switch.reading_living_room
+    - service: script.say
+      data:
+        message: 已打开热水器
+    - service: switch.turn_on
+      data:
+        entity_id: switch.water_heater
 
 # - alias: Cube rotate left
 #   trigger:
