@@ -15,6 +15,7 @@ download custom_components/smartir/controller.py https://github.com/smartHomeHub
 download custom_components/xiaomi_miio_airconditioningcompanion/__init__.py https://github.com/syssi/xiaomi_airconditioningcompanion/raw/develop/custom_components/xiaomi_miio_airconditioningcompanion/__init__.py
 download custom_components/xiaomi_miio_airconditioningcompanion/climate.py https://github.com/syssi/xiaomi_airconditioningcompanion/raw/develop/custom_components/xiaomi_miio_airconditioningcompanion/climate.py
 download custom_components/xiaomi_miio_airconditioningcompanion/manifest.json https://github.com/syssi/xiaomi_airconditioningcompanion/raw/develop/custom_components/xiaomi_miio_airconditioningcompanion/manifest.json
+patch -p1 -i patches/smartir.diff
 
 download custom_components/braviatv_psk/media_player.py https://github.com/custom-components/media_player.braviatv_psk/raw/master/custom_components/braviatv_psk/media_player.py
 

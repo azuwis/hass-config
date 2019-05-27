@@ -1,0 +1,96 @@
+--- a/custom_components/smartir/climate.py	2019-05-27 17:31:08.235039848 +0800
++++ b/custom_components/smartir/climate.py	2019-05-27 17:31:22.070940732 +0800
+@@ -29,6 +29,7 @@
+ CONF_CONTROLLER_DATA = "controller_data"
+ CONF_TEMPERATURE_SENSOR = 'temperature_sensor'
+ CONF_HUMIDITY_SENSOR = 'humidity_sensor'
++CONF_MODE_SENSOR = 'mode_sensor'
+ CONF_POWER_SENSOR = 'power_sensor'
+ 
+ SUPPORT_FLAGS = (
+@@ -45,6 +46,7 @@
+     vol.Required(CONF_CONTROLLER_DATA): cv.string,
+     vol.Optional(CONF_TEMPERATURE_SENSOR): cv.entity_id,
+     vol.Optional(CONF_HUMIDITY_SENSOR): cv.entity_id,
++    vol.Optional(CONF_MODE_SENSOR): cv.entity_id,
+     vol.Optional(CONF_POWER_SENSOR): cv.entity_id
+ })
+ 
+@@ -97,6 +99,7 @@
+         self._controller_data = config.get(CONF_CONTROLLER_DATA)
+         self._temperature_sensor = config.get(CONF_TEMPERATURE_SENSOR)
+         self._humidity_sensor = config.get(CONF_HUMIDITY_SENSOR)
++        self._mode_sensor = config.get(CONF_MODE_SENSOR)
+         self._power_sensor = config.get(CONF_POWER_SENSOR)
+ 
+         self._manufacturer = device_data['manufacturer']
+@@ -108,6 +111,10 @@
+         self._precision = device_data['precision']
+         self._operation_modes = [STATE_OFF] + device_data['operationModes']
+         self._fan_modes = device_data['fanModes']
++        if 'offFlags' in device_data:
++            self._off_flags = device_data['offFlags']
++        else:
++            self._off_flags = []
+         self._commands = device_data['commands']
+ 
+         self._target_temperature = self._min_temperature
+@@ -161,6 +168,10 @@
+             if humidity_sensor_state and humidity_sensor_state.state != STATE_UNKNOWN:
+                 self._async_update_humidity(humidity_sensor_state)
+ 
++        if self._mode_sensor:
++            async_track_state_change(self.hass, self._mode_sensor,
++                                     self._async_mode_sensor_changed)
++
+         if self._power_sensor:
+             async_track_state_change(self.hass, self._power_sensor, 
+                                      self._async_power_sensor_changed)
+@@ -323,6 +334,12 @@
+ 
+             if operation_mode.lower() == STATE_OFF:
+                 command = self._commands['off']
++                if 'operation' in self._off_flags:
++                    command = command[self._last_on_operation]
++                if 'fan' in self._off_flags:
++                    command = command[fan_mode]
++                if 'temperature' in self._off_flags:
++                    command = command[target_temperature]
+             else:
+                 command = self._commands[operation_mode][fan_mode][target_temperature]
+ 
+@@ -347,6 +364,16 @@
+         self._async_update_humidity(new_state)
+         await self.async_update_ha_state()
+ 
++    async def _async_mode_sensor_changed(self, entity_id, old_state, new_state):
++        """Handle mode sensor changes."""
++        if new_state is None:
++            return
++
++        self._current_operation = new_state.state
++        # if not self._current_operation == STATE_OFF:
++        #     self._last_on_operation = operation_mode
++        await self.async_update_ha_state()
++
+     async def _async_power_sensor_changed(self, entity_id, old_state, new_state):
+         """Handle power sensor changes."""
+         if new_state is None:
+--- a/custom_components/smartir/codes/climate/1180.json	2019-05-27 17:31:13.143004855 +0800
++++ b/custom_components/smartir/codes/climate/1180.json	2019-05-27 17:31:22.070940732 +0800
+@@ -18,8 +18,14 @@
+     "high",
+     "auto"
+   ],
++  "offFlags": [
++    "operation"
++  ],
+   "commands": {
+-    "off": "JgCSAAABKZMWNhYSFhIVEhYSFjYWEhUSFjUXEhUSFjUXEhYSFRIWEhYSFRIWEhYSFRIWNhYSFRIWEhYSFRIWEhY1FxEWNRcSFhIVNxUSFgACkBcRFhIWEhUSFhIWEhUSFhIWEhUSFhIWEhUSFjUXEhYSFRIWEhYRFhIWEhYRFhIWEhYRFhIWEhYSFRIWNhY1FxIVAA0FAAAAAAAA",
++    "off": {
++      "cool": "JgCSAAABIpMUNxQTFRIUFBUSExQVEhQUFBMTOBQTEzgVEhQUFRITFRQSFBQVEhMVFBIUFBUSExUUExMUFRITFRQ2FBQUNxQTFRITOBUTEwACiBMUFRITFRQSFBQVEhMVFBMTFBUSExUUExMUFTYTFBUSFBQVEhMVFBIUFBUSExUUExMUFRITFRQTEzgUNxM4FBMTAA0FAAAAAAAA",
++      "heat": "JgCSAAABIpQUExMUFTYTFBUSFBQVEhMVFBMTFBU2ExQVEhQUFRITFBUTExQVEhMVFBMTFBUSExUUExMUFRITFRQ3ExQVNhMUFRIUOBQTEwACiRIVFBMTFBUSExUUExMUFRITFRQTExQVEhQUFDcTFBUSExUUExMUFRMTFBUSExQVEhQUFRITFRQTExQVEhM5FBMTAA0FAAAAAAAA"
++    },
+     "cool": {
+       "low": {
+         "16": "JgCSAAABKZIXNRcQFxEXNRc1FxEWERcRFxEWERcRFxEWERcRFxAXERcRFxAXERcRFhEXNRcRFxEWERcRFxEWERc1FxEWNhYRFxEXNRcQFwACkBcRFhEXERcRFhEXERcQFxEXERcQFxEXERcQFzUXERcRFhEXERcRFhEXERcRFhEXERcRFhEXERcRFjUXERc1FxEWAA0FAAAAAAAA",
