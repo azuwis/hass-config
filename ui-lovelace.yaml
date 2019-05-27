@@ -321,3 +321,4 @@ views:
           - sensor.climate_bedroom_mode
           - sensor.climate_bedroom_temperature_change
           - sensor.ht_climate_bedroom_temperature
+          - sensor.ht_bedroom_temperature
