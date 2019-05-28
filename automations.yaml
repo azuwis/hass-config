@@ -438,93 +438,93 @@
 
 ##### Voice #####
 
-- alias: Start hotword detection when hass start
-  trigger:
-    platform: homeassistant
-    event: start
-  condition:
-    condition: state
-    entity_id: device_tracker.owntracks_1
-    state: home
-  action:
-    service: hotword_snowboy.listen
+# - alias: Start hotword detection when hass start
+#   trigger:
+#     platform: homeassistant
+#     event: start
+#   condition:
+#     condition: state
+#     entity_id: device_tracker.owntracks_1
+#     state: home
+#   action:
+#     service: hotword_snowboy.listen
 
-- alias: Start hotword detection when home
-  trigger:
-    platform: state
-    entity_id: device_tracker.owntracks_1
-    from: not_home
-    to: home
-  condition:
-    condition: state
-    entity_id:  hotword_snowboy.decoder
-    state: idle
-  action:
-    service: hotword_snowboy.listen
+# - alias: Start hotword detection when home
+#   trigger:
+#     platform: state
+#     entity_id: device_tracker.owntracks_1
+#     from: not_home
+#     to: home
+#   condition:
+#     condition: state
+#     entity_id:  hotword_snowboy.decoder
+#     state: idle
+#   action:
+#     service: hotword_snowboy.listen
 
-- alias: Stop hotword detection when away
-  trigger:
-    platform: state
-    entity_id: device_tracker.owntracks_1
-    from: home
-    to: not_home
-  action:
-    service: hotword_snowboy.terminate
+# - alias: Stop hotword detection when away
+#   trigger:
+#     platform: state
+#     entity_id: device_tracker.owntracks_1
+#     from: home
+#     to: not_home
+#   action:
+#     service: hotword_snowboy.terminate
 
-- alias: Hotword activate web speech
-  trigger:
-    platform: event
-    event_type: hotword_detected
-  action:
-    - service: paplay.play
-      data:
-        filename: audio/wakeup.ogg
-    - service: web_speech.listen
+# - alias: Hotword activate web speech
+#   trigger:
+#     platform: event
+#     event_type: hotword_detected
+#   action:
+#     - service: paplay.play
+#       data:
+#         filename: audio/wakeup.ogg
+#     - service: web_speech.listen
 
-- alias: Shake cube activate web speech
-  trigger:
-    platform: mqtt
-    topic: zigbee2mqtt/cube
-  condition:
-    condition: template
-    value_template: >-
-      {{ trigger.payload_json.action == 'shake' }}
-  action:
-    - service: paplay.play
-      data:
-        filename: audio/wakeup.ogg
-    - service: web_speech.listen
+# - alias: Shake cube activate web speech
+#   trigger:
+#     platform: mqtt
+#     topic: zigbee2mqtt/cube
+#   condition:
+#     condition: template
+#     value_template: >-
+#       {{ trigger.payload_json.action == 'shake' }}
+#   action:
+#     - service: paplay.play
+#       data:
+#         filename: audio/wakeup.ogg
+#     - service: web_speech.listen
 
-- alias: Start hotword detection when web speech finish
-  trigger:
-    platform: event
-    event_type: speech_to_text
-  action:
-    service: hotword_snowboy.listen
+# - alias: Start hotword detection when web speech finish
+#   trigger:
+#     platform: event
+#     event_type: speech_to_text
+#   action:
+#     service: hotword_snowboy.listen
 
-- alias: Say pardon
-  trigger:
-    platform: event
-    event_type: speech_to_text
-  condition:
-    condition: template
-    value_template: >-
-      {{ trigger.event.data['text'] == '' }}
-  action:
-    service: script.say
-    data:
-      message: 没有听清
+# - alias: Say pardon
+#   trigger:
+#     platform: event
+#     event_type: speech_to_text
+#   condition:
+#     condition: template
+#     value_template: >-
+#       {{ trigger.event.data['text'] == '' }}
+#   action:
+#     service: script.say
+#     data:
+#       message: 没有听清
 
-- alias: Process conversation
-  trigger:
-    platform: event
-    event_type: speech_to_text
-  condition:
-    condition: template
-    value_template: >-
-      {{ trigger.event.data['text'] != '' }}
-  action:
-    service: conversation.process
-    data_template:
-      text: >-
-        {{ trigger.event.data['text'] }}
+# - alias: Process conversation
+#   trigger:
+#     platform: event
+#     event_type: speech_to_text
+#   condition:
+#     condition: template
+#     value_template: >-
+#       {{ trigger.event.data['text'] != '' }}
+#   action:
+#     service: conversation.process
+#     data_template:
+#       text: >-
+#         {{ trigger.event.data['text'] }}
