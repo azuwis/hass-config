@@ -1,0 +1,2 @@
+play:
+  description: Play audio file using paplay cli.
