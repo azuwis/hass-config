@@ -495,16 +495,6 @@
         filename: audio/wakeup.ogg
     - service: web_speech.listen
 
-# - alias: Play sound when web speech listen
-#   trigger:
-#     platform: state
-#     entity_id: web_speech.web_speech
-#     to: listening
-#   action:
-#     service: paplay.play
-#     data:
-#       filename: audio/wakeup.ogg
-
 - alias: Start hotword detection when web speech finish
   trigger:
     platform: event
