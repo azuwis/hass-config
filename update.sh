@@ -6,17 +6,21 @@ download() {
     curl --create-dirs -sfSLo "$file" "$url"
 }
 
+download_multi() {
+    file_base="$1"
+    shift
+    url_base="$1"
+    shift
+    for file in "$@"
+    do
+        download "${file_base}/${file}" "${url_base}/${file}"
+    done
+}
 
-download custom_components/smartir/__init__.py https://github.com/smartHomeHub/SmartIR/raw/master/smartir/__init__.py
-download custom_components/smartir/climate.py https://github.com/smartHomeHub/SmartIR/raw/master/smartir/climate.py
+download_multi custom_components/smartir https://github.com/smartHomeHub/SmartIR/raw/master/smartir __init__.py climate.py controller.py manifest.json services.yaml
 download custom_components/smartir/codes/climate/1180.json https://github.com/smartHomeHub/SmartIR/raw/master/codes/climate/1180.json
-download custom_components/smartir/controller.py https://github.com/smartHomeHub/SmartIR/raw/master/smartir/controller.py
-download custom_components/smartir/manifest.json https://github.com/smartHomeHub/SmartIR/raw/master/smartir/manifest.json
-download custom_components/smartir/services.yaml https://github.com/smartHomeHub/SmartIR/raw/master/smartir/services.yaml
 
-download custom_components/xiaomi_miio_airconditioningcompanion/__init__.py https://github.com/syssi/xiaomi_airconditioningcompanion/raw/develop/custom_components/xiaomi_miio_airconditioningcompanion/__init__.py
-download custom_components/xiaomi_miio_airconditioningcompanion/climate.py https://github.com/syssi/xiaomi_airconditioningcompanion/raw/develop/custom_components/xiaomi_miio_airconditioningcompanion/climate.py
-download custom_components/xiaomi_miio_airconditioningcompanion/manifest.json https://github.com/syssi/xiaomi_airconditioningcompanion/raw/develop/custom_components/xiaomi_miio_airconditioningcompanion/manifest.json
+download_multi custom_components/xiaomi_miio_airconditioningcompanion https://github.com/syssi/xiaomi_airconditioningcompanion/raw/develop/custom_components/xiaomi_miio_airconditioningcompanion __init__.py climate.py manifest.json
 patch -p1 -i patches/smartir.diff
 
 download custom_components/braviatv_psk/media_player.py https://github.com/custom-components/media_player.braviatv_psk/raw/master/custom_components/braviatv_psk/media_player.py
