@@ -573,14 +573,14 @@ logger:
   default: warning
   logs:
     custom_components.aligenie: debug
-    custom_components.hotword_snowboy: debug
-    custom_components.web_speech: debug
-    homeassistant.components.light.yeelight: critical
     homeassistant.components.switch.broadlink: info
+    homeassistant.components.yeelight: critical
     urllib3.connectionpool: critical
     # custom_components.derivative.sensor: debug
+    # custom_components.hotword_snowboy: debug
     # custom_components.rhasspy_train: debug
     # custom_components.stt_pocketsphinx: debug
+    # custom_components.web_speech: debug
     # custom_components.xiaomi_miio_airconditioningcompanion.climate: debug
     # homeassistant.components.binary_sensor.xiaomi_aqara: debug
     # homeassistant.components.xiaomi_aqara: debug
