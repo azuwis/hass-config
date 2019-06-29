@@ -579,6 +579,7 @@ logger:
     # custom_components.derivative.sensor: debug
     # custom_components.hotword_snowboy: debug
     # custom_components.rhasspy_train: debug
+    # custom_components.smartir.climate: debug
     # custom_components.stt_pocketsphinx: debug
     # custom_components.web_speech: debug
     # custom_components.xiaomi_miio_airconditioningcompanion.climate: debug
