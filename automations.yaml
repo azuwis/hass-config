@@ -132,48 +132,43 @@
 #       entity_id: climate.bedroom
 #       operation_mode: 'off'
 
-# - alias: Climate bedroom off when door open
-#   trigger:
-#     platform: state
-#     entity_id: binary_sensor.door_bedroom
-#     from: 'off'
-#     to: 'on'
-#     for: '00:02:00'
-#   action:
-#     - service: climate.set_operation_mode
-#       data:
-#         entity_id: climate.bedroom
-#         operation_mode: 'off'
-#     - delay: '00:00:10'
-#     - service: climate.set_operation_mode
-#       data:
-#         entity_id: climate.bedroom
-#         operation_mode: 'off'
-#     - delay: '00:00:10'
-#     - service: climate.set_operation_mode
-#       data:
-#         entity_id: climate.bedroom
-#         operation_mode: 'off'
+- alias: Climate bedroom off when door open
+  trigger:
+    platform: state
+    entity_id: binary_sensor.door_bedroom
+    from: 'off'
+    to: 'on'
+    for: '00:02:00'
+  action:
+    - &climate_bedroom_off
+      service: climate.turn_off
+      data:
+        entity_id: climate.bedroom
+    - &climate_bedroom_delay
+      delay: '00:00:10'
+    - *climate_bedroom_off
+    - *climate_bedroom_delay
+    - *climate_bedroom_off
 
-# - alias: Climate bedroom cool when door close
-#   trigger:
-#     platform: state
-#     entity_id: binary_sensor.door_bedroom
-#     from: 'on'
-#     to: 'off'
-#     for: '00:00:10'
-#   condition:
-#     - condition: numeric_state
-#       entity_id: sensor.ht_bedroom_temperature
-#       above: 26.8
-#     - condition: numeric_state
-#       entity_id: sensor.dark_sky_apparent_temperature
-#       above: 26.8
-#   action:
-#     service: climate.set_operation_mode
-#     data:
-#       entity_id: climate.bedroom
-#       operation_mode: cool
+- alias: Climate bedroom cool when door close
+  trigger:
+    platform: state
+    entity_id: binary_sensor.door_bedroom
+    from: 'on'
+    to: 'off'
+    for: '00:00:10'
+  condition:
+    - condition: numeric_state
+      entity_id: sensor.ht_bedroom_temperature
+      above: 26.8
+    - condition: numeric_state
+      entity_id: sensor.dark_sky_apparent_temperature
+      above: 26.8
+  action:
+    service: climate.set_operation_mode
+    data:
+      entity_id: climate.bedroom
+      operation_mode: cool
 
 ##### HomeAssistant #####
 
