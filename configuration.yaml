@@ -445,7 +445,7 @@ switch:
               {% endif %}
             kelvin: >-
               {% if now().hour >= 12 or state_attr('sun.sun', 'elevation') > 3 %}
-                5000
+                6500
               {% else %}
                 2700
               {% endif %}
@@ -464,14 +464,14 @@ switch:
           data:
             entity_id: light.living_room
             brightness: 240
-            kelvin: 5000
+            kelvin: 6500
             transition: 5
         turn_off:
           service: light.turn_on
           data:
             entity_id: light.living_room
             brightness: 162
-            kelvin: 5000
+            kelvin: 6500
             transition: 5
 
       moonlight_bedroom:
