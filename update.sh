@@ -17,7 +17,7 @@ download_multi() {
     done
 }
 
-download_multi custom_components/smartir https://github.com/smartHomeHub/SmartIR/raw/master/custom_components/smartir __init__.py climate.py controller.py manifest.json services.yaml
+download_multi custom_components/smartir https://github.com/smartHomeHub/SmartIR/raw/master/custom_components/smartir __init__.py climate.py controller.py fan.py manifest.json media_player.py services.yaml
 download custom_components/smartir/codes/climate/1180.json https://github.com/smartHomeHub/SmartIR/raw/master/codes/climate/1180.json
 mkdir -p a/custom_components b/custom_components
 rsync -a --exclude '__pycache__/' --exclude '**.orig' custom_components/smartir a/custom_components/
