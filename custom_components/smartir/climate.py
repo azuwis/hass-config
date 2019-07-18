@@ -373,8 +373,8 @@ class SmartIRClimate(ClimateDevice, RestoreEntity):
         if new_state is None:
             return
 
-        self._current_operation = new_state.state
-        # if not self._current_operation == STATE_OFF:
+        self._hvac_mode = new_state.state
+        # if not self._hvac_mode == STATE_OFF:
         #     self._last_on_operation = operation_mode
         await self.async_update_ha_state()
 
