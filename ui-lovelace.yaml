@@ -108,7 +108,7 @@ views:
               top: 90%
               left: 87%
           - type: image
-            entity: device_tracker.owntracks_1
+            entity: device_tracker.device_1
             image: /local/device_1.jpg
             state_filter:
               not_home: grayscale(100%)
@@ -119,7 +119,7 @@ views:
               width: 5%
               border-radius: 50%
           - type: image
-            entity: device_tracker.owntracks_2
+            entity: device_tracker.device_2
             image: /local/device_2.jpg
             state_filter:
               not_home: grayscale(100%)
@@ -254,8 +254,8 @@ views:
     cards:
       - type: map
         entities:
-          - device_tracker.owntracks_1
-          - device_tracker.owntracks_2
+          - device_tracker.device_1
+          - device_tracker.device_2
           - zone.home
           - zone.work
 

@@ -1,7 +1,7 @@
 say:
   sequence:
     - condition: state
-      entity_id: device_tracker.owntracks_1
+      entity_id: device_tracker.device_1
       state: home
     - service: media_player.volume_set
       data:
