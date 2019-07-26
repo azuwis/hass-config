@@ -412,6 +412,8 @@ owntracks:
 paplay:
   pulseaudio: yes
 
+person:
+
 recorder:
   db_url: postgres://@/hass
   exclude:
