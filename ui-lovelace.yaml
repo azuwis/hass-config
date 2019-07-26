@@ -7,8 +7,8 @@ resources:
     type: module
   - url: /local/simple-thermostat.js?v=3
     type: module
-  - url: /local/slider-entity-row.js?v=7
-    type: module
+  # - url: /local/slider-entity-row.js?v=7
+  #   type: module
   - url: /local/state-icon.js?v=3
     type: module
 
