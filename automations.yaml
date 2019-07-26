@@ -139,6 +139,10 @@
     from: 'off'
     to: 'on'
     for: '00:02:00'
+  condition:
+    condition: time
+    after: '6:00'
+    before: '10:00'
   action:
     - &climate_bedroom_off
       service: climate.turn_off
