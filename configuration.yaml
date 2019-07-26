@@ -587,6 +587,7 @@ logger:
     # custom_components.stt_pocketsphinx: debug
     # custom_components.web_speech: debug
     # custom_components.xiaomi_miio_airconditioningcompanion.climate: debug
+    # miio: debug
     # homeassistant.components.binary_sensor.xiaomi_aqara: debug
     # homeassistant.components.xiaomi_aqara: debug
     # xiaomi_gateway: debug
