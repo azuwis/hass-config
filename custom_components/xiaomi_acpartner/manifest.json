@@ -1,0 +1,12 @@
+{
+  "domain": "xiaomi_acpartner",
+  "name": "Xiaomi Mi and Aqara Air Conditioning Companion",
+  "documentation": "https://github.com/azuwis/hass-config/",
+  "requirements": [
+    "python-miio==0.4.5"
+  ],
+  "dependencies": [],
+  "codeowners": [
+    "@azuwis"
+  ]
+}

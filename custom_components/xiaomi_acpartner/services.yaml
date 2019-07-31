@@ -1,0 +1,8 @@
+xiaomi_miio_send_command:
+  description: Send a raw packet to device.
+  fields:
+    command: {description: Command to send., example: "FE..."}
+xiaomi_miio_learn_command:
+  description: Learn a IR or RF code from remote.
+  fields:
+    slot: {description: Slot to learn., example: "30"}
