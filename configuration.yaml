@@ -564,11 +564,11 @@ weather:
 #   pulseaudio: yes
 #   xvfb: yes
 
-xiaomi_aqara:
-  interface: !secret interface
-  gateways:
-    - mac: !secret ac_partner_mac
-      key: !secret ac_partner_key
+# xiaomi_aqara:
+#   interface: !secret interface
+#   gateways:
+#     - mac: !secret ac_partner_mac
+#       key: !secret ac_partner_key
 
 group: !include groups.yaml
 automation: !include automations.yaml
