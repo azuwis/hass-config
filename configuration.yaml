@@ -344,7 +344,6 @@ climate:
     host: !secret ac_partner_host
     token: !secret ac_partner_token
     target_sensor: sensor.ht_bedroom_temperature
-    scan_interval: 60
 
   - platform: smartir
     name: Bedroom
