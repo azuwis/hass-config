@@ -169,24 +169,6 @@ class XiaomiAirConditioningCompanion(Entity):
             return False
 
     @asyncio.coroutine
-    def async_turn_on(self, speed: str = None, **kwargs) -> None:
-        """Turn the miio device on."""
-        result = yield from self._try_command(
-            "Turning the miio device on failed.", self._device.on)
-
-        if result:
-            self._state = True
-
-    @asyncio.coroutine
-    def async_turn_off(self, **kwargs) -> None:
-        """Turn the miio device off."""
-        result = yield from self._try_command(
-            "Turning the miio device off failed.", self._device.off)
-
-        if result:
-            self._state = False
-
-    @asyncio.coroutine
     def async_update(self):
         """Update the state of this climate device."""
         from miio import DeviceException
