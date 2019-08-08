@@ -11,6 +11,8 @@ resources:
   #   type: module
   - url: /local/state-icon.js?v=3
     type: module
+  - url: /local/zigbee2mqtt-networkmap.js?v=18
+    type: module
 
 views:
   - title: Home
@@ -318,7 +320,7 @@ views:
   - title: Debug
     path: debug
     icon: mdi:bug
-    panel: yes
+    # panel: yes
     cards:
       - type: history-graph
         hours_to_show: 12
@@ -328,3 +330,6 @@ views:
           - sensor.climate_bedroom_temperature_change
           - sensor.ht_climate_bedroom_temperature
           - sensor.ht_bedroom_temperature
+      - type: "custom:zigbee2mqtt-networkmap"
+        entity: sensor.zigbee2mqtt_networkmap
+        height: 320

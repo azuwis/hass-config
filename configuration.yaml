@@ -221,6 +221,13 @@ sensor:
       - precip_type
       - summary
 
+  - platform: mqtt
+    name: Zigbee2mqtt Networkmap
+    state_topic: zigbee2mqtt/bridge/networkmap/raw
+    value_template: >-
+      {{ now().strftime('%Y-%m-%d %H:%M:%S') }}
+    json_attributes_topic: zigbee2mqtt/bridge/networkmap/raw
+
   - platform: derivative
     name: Climate bedroom temperature change
     source: sensor.ht_climate_bedroom_temperature
