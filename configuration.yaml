@@ -252,7 +252,7 @@ sensor:
               off
             {% endif %}
           {% elif change < 0 and change >= -0.5 %}
-            {% if diff < -2 %}
+            {% if diff < -0.3 %}
               cool
             {% else %}
               off
