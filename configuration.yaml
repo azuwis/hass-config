@@ -244,7 +244,9 @@ sensor:
     sensors:
       climate_bedroom_mode:
         value_template: >-
-          {% set diff = states('sensor.ht_climate_bedroom_temperature')|float - states('sensor.ht_bedroom_temperature') | float %}
+          {% set climate = states('sensor.ht_climate_bedroom_temperature') | float %}
+          {% set air = states('sensor.ht_bedroom_temperature') | float %}
+          {% set diff = climate - air %}
           {% set change = states('sensor.climate_bedroom_temperature_change') | float %}
           {% if change >= 1 %}
             {% if diff > 0 %}
@@ -259,7 +261,7 @@ sensor:
               off
             {% endif %}
           {% elif change < 0 and change >= -0.5 %}
-            {% if diff < -0.3 %}
+            {% if diff < -0.3 and climate < 26 %}
               cool
             {% else %}
               off
