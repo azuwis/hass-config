@@ -371,7 +371,16 @@ climate:
 
 device_tracker:
   - platform: ubus
-    host: !secret ubus_host
+    host: !secret ubus_host_1
+    username: !secret ubus_username
+    password: !secret ubus_password
+    dhcp_software: none
+    consider_home: 20
+    new_device_defaults:
+      track_new_devices: no
+
+  - platform: ubus
+    host: !secret ubus_host_2
     username: !secret ubus_username
     password: !secret ubus_password
     dhcp_software: none
@@ -610,5 +619,6 @@ logger:
     # custom_components.xiaomi_miio_airconditioningcompanion.climate: debug
     # miio: debug
     # homeassistant.components.binary_sensor.xiaomi_aqara: debug
+    # homeassistant.components.device_tracker: debug
     # homeassistant.components.xiaomi_aqara: debug
     # xiaomi_gateway: debug
