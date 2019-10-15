@@ -28,7 +28,7 @@ rm -r a b
 
 download_multi custom_components/xiaomi_miio_airconditioningcompanion https://github.com/syssi/xiaomi_airconditioningcompanion/raw/develop/custom_components/xiaomi_miio_airconditioningcompanion __init__.py climate.py manifest.json
 
-download custom_components/braviatv_psk/media_player.py https://github.com/custom-components/media_player.braviatv_psk/raw/master/custom_components/braviatv_psk/media_player.py
+download_multi custom_components/braviatv_psk https://github.com/custom-components/media_player.braviatv_psk/raw/master/custom_components/braviatv_psk __init__.py manifest.json media_player.py
 
 download www/slider-entity-row.js https://github.com/thomasloven/lovelace-slider-entity-row/raw/master/slider-entity-row.js
 
