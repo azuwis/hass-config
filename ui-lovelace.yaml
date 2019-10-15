@@ -220,6 +220,8 @@ views:
         conditions:
           - entity: climate.bedroom
             state_not: 'off'
+          - entity: climate.bedroom
+            state_not: 'unavailable'
         card:
           type: custom:simple-thermostat
           entity: climate.bedroom
