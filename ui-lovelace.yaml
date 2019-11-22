@@ -9,7 +9,7 @@ resources:
     type: module
   # - url: /local/slider-entity-row.js?v=7
   #   type: module
-  - url: /local/state-icon.js?v=4
+  - url: /local/state-icon.js?v=7
     type: module
   - url: /local/zigbee2mqtt-networkmap.js?v=18
     type: module
@@ -23,11 +23,17 @@ views:
         image: /local/floorplan.png?v=3
         elements:
           # living room
+          - type: custom:state-icon
+            entity: sensor.plug_power
+            icon: mdi:piano
+            style:
+              top: 33%
+              left: 35%
           - type: state-icon
             entity: binary_sensor.motion_living_room
             style:
-              top: 33%
-              left: 38%
+              top: 48%
+              left: 41%
           - type: state-icon
             entity: binary_sensor.motion_sofas
             style:
@@ -36,7 +42,7 @@ views:
           - type: state-icon
             entity: binary_sensor.motion_dining_room
             style:
-              top: 15%
+              top: 25%
               left: 68%
           - type: state-icon
             entity: light.living_room
@@ -171,7 +177,7 @@ views:
       - type: custom:glance-card
         show_name: no
         show_state: no
-        columns: 7
+        columns: 8
         entities:
           - entity: light.living_room
             name: Living room
@@ -181,6 +187,10 @@ views:
               service_data:
                 entity_id: switch.light_living_room
           - entity: light.bedroom
+            tap_action:
+              action: toggle
+          - entity: switch.plug_switch
+            icon: mdi:piano
             tap_action:
               action: toggle
           - entity: switch.water_heater
