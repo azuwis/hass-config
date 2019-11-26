@@ -3,15 +3,15 @@ title: Home
 resources:
   - url: /local/glance-card.js?v=2
     type: module
-  - url: /local/mini-media-player.js?v=13
+  - url: /local/mini-media-player.js?v=14
     type: module
-  - url: /local/simple-thermostat.js?v=3
+  - url: /local/simple-thermostat.js?v=4
     type: module
   # - url: /local/slider-entity-row.js?v=7
   #   type: module
   - url: /local/state-icon.js?v=7
     type: module
-  - url: /local/zigbee2mqtt-networkmap.js?v=18
+  - url: /local/zigbee2mqtt-networkmap.js?v=22
     type: module
 
 views:
