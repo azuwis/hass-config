@@ -551,7 +551,7 @@ switch:
             data:
               command: FE00000000000000000000000006002E2254003600A901C403860D6D138832000100010100000001000000000100010000010101000101010101000100000001000001000101010001043205C4
           - &water_heater_wait
-            delay: '00:00:02'
+            delay: '00:00:03'
           - &water_heater_update
             service: homeassistant.update_entity
             entity_id: sensor.ac_partner
