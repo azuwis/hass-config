@@ -85,6 +85,19 @@
       data:
         entity_id: switch.water_heater
 
+- alias: Cube shake
+  trigger:
+    platform: mqtt
+    topic: zigbee2mqtt/cube
+  condition:
+    condition: template
+    value_template: >-
+      {{ trigger.payload_json.action == 'shake' }}
+  action:
+    service: switch.toggle
+    data:
+      entity_id: switch.plug_switch
+
 # - alias: Cube rotate left
 #   trigger:
 #     platform: mqtt
