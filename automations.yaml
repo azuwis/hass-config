@@ -151,21 +151,15 @@
     entity_id: binary_sensor.door_bedroom
     from: 'off'
     to: 'on'
-    for: '00:02:00'
+    for: '00:10:00'
   condition:
     condition: time
     after: '6:00'
-    before: '10:00'
+    before: '18:00'
   action:
-    - &climate_bedroom_off
-      service: climate.turn_off
-      data:
-        entity_id: climate.bedroom
-    - &climate_bedroom_delay
-      delay: '00:00:10'
-    - *climate_bedroom_off
-    - *climate_bedroom_delay
-    - *climate_bedroom_off
+    service: climate.turn_off
+    data:
+      entity_id: climate.bedroom
 
 - alias: Climate bedroom cool when door close
   trigger:
@@ -182,10 +176,35 @@
       entity_id: sensor.dark_sky_apparent_temperature
       above: 26.8
   action:
-    service: climate.set_operation_mode
+    service: climate.set_temperature
     data:
       entity_id: climate.bedroom
-      operation_mode: cool
+      hvac_mode: cool
+      temperature: 26
+
+- alias: Climate bedroom heat when door close
+  trigger:
+    platform: state
+    entity_id: binary_sensor.door_bedroom
+    from: 'on'
+    to: 'off'
+    for: '00:02:00'
+  condition:
+    - condition: numeric_state
+      entity_id: sensor.ht_bedroom_temperature
+      below: 18
+    - condition: numeric_state
+      entity_id: sensor.dark_sky_apparent_temperature
+      below: 18
+    - condition: time
+      after: '12:00'
+      before: '17:00'
+  action:
+    service: climate.set_temperature
+    data:
+      entity_id: climate.bedroom
+      hvac_mode: heat
+      temperature: 20
 
 ##### HomeAssistant #####
 
@@ -269,7 +288,7 @@
       to: 'on'
       for: '00:01:00'
     - platform: time
-      at: '08:15:00'
+      at: '07:45:00'
   condition:
     condition: time
     after: '07:00:00'
