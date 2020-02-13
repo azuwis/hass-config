@@ -322,7 +322,6 @@ views:
             service: notify.html5
             service_data:
               message: This is a test message
-          - group.all_automations
       - type: entities
         entities:
           - input_boolean.zigbee2mqtt_permit_join
