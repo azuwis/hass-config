@@ -3,9 +3,9 @@ title: Home
 resources:
   - url: /local/glance-card.js?v=2
     type: module
-  - url: /local/mini-media-player.js?v=14
+  - url: /local/mini-media-player.js?v=15
     type: module
-  - url: /local/simple-thermostat.js?v=4
+  - url: /local/simple-thermostat.js?v=5
     type: module
   # - url: /local/slider-entity-row.js?v=7
   #   type: module
