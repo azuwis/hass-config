@@ -257,7 +257,7 @@ sensor:
               off
             {% endif %}
           {% elif change < 1 and change >= 0 %}
-            {% if diff > 20 %}
+            {% if diff > 16 %}
               heat
             {% else %}
               off
