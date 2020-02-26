@@ -535,11 +535,7 @@ switch:
       water_heater:
         friendly_name: Water heater
         value_template: >-
-          {% if not is_state('device_tracker.acpartner', 'home') %}
-            unavailable
-          {% else %}
-            {{ state_attr('sensor.ac_partner', 'load_power') | int > 100 }}
-          {% endif %}
+          {{ state_attr('sensor.ac_partner', 'load_power') | int > 100 }}
         icon_template: mdi:fire
         turn_on:
           - &water_heater_condition
