@@ -231,6 +231,8 @@ sensor:
   - platform: derivative
     name: Climate bedroom temperature change
     source: sensor.ht_climate_bedroom_temperature
+    unit_time: min
+    time_window: '00:10:00'
 
   - platform: season
     type: meteorological
@@ -257,7 +259,7 @@ sensor:
               off
             {% endif %}
           {% elif change < 1 and change >= 0 %}
-            {% if diff > 16 %}
+            {% if diff > 10 and climate > 30 %}
               heat
             {% else %}
               off
