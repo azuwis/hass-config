@@ -252,7 +252,7 @@ sensor:
           {% set change = states('sensor.climate_bedroom_temperature_change') | float %}
           {% if not is_state('device_tracker.broadlink', 'home') %}
             unavailable
-          {% elif change >= 1 %}
+          {% elif change >= 0.5 %}
             {% if diff > 0 %}
               heat
             {% else %}
