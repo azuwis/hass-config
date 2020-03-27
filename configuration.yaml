@@ -16,6 +16,19 @@ frontend:
 
 lovelace:
   mode: yaml
+  resources:
+    - url: /local/glance-card.js?v=2
+      type: module
+    - url: /local/mini-media-player.js?v=15
+      type: module
+    - url: /local/simple-thermostat.js?v=5
+      type: module
+    # - url: /local/slider-entity-row.js?v=7
+    #   type: module
+    - url: /local/state-icon.js?v=7
+      type: module
+    - url: /local/zigbee2mqtt-networkmap.js?v=22
+      type: module
 
 config:
 
@@ -194,14 +207,6 @@ logbook:
 sun:
 
 sensor:
-  - platform: airvisual
-    api_key: !secret airvisual_api_key
-    monitored_conditions:
-      - us
-    show_on_map: no
-    latitude: !secret alt_latitude
-    longitude: !secret alt_longitude
-
   - platform: darksky
     latitude: !secret alt_latitude
     longitude: !secret alt_longitude
@@ -287,6 +292,13 @@ sensor:
 tts:
   - platform: google_translate
     language: zh
+
+
+airvisual:
+  api_key: !secret airvisual_api_key
+  geographies:
+    - latitude: !secret alt_latitude
+      longitude: !secret alt_longitude
 
 aligenie:
   expire_hours: 8640
