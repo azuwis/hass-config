@@ -150,7 +150,7 @@ views:
               top: 67%
               left: 89.6%
           - type: state-label
-            entity: sensor.us_air_quality_index
+            entity: sensor.u_s_air_quality_index
             tap_action:
               action: navigate
               navigation_path: /lovelace/history
@@ -250,7 +250,7 @@ views:
             name: Outside
           - entity: sensor.dark_sky_humidity
             name: Outside
-          - entity: sensor.us_air_quality_index
+          - entity: sensor.u_s_air_quality_index
             name: Binjiang
 
   - title: Map
