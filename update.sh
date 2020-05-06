@@ -41,4 +41,4 @@ download www/mini-media-player.js "$mini_media_player"
 simple_thermostat="$(curl --silent https://api.github.com/repos/nervetattoo/simple-thermostat/releases/latest | awk -F'"' '/browser_download_url/ {print $4}')"
 download www/simple-thermostat.js "$simple_thermostat"
 
-download custom_components/aligenie.py https://github.com/feversky/aligenie/raw/master/aligenie.py
+download_multi custom_components/aligenie https://github.com/feversky/aligenie/raw/master/aligenie __init__.py
