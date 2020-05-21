@@ -1,6 +1,6 @@
 diff -Nur a/custom_components/smartir/climate.py b/custom_components/smartir/climate.py
---- a/custom_components/smartir/climate.py	2019-07-16 17:17:54.638669020 +0800
-+++ b/custom_components/smartir/climate.py	2019-07-16 17:18:01.258566869 +0800
+--- a/custom_components/smartir/climate.py	2020-05-21 15:36:21.529649649 +0800
++++ b/custom_components/smartir/climate.py	2020-05-21 15:37:37.944450458 +0800
 @@ -30,6 +30,7 @@
  CONF_CONTROLLER_DATA = "controller_data"
  CONF_TEMPERATURE_SENSOR = 'temperature_sensor'
@@ -47,20 +47,23 @@ diff -Nur a/custom_components/smartir/climate.py b/custom_components/smartir/cli
          if self._power_sensor:
              async_track_state_change(self.hass, self._power_sensor, 
                                       self._async_power_sensor_changed)
-@@ -327,6 +338,12 @@
+@@ -327,7 +338,14 @@
+                 target_temperature = '{0:g}'.format(self._target_temperature)
  
-             if operation_mode.lower() == HVAC_MODE_OFF:
-                 command = self._commands['off']
-+                if 'operation' in self._off_flags:
-+                    command = command[self._last_on_operation]
-+                if 'fan' in self._off_flags:
-+                    command = command[fan_mode]
-+                if 'temperature' in self._off_flags:
-+                    command = command[target_temperature]
-             else:
-                 command = self._commands[operation_mode][fan_mode][target_temperature]
+                 if operation_mode.lower() == HVAC_MODE_OFF:
+-                    await self._controller.send(self._commands['off'])
++                    command = self._commands['off']
++                    if 'operation' in self._off_flags:
++                        command = command[self._last_on_operation]
++                    if 'fan' in self._off_flags:
++                        command = command[fan_mode]
++                    if 'temperature' in self._off_flags:
++                        command = command[target_temperature]
++                    await self._controller.send(command)
+                     return
  
-@@ -351,6 +368,16 @@
+                 if 'on' in self._commands:
+@@ -356,6 +374,16 @@
          self._async_update_humidity(new_state)
          await self.async_update_ha_state()
  
@@ -77,22 +80,10 @@ diff -Nur a/custom_components/smartir/climate.py b/custom_components/smartir/cli
      async def _async_power_sensor_changed(self, entity_id, old_state, new_state):
          """Handle power sensor changes."""
          if new_state is None:
-diff -Nur a/custom_components/smartir/codes/climate/1180.json b/custom_components/smartir/codes/climate/1180.json
---- a/custom_components/smartir/codes/climate/1180.json	2019-07-16 17:18:01.242567116 +0800
-+++ b/custom_components/smartir/codes/climate/1180.json	2019-07-16 17:18:01.258566869 +0800
-@@ -18,8 +18,14 @@
-     "high",
-     "auto"
-   ],
-+  "offFlags": [
-+    "operation"
-+  ],
-   "commands": {
--    "off": "JgCSAAABKZMWNhYSFhIVEhYSFjYWEhUSFjUXEhUSFjUXEhYSFRIWEhYSFRIWEhYSFRIWNhYSFRIWEhYSFRIWEhY1FxEWNRcSFhIVNxUSFgACkBcRFhIWEhUSFhIWEhUSFhIWEhUSFhIWEhUSFjUXEhYSFRIWEhYRFhIWEhYRFhIWEhYRFhIWEhYSFRIWNhY1FxIVAA0FAAAAAAAA",
-+    "off": {
-+      "cool": "JgCSAAABIpMUNxQTFRIUFBUSExQVEhQUFBMTOBQTEzgVEhQUFRITFRQSFBQVEhMVFBIUFBUSExUUExMUFRITFRQ2FBQUNxQTFRITOBUTEwACiBMUFRITFRQSFBQVEhMVFBMTFBUSExUUExMUFTYTFBUSFBQVEhMVFBIUFBUSExUUExMUFRITFRQTEzgUNxM4FBMTAA0FAAAAAAAA",
-+      "heat": "JgCSAAABIpQUExMUFTYTFBUSFBQVEhMVFBMTFBU2ExQVEhQUFRITFBUTExQVEhMVFBMTFBUSExUUExMUFRITFRQ3ExQVNhMUFRIUOBQTEwACiRIVFBMTFBUSExUUExMUFRITFRQTExQVEhQUFDcTFBUSExUUExMUFRMTFBUSExQVEhQUFRITFRQTExQVEhM5FBMTAA0FAAAAAAAA"
-+    },
-     "cool": {
-       "low": {
-         "16": "JgCSAAABKZIXNRcQFxEXNRc1FxEWERcRFxEWERcRFxEWERcRFxAXERcRFxAXERcRFhEXNRcRFxEWERcRFxEWERc1FxEWNhYRFxEXNRcQFwACkBcRFhEXERcRFhEXERcQFxEXERcQFxEXERcQFzUXERcRFhEXERcRFhEXERcRFhEXERcRFhEXERcRFjUXERc1FxEWAA0FAAAAAAAA",
+@@ -387,4 +415,4 @@
+             if state.state != STATE_UNKNOWN:
+                 self._current_humidity = float(state.state)
+         except ValueError as ex:
+-            _LOGGER.error("Unable to update from humidity sensor: %s", ex)
+\ No newline at end of file
++            _LOGGER.error("Unable to update from humidity sensor: %s", ex)
