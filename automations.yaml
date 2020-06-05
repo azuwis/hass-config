@@ -1,9 +1,9 @@
 ##### Button #####
 
-- alias: Button 1 single
+- alias: Button a single
   trigger:
     platform: mqtt
-    topic: zigbee2mqtt/button_1
+    topic: zigbee2mqtt/button_a
   condition:
     condition: template
     value_template: >-
@@ -13,10 +13,10 @@
     data:
       entity_id: switch.light_living_room
 
-- alias: Button 1 long
+- alias: Button a long
   trigger:
     platform: mqtt
-    topic: zigbee2mqtt/button_1
+    topic: zigbee2mqtt/button_a
   condition:
     condition: template
     value_template: >-
@@ -26,10 +26,10 @@
     data:
       entity_id: switch.reading_living_room
 
-- alias: Button 2 activate doorbell
+- alias: Button b activate doorbell
   trigger:
     platform: mqtt
-    topic: zigbee2mqtt/button_2
+    topic: zigbee2mqtt/button_b
   condition:
     - condition: template
       value_template: >-
@@ -43,10 +43,10 @@
       filename: audio/dingdong.ogg
       volume: 45000
 
-- alias: Button 3 single
+- alias: Button c single
   trigger:
     platform: mqtt
-    topic: zigbee2mqtt/button_3
+    topic: zigbee2mqtt/button_c
   condition:
     condition: template
     value_template: >-
@@ -56,10 +56,10 @@
     data:
       entity_id: light.bedroom
 
-- alias: Button 3 long
+- alias: Button c long
   trigger:
     platform: mqtt
-    topic: zigbee2mqtt/button_3
+    topic: zigbee2mqtt/button_c
   condition:
     condition: template
     value_template: >-
