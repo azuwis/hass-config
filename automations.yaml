@@ -348,6 +348,37 @@
       data:
         entity_id: switch.moonlight_living_room
 
+- alias: Light kitchen off when sensor off
+  trigger:
+    platform: state
+    entity_id: binary_sensor.motion_dining_room
+    from: 'on'
+    to: 'off'
+    for: '00:05:00'
+  condition:
+    condition: state
+    entity_id: light.kitchen
+    state: 'on'
+  action:
+    service: light.turn_off
+    data:
+      entity_id: light.kitchen
+
+- alias: Light kitchen on when sensor on
+  trigger:
+    platform: state
+    entity_id: binary_sensor.motion_dining_room
+    from: 'off'
+    to: 'on'
+  condition:
+    condition: state
+    entity_id: light.kitchen
+    state: 'off'
+  action:
+    service: light.turn_on
+    data:
+      entity_id: light.kitchen
+
 # - alias: Nightlight bedroom auto off
 #   trigger:
 #     platform: state
