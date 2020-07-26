@@ -410,6 +410,10 @@ yeelight:
         name: Bedroom
         model: ceiling3
         transition: 1000
+      !secret yeelight_kitchen_host:
+        name: Kitchen
+        model: mono1
+        transition: 1000
 
 media_player:
   - platform: braviatv_psk

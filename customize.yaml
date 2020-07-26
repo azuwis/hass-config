@@ -32,3 +32,8 @@ sensor.ht_bedroom_humidity:
   hagenie_deviceName: 湿度
   hagenie_deviceType: sensor
   hagenie_zone: 卧室
+
+light.kitchen:
+  hagenie_deviceName: 灯
+  hagenie_deviceType: light
+  hagenie_zone: 厨房

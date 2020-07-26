@@ -127,7 +127,12 @@ views:
             entity: binary_sensor.smoke_smoke
             style:
               top: 44%
-              left: 78%
+              left: 77%
+          - type: state-icon
+            entity: light.kitchen
+            style:
+              top: 50%
+              left: 82%
           # outside
           - type: state-label
             entity: sensor.dark_sky_apparent_temperature
