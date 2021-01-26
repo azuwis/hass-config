@@ -291,7 +291,7 @@ sensor:
 
 tts:
   - platform: google_translate
-    language: zh
+    language: zh-cn
 
 
 airvisual:

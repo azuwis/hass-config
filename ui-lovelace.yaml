@@ -269,10 +269,11 @@ views:
           - device_tracker.device_2
           - zone.home
           - zone.work
+        hours_to_show: 24
 
   - title: Settings
     path: settings
-    icon: mdi:settings
+    icon: mdi:cog
     cards:
       - type: entities
         entities:
