@@ -145,6 +145,15 @@
 #       entity_id: climate.bedroom
 #       operation_mode: 'off'
 
+# - alias: Climate living room auto on
+#   trigger:
+#     platform: time
+#     at: '11:00:00'
+#   action:
+#     service: climate.turn_on
+#     data:
+#       entity_id: climate.bedroom
+
 - alias: Climate bedroom off when door open
   trigger:
     platform: state
@@ -354,7 +363,6 @@
     entity_id: binary_sensor.motion_dining_room
     from: 'on'
     to: 'off'
-    for: '00:05:00'
   condition:
     condition: state
     entity_id: light.kitchen
