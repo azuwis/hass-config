@@ -1,34 +1,34 @@
 diff -Nur a/custom_components/smartir/climate.py b/custom_components/smartir/climate.py
---- a/custom_components/smartir/climate.py	2020-05-21 15:36:21.529649649 +0800
-+++ b/custom_components/smartir/climate.py	2020-05-21 15:37:37.944450458 +0800
-@@ -30,6 +30,7 @@
- CONF_CONTROLLER_DATA = "controller_data"
+--- a/custom_components/smartir/climate.py
++++ b/custom_components/smartir/climate.py
+@@ -32,6 +32,7 @@
+ CONF_DELAY = "delay"
  CONF_TEMPERATURE_SENSOR = 'temperature_sensor'
  CONF_HUMIDITY_SENSOR = 'humidity_sensor'
 +CONF_MODE_SENSOR = 'mode_sensor'
  CONF_POWER_SENSOR = 'power_sensor'
+ CONF_POWER_SENSOR_RESTORE_STATE = 'power_sensor_restore_state'
  
- SUPPORT_FLAGS = (
-@@ -44,6 +45,7 @@
-     vol.Required(CONF_CONTROLLER_DATA): cv.string,
+@@ -48,6 +49,7 @@
+     vol.Optional(CONF_DELAY, default=DEFAULT_DELAY): cv.positive_float,
      vol.Optional(CONF_TEMPERATURE_SENSOR): cv.entity_id,
      vol.Optional(CONF_HUMIDITY_SENSOR): cv.entity_id,
 +    vol.Optional(CONF_MODE_SENSOR): cv.entity_id,
-     vol.Optional(CONF_POWER_SENSOR): cv.entity_id
+     vol.Optional(CONF_POWER_SENSOR): cv.entity_id,
+     vol.Optional(CONF_POWER_SENSOR_RESTORE_STATE, default=False): cv.boolean
  })
- 
-@@ -96,6 +98,7 @@
-         self._controller_data = config.get(CONF_CONTROLLER_DATA)
+@@ -102,6 +104,7 @@
+         self._delay = config.get(CONF_DELAY)
          self._temperature_sensor = config.get(CONF_TEMPERATURE_SENSOR)
          self._humidity_sensor = config.get(CONF_HUMIDITY_SENSOR)
 +        self._mode_sensor = config.get(CONF_MODE_SENSOR)
          self._power_sensor = config.get(CONF_POWER_SENSOR)
+         self._power_sensor_restore_state = config.get(CONF_POWER_SENSOR_RESTORE_STATE)
  
-         self._manufacturer = device_data['manufacturer']
-@@ -110,6 +113,10 @@
- 
+@@ -118,6 +121,10 @@
          self._operation_modes = [HVAC_MODE_OFF] + valid_hvac_modes
          self._fan_modes = device_data['fanModes']
+         self._swing_modes = device_data.get('swingModes')
 +        if 'offFlags' in device_data:
 +            self._off_flags = device_data['offFlags']
 +        else:
@@ -36,7 +36,7 @@ diff -Nur a/custom_components/smartir/climate.py b/custom_components/smartir/cli
          self._commands = device_data['commands']
  
          self._target_temperature = self._min_temperature
-@@ -163,6 +170,10 @@
+@@ -182,6 +189,10 @@
              if humidity_sensor_state and humidity_sensor_state.state != STATE_UNKNOWN:
                  self._async_update_humidity(humidity_sensor_state)
  
@@ -47,7 +47,7 @@ diff -Nur a/custom_components/smartir/climate.py b/custom_components/smartir/cli
          if self._power_sensor:
              async_track_state_change(self.hass, self._power_sensor, 
                                       self._async_power_sensor_changed)
-@@ -327,7 +338,14 @@
+@@ -363,7 +374,14 @@
                  target_temperature = '{0:g}'.format(self._target_temperature)
  
                  if operation_mode.lower() == HVAC_MODE_OFF:
@@ -63,7 +63,7 @@ diff -Nur a/custom_components/smartir/climate.py b/custom_components/smartir/cli
                      return
  
                  if 'on' in self._commands:
-@@ -356,6 +374,16 @@
+@@ -396,6 +414,16 @@
          self._async_update_humidity(new_state)
          await self.async_update_ha_state()
  
@@ -80,10 +80,3 @@ diff -Nur a/custom_components/smartir/climate.py b/custom_components/smartir/cli
      async def _async_power_sensor_changed(self, entity_id, old_state, new_state):
          """Handle power sensor changes."""
          if new_state is None:
-@@ -387,4 +415,4 @@
-             if state.state != STATE_UNKNOWN:
-                 self._current_humidity = float(state.state)
-         except ValueError as ex:
--            _LOGGER.error("Unable to update from humidity sensor: %s", ex)
-\ No newline at end of file
-+            _LOGGER.error("Unable to update from humidity sensor: %s", ex)
